@@ -53,7 +53,7 @@ export default defineConfig({
         '**/auth/director-signup.spec.ts',
         '**/groups/my-groups.spec.ts',
         '**/groups/roster.spec.ts',
-        '**/groups/performance.spec.ts',
+        '**/groups/performance*.spec.ts',
       ],
     },
     {

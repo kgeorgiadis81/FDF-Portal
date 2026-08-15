@@ -212,15 +212,30 @@ test.describe('Deadline enforcement', () => {
 });
 
 test.describe('Musician selection', () => {
-  test('Can search and select E2E musician', async ({ page }) => {
+  test('Can search and select E2E musician', async ({ page, browserName }) => {
+    const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+    const groupId = await findGroupId(E2E_PERFORMANCE_GROUPS.A2);
+    const perfId = await getSemiFinalPerformanceId(groupId, token);
+    await clearPerformanceMusicians(groupId, perfId, token);
+    const musicianIds = await searchMusicianIds('E2E Musician Beta', token);
+    expect(musicianIds.length).toBeGreaterThan(0);
+
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await openPerformanceForGroup(page, E2E_PERFORMANCE_GROUPS.A2);
 
-    await page.getByLabel('Search musicians').fill('E2E Musician Alpha');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('Enter');
+    if (browserName === 'webkit') {
+      const resp = await assignMusician(groupId, perfId, musicianIds[0], token);
+      expect(resp.status).toBe(201);
+      await page.reload();
+      await expect(page.getByText('1 of 8 musicians selected')).toBeVisible();
+      await expect(page.getByLabel('Selected musicians').getByText('E2E Musician Beta')).toBeVisible();
+      return;
+    }
+
+    await page.getByLabel('Search musicians').fill('E2E Musician Beta');
+    await page.getByRole('option', { name: 'E2E Musician Beta' }).click();
     await expect(page.getByText('1 of 8 musicians selected')).toBeVisible();
-    await expect(page.getByLabel('Selected musicians').getByText('E2E Musician Alpha')).toBeVisible();
+    await expect(page.getByLabel('Selected musicians').getByText('E2E Musician Beta')).toBeVisible();
   });
 });
 

@@ -22,6 +22,53 @@ export const E2E_PERFORMANCE_GROUPS = {
 export const PERFORMANCE_DEADLINE_FUTURE = '2030-02-05';
 export const PERFORMANCE_DEADLINE_PAST = '2020-02-05';
 
+export type PerformanceApiResponse = {
+  performances: Array<{
+    id: number;
+    round: string;
+    entries: Array<{
+      id: number;
+      name: string;
+      entry_order: number;
+      choral_classification?: string | null;
+      region?: string | null;
+      village?: string | null;
+      uses_live_music?: boolean;
+      uses_recorded_music?: boolean;
+    }>;
+    musicians: Array<{ musician_id: number; display_name: string }>;
+    instruments: Array<{
+      id: number;
+      instrument_id: number;
+      code: string;
+      name_en: string;
+      custom_name: string | null;
+    }>;
+  }>;
+};
+
+export type DirectorConflictsResponse = {
+  dancer_conflicts: Array<{
+    type: string;
+    round: string;
+    first_name: string;
+    last_name: string;
+    other_groups: Array<{ group_name: string; parish_name: string | null }>;
+  }>;
+  director_conflicts: Array<{
+    type: string;
+    round: string;
+    other_group_names?: string[];
+    member_group_name?: string;
+  }>;
+  musician_conflicts: Array<{
+    type: string;
+    round: string;
+    musician_name: string;
+    other_groups: Array<{ group_name: string; parish_name: string | null }>;
+  }>;
+};
+
 export async function setPerformanceDeadline(
   submissionType: 'DANCE_PERFORMANCE' | 'CHORAL_PERFORMANCE',
   deadlineDate: string,
@@ -63,31 +110,39 @@ export async function findGroupId(
   return group.id;
 }
 
-export async function getPerformanceData(groupId: number, token?: string): Promise<unknown> {
+export async function getPerformanceData(
+  groupId: number,
+  token?: string,
+): Promise<PerformanceApiResponse> {
   const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
   const resp = await fetch(`${PORTAL_API_URL}/groups/${groupId}/performance`, {
     headers: { Authorization: `Bearer ${auth}` },
   });
+  return resp.json() as Promise<PerformanceApiResponse>;
+}
+
+export async function getPerformanceContext(groupId: number, token?: string): Promise<{
+  submissionType: string;
+  submission: { submitted_at: string } | null;
+  deadline: { can_edit: boolean; deadline_date: string | null };
+}> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  const resp = await fetch(`${PORTAL_API_URL}/portal/groups/${groupId}/performance-context`, {
+    headers: { Authorization: `Bearer ${auth}` },
+  });
+  if (!resp.ok) throw new Error(`performance-context failed: ${resp.status}`);
   return resp.json();
 }
 
-type PerformanceApiResponse = {
-  performances: Array<{
-    id: number;
-    round: string;
-    entries: Array<{ id: number; name: string; entry_order: number }>;
-  }>;
-};
-
 export async function getSemiFinalPerformanceId(groupId: number, token?: string): Promise<number> {
-  const data = await getPerformanceData(groupId, token) as PerformanceApiResponse;
+  const data = await getPerformanceData(groupId, token);
   const perf = data.performances.find((p) => p.round === 'Semi-Final');
   if (!perf) throw new Error('Semi-Final performance not found');
   return perf.id;
 }
 
 export async function getFinalPerformanceId(groupId: number, token?: string): Promise<number> {
-  const data = await getPerformanceData(groupId, token) as PerformanceApiResponse;
+  const data = await getPerformanceData(groupId, token);
   const perf = data.performances.find((p) => p.round === 'Final');
   if (!perf) throw new Error('Final performance not found');
   return perf.id;
@@ -111,6 +166,32 @@ export async function createPerformanceEntry(
   if (!resp.ok) {
     const body = await resp.json().catch(() => ({}));
     throw Object.assign(new Error(`createPerformanceEntry failed: ${resp.status}`), { status: resp.status, body });
+  }
+  return resp.json();
+}
+
+export async function updatePerformanceEntry(
+  groupId: number,
+  performanceId: number,
+  entryId: number,
+  payload: Record<string, unknown>,
+  token?: string,
+): Promise<Record<string, unknown>> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  const resp = await fetch(
+    `${PORTAL_API_URL}/groups/${groupId}/performance/${performanceId}/entries/${entryId}`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${auth}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({}));
+    throw Object.assign(new Error(`updatePerformanceEntry failed: ${resp.status}`), { status: resp.status, body });
   }
   return resp.json();
 }
@@ -180,9 +261,7 @@ export async function clearPerformanceMusicians(
   token?: string,
 ): Promise<void> {
   const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
-  const data = await getPerformanceData(groupId, auth) as {
-    performances: Array<{ id: number; musicians: Array<{ musician_id: number }> }>;
-  };
+  const data = await getPerformanceData(groupId, auth);
   const perf = data.performances.find((p) => p.id === performanceId);
   if (!perf) return;
   for (const m of perf.musicians ?? []) {
@@ -191,6 +270,107 @@ export async function clearPerformanceMusicians(
       headers: { Authorization: `Bearer ${auth}` },
     });
   }
+}
+
+export async function getInstrumentsCatalog(token?: string): Promise<Array<{
+  id: number;
+  code: string;
+  name_en: string;
+}>> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  const resp = await fetch(`${PORTAL_API_URL}/instruments`, {
+    headers: { Authorization: `Bearer ${auth}` },
+  });
+  return resp.json();
+}
+
+export async function assignInstrument(
+  groupId: number,
+  performanceId: number,
+  instrumentId: number,
+  customName?: string,
+  token?: string,
+): Promise<Response> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  return fetch(`${PORTAL_API_URL}/groups/${groupId}/performance/${performanceId}/instruments`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${auth}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      instrument_id: instrumentId,
+      ...(customName != null ? { custom_name: customName } : {}),
+    }),
+  });
+}
+
+export async function removeInstrument(
+  groupId: number,
+  performanceId: number,
+  assignmentId: number,
+  token?: string,
+): Promise<Response> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  return fetch(`${PORTAL_API_URL}/groups/${groupId}/performance/${performanceId}/instruments/${assignmentId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${auth}` },
+  });
+}
+
+export async function clearPerformanceInstruments(
+  groupId: number,
+  performanceId: number,
+  token?: string,
+): Promise<void> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  const data = await getPerformanceData(groupId, auth);
+  const perf = data.performances.find((p) => p.id === performanceId);
+  if (!perf) return;
+  for (const i of perf.instruments ?? []) {
+    await removeInstrument(groupId, performanceId, i.id, auth);
+  }
+}
+
+export async function submitPerformanceRegistration(
+  groupId: number,
+  submissionType: 'DANCE_PERFORMANCE' | 'CHORAL_PERFORMANCE',
+  token?: string,
+): Promise<Response> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  return fetch(`${PORTAL_API_URL}/groups/${groupId}/submissions`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${auth}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ submission_type: submissionType }),
+  });
+}
+
+export async function getPerformanceConflicts(
+  groupId: number,
+  round?: string,
+  token?: string,
+): Promise<DirectorConflictsResponse> {
+  const auth = token ?? await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+  const qs = round ? `?round=${encodeURIComponent(round)}` : '';
+  const resp = await fetch(`${PORTAL_API_URL}/groups/${groupId}/performance/conflicts${qs}`, {
+    headers: { Authorization: `Bearer ${auth}` },
+  });
+  return resp.json();
+}
+
+export async function getAdminGroupPerformances(
+  groupId: number,
+  token?: string,
+): Promise<unknown> {
+  const auth = token ?? await adminApiLogin('e2e_reg_admin');
+  const resp = await fetch(`${PORTAL_API_URL}/groups/${groupId}`, {
+    headers: { Authorization: `Bearer ${auth}` },
+  });
+  if (!resp.ok) throw new Error(`admin group fetch failed: ${resp.status}`);
+  return resp.json();
 }
 
 export { DIRECTOR_A, DIRECTOR_B, portalApiLogin, PORTAL_API_URL };
