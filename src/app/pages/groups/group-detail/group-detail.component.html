@@ -89,6 +89,27 @@
             Manage Roster
           </a>
         </div>
+
+        <div class="performance-nav">
+          <div class="roster-overview">
+            <mat-icon class="roster-icon">theater_comedy</mat-icon>
+            <div class="roster-overview-info">
+              <span class="roster-heading">Performance</span>
+              @if (group()!.performanceSubmittedAt) {
+                <span class="roster-status submitted">Submitted</span>
+              } @else {
+                <span class="roster-status not-started">Not submitted</span>
+              }
+            </div>
+          </div>
+          <a [routerLink]="['/groups', group()!.id, 'performance']"
+             mat-stroked-button
+             class="performance-link"
+             aria-label="Manage this group's performance registration">
+            <mat-icon>theater_comedy</mat-icon>
+            Manage Performance
+          </a>
+        </div>
       }
     } @else {
       <!-- Edit form -->

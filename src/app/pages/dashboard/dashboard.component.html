@@ -74,22 +74,29 @@
             @if (group.parish?.location) { · {{ group.parish?.location }} }
           </p>
           <div class="group-footer">
-            <!-- Roster status -->
-            <div class="roster-status">
-              <mat-icon class="roster-icon">people</mat-icon>
-              @if (group.rosterSubmittedAt) {
-                <span class="roster-label submitted">
-                  Roster submitted
-                </span>
-              } @else if (group.rosterMemberCount > 0) {
-                <span class="roster-label in-progress">
-                  {{ group.rosterMemberCount }} participant{{ group.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
-                </span>
-              } @else {
-                <span class="roster-label not-started">
-                  Roster not started
-                </span>
-              }
+            <div class="registration-status">
+              <!-- Roster status -->
+              <div class="status-row roster-status">
+                <mat-icon class="status-icon">people</mat-icon>
+                @if (group.rosterSubmittedAt) {
+                  <span class="status-label submitted">Roster submitted</span>
+                } @else if (group.rosterMemberCount > 0) {
+                  <span class="status-label in-progress">
+                    Roster · {{ group.rosterMemberCount }} participant{{ group.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
+                  </span>
+                } @else {
+                  <span class="status-label not-started">Roster not started</span>
+                }
+              </div>
+              <!-- Performance status -->
+              <div class="status-row performance-status">
+                <mat-icon class="status-icon">theater_comedy</mat-icon>
+                @if (group.performanceSubmittedAt) {
+                  <span class="status-label submitted">Performance submitted</span>
+                } @else {
+                  <span class="status-label not-started">Performance not submitted</span>
+                }
+              </div>
             </div>
             <mat-icon class="arrow">chevron_right</mat-icon>
           </div>

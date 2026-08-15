@@ -148,24 +148,38 @@
 
     .arrow { color: var(--color-text-muted); }
 
-    .roster-status {
+    .registration-status {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .status-row {
       display: flex;
       align-items: center;
       gap: 4px;
       font-size: 0.8rem;
 
-      .roster-icon {
+      .status-icon {
         font-size: 1rem;
         width: 1rem;
         height: 1rem;
         color: var(--color-text-muted);
       }
 
-      .roster-label {
+      .status-label {
         &.submitted  { color: var(--color-success, #2e7d32); font-weight: 500; }
         &.in-progress { color: var(--color-primary); }
         &.not-started { color: var(--color-text-muted); }
       }
+    }
+
+    /* Legacy class used by roster E2E */
+    .roster-status {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
     }
   }
 }

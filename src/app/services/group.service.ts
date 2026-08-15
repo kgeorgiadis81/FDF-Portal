@@ -12,6 +12,7 @@ export interface PortalGroup {
   isReadOnly: boolean;
   rosterMemberCount: number;
   rosterSubmittedAt: string | null;
+  performanceSubmittedAt?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

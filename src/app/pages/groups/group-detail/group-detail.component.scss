@@ -53,7 +53,8 @@
   @media (max-width: 400px) { grid-template-columns: 1fr; gap: .15rem; }
 }
 
-.roster-nav {
+.roster-nav,
+.performance-nav {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
@@ -95,7 +96,8 @@
     }
   }
 
-  .roster-link {
+  .roster-link,
+  .performance-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
