@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RosterMember } from '../../../../services/roster.service';
+import { ContextHelpComponent } from '../../../../shared/context-help/context-help.component';
 
 export interface ParticipantDialogData {
   member?: RosterMember;
@@ -39,6 +40,7 @@ function notFutureDateValidator(control: AbstractControl) {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    ContextHelpComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -47,7 +49,12 @@ function notFutureDateValidator(control: AbstractControl) {
     <mat-dialog-content>
       <form [formGroup]="form" novalidate>
         <mat-form-field>
-          <mat-label>First Name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>First Name</span>
+              <app-context-help helpKey="roster.firstName" label="Participant First Name" />
+            </span>
+          </mat-label>
           <input matInput formControlName="first_name"
                  autocomplete="off"
                  maxlength="100" />
@@ -57,7 +64,12 @@ function notFutureDateValidator(control: AbstractControl) {
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Last Name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Last Name</span>
+              <app-context-help helpKey="roster.lastName" label="Participant Last Name" />
+            </span>
+          </mat-label>
           <input matInput formControlName="last_name"
                  autocomplete="off"
                  maxlength="100" />
@@ -67,7 +79,12 @@ function notFutureDateValidator(control: AbstractControl) {
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Date of Birth</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Date of Birth</span>
+              <app-context-help helpKey="roster.dateOfBirth" label="Date of Birth" />
+            </span>
+          </mat-label>
           <input matInput formControlName="date_of_birth"
                  type="date"
                  autocomplete="off"

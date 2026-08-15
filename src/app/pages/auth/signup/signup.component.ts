@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../services/auth.service';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 function passwordsMatchValidator(group: AbstractControl) {
   const pw  = group.get('password')?.value;
@@ -21,6 +22,7 @@ function passwordsMatchValidator(group: AbstractControl) {
     ReactiveFormsModule, RouterLink,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCheckboxModule, MatProgressSpinnerModule,
+    ContextHelpComponent,
   ],
   templateUrl: './signup.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

@@ -46,7 +46,12 @@
       <div class="deadline-card fdp-card">
         <mat-icon>event</mat-icon>
         <div class="deadline-info">
-          <span class="deadline-label">Roster Deadline</span>
+          <span class="deadline-label">
+            <span class="fdp-section-label-with-help">
+              <span>Roster Deadline</span>
+              <app-context-help helpKey="deadline.section" label="Deadline" />
+            </span>
+          </span>
           <span class="deadline-date">{{ formatDeadlineDate(context()!.deadline.deadline_date) }}</span>
           @if (context()!.deadline.effective_cutoff && canEdit()) {
             <span class="deadline-cutoff">
@@ -62,7 +67,10 @@
     @if (context()!.submission?.submitted_at) {
       <div class="submitted-banner" role="status">
         <mat-icon>check_circle</mat-icon>
-        <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+        <span class="fdp-section-label-with-help">
+          <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+          <app-context-help helpKey="deadline.submitted" label="Submitted" />
+        </span>
       </div>
     }
 
@@ -178,6 +186,10 @@
         <div class="chaperone-requirement" role="status"
              [class.satisfied]="context()!.summary.chaperone_requirement_satisfied"
              [class.unsatisfied]="!context()!.summary.chaperone_requirement_satisfied">
+          <div class="fdp-section-label-with-help chaperone-requirement-label">
+            <span>Chaperone Requirement</span>
+            <app-context-help helpKey="roster.chaperoneRequirement" label="Chaperone Requirement" />
+          </div>
           <div class="chaperone-stats">
             <span>
               <strong>{{ context()!.summary.minor_count }}</strong>
@@ -255,7 +267,12 @@
     <!-- ── Submission section ────────────────────────────────────────── -->
     @if (canEdit()) {
       <section class="roster-section fdp-card submission-section" aria-labelledby="submit-heading">
-        <h2 id="submit-heading">Submit Roster</h2>
+        <h2 id="submit-heading">
+          <span class="fdp-section-label-with-help">
+            <span>Submit Roster</span>
+            <app-context-help helpKey="roster.submitRoster" label="Submit Roster" />
+          </span>
+        </h2>
 
         @if (submissionValidation; as val) {
           <div class="submission-summary" role="region" aria-label="Roster submission summary">

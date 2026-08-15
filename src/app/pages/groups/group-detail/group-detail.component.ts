@@ -17,6 +17,7 @@ import { GroupService, PortalGroup } from '../../../services/group.service';
 import { ParishService, Parish } from '../../../services/parish.service';
 import { DirectorService, GroupDirector, CoDirectorPayload } from '../../../services/director.service';
 import { CoDirectorDialogComponent } from './co-director-dialog.component';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 @Component({
   selector: 'fdp-group-detail',
@@ -25,6 +26,7 @@ import { CoDirectorDialogComponent } from './co-director-dialog.component';
     MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatAutocompleteModule,
     MatProgressSpinnerModule, MatDialogModule, MatSnackBarModule,
+    ContextHelpComponent,
   ],
   templateUrl: './group-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

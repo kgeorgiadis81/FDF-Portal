@@ -23,6 +23,7 @@ import {
 } from '../../../services/performance.service';
 import { EntryDialogComponent, EntryDialogData } from './entry-dialog/entry-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 @Component({
   selector: 'fdp-performance',
@@ -32,6 +33,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confi
     MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule,
     MatCheckboxModule, MatFormFieldModule, MatInputModule,
     MatAutocompleteModule, MatChipsModule, DragDropModule,
+    ContextHelpComponent,
   ],
   templateUrl: './performance.component.html',
   styleUrl: './performance.component.scss',

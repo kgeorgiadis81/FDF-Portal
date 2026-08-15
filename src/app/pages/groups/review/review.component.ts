@@ -8,10 +8,11 @@ import {
   RegistrationSummary,
   DeadlineInfo,
 } from '../../../services/registration-summary.service';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 @Component({
   selector: 'fdp-review',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule, ContextHelpComponent],
   templateUrl: './review.component.html',
   styleUrl: './review.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,

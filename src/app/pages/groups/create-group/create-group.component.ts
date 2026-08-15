@@ -13,6 +13,7 @@ import { startWith, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { GroupService } from '../../../services/group.service';
 import { ParishService, Parish } from '../../../services/parish.service';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 @Component({
   selector: 'fdp-create-group',
@@ -20,7 +21,7 @@ import { ParishService, Parish } from '../../../services/parish.service';
     ReactiveFormsModule, RouterLink, AsyncPipe,
     MatFormFieldModule, MatInputModule, MatButtonModule,
     MatSelectModule, MatAutocompleteModule, MatIconModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule, ContextHelpComponent,
   ],
   templateUrl: './create-group.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

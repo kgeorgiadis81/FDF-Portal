@@ -20,7 +20,12 @@
   </div>
 
   <mat-form-field>
-    <mat-label>Date of birth</mat-label>
+    <mat-label>
+      <span class="fdp-label-with-help">
+        <span>Date of birth</span>
+        <app-context-help helpKey="signup.dateOfBirth" label="Date of birth" />
+      </span>
+    </mat-label>
     <input matInput type="date" formControlName="dateOfBirth"
            [max]="today" autocomplete="bday" />
     @if (form.get('dateOfBirth')?.invalid && form.get('dateOfBirth')?.touched) {
@@ -68,8 +73,13 @@
 
   <div class="consent-row">
     <mat-checkbox formControlName="consentAccepted" color="primary">
-      I have read and accept the FDF Portal
-      <a href="#" target="_blank" rel="noopener">Privacy & Data Responsibility</a> terms.
+      <span class="fdp-label-with-help">
+        <span>
+          I have read and accept the FDF Portal
+          <a href="#" target="_blank" rel="noopener">Privacy & Data Responsibility</a> terms.
+        </span>
+        <app-context-help helpKey="signup.consent" label="Consent" />
+      </span>
     </mat-checkbox>
     @if (form.get('consentAccepted')?.invalid && form.get('consentAccepted')?.touched) {
       <p class="consent-error">You must accept the terms to continue.</p>

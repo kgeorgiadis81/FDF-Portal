@@ -23,6 +23,7 @@ import {
   PerformanceCostume, ManualCostumeConflict, RelatedGroupOption, CostumeFormPayload,
 } from '../../../services/costume.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 type GenderSection = {
   gender: CostumeGender;
@@ -38,7 +39,7 @@ type GenderSection = {
     MatDialogModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatTabsModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule,
-    MatAutocompleteModule,
+    MatAutocompleteModule, ContextHelpComponent,
   ],
   templateUrl: './costumes.component.html',
   styleUrl: './costumes.component.scss',

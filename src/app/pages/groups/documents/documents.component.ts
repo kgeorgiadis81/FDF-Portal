@@ -11,6 +11,7 @@ import { DatePipe } from '@angular/common';
 import {
   DocumentService, DocumentContext, DocumentType, DocumentTypeContext,
 } from '../../../services/document.service';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 interface DocSection {
   type: DocumentType;
@@ -24,6 +25,7 @@ interface DocSection {
   imports: [
     RouterLink, DatePipe,
     MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatSnackBarModule,
+    ContextHelpComponent,
   ],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss',

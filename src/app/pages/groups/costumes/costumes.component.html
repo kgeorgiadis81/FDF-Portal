@@ -42,7 +42,12 @@
       <div class="deadline-card fdp-card">
         <mat-icon>event</mat-icon>
         <div class="deadline-info">
-          <span class="deadline-label">Costume Information Deadline</span>
+          <span class="deadline-label">
+            <span class="fdp-section-label-with-help">
+              <span>Costume Information Deadline</span>
+              <app-context-help helpKey="deadline.section" label="Deadline" />
+            </span>
+          </span>
           <span class="deadline-date">{{ formatDeadlineDate(context()!.deadline.deadline_date) }}</span>
           @if (context()!.deadline.effective_cutoff && canEdit()) {
             <span class="deadline-cutoff">
@@ -56,7 +61,10 @@
     @if (context()!.submission?.submitted_at) {
       <div class="submitted-banner" role="status">
         <mat-icon>check_circle</mat-icon>
-        <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+        <span class="fdp-section-label-with-help">
+          <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+          <app-context-help helpKey="deadline.submitted" label="Submitted" />
+        </span>
       </div>
     }
 
@@ -85,17 +93,32 @@
                   @if (section.editing) {
                     <form [formGroup]="costumeForm" class="costume-form" (ngSubmit)="saveCostume(section.gender)">
                       <mat-form-field appearance="outline" class="full-field">
-                        <mat-label>Region</mat-label>
+                        <mat-label>
+                          <span class="fdp-label-with-help">
+                            <span>Region</span>
+                            <app-context-help helpKey="costume.region" label="Costume Region" />
+                          </span>
+                        </mat-label>
                         <input matInput formControlName="region" maxlength="500" />
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="full-field">
-                        <mat-label>Village</mat-label>
+                        <mat-label>
+                          <span class="fdp-label-with-help">
+                            <span>Village</span>
+                            <app-context-help helpKey="costume.village" label="Costume Village" />
+                          </span>
+                        </mat-label>
                         <input matInput formControlName="village" maxlength="500" />
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="full-field">
-                        <mat-label>Resources used in creating this costume</mat-label>
+                        <mat-label>
+                          <span class="fdp-label-with-help">
+                            <span>Resources used in creating this costume</span>
+                            <app-context-help helpKey="costume.resources" label="Resources" />
+                          </span>
+                        </mat-label>
                         <mat-select formControlName="resource_type_id">
                           @for (rt of resourceTypes(); track rt.id) {
                             <mat-option [value]="rt.id">{{ rt.label }}</mat-option>
@@ -107,7 +130,12 @@
                       </mat-form-field>
 
                       <fieldset class="bool-fieldset" role="group" aria-labelledby="award-legend-{{ section.gender }}-{{ i }}">
-                        <legend [id]="'award-legend-' + section.gender + '-' + i">Has this costume ever won an award?</legend>
+                        <legend [id]="'award-legend-' + section.gender + '-' + i">
+                          <span class="fdp-section-label-with-help">
+                            <span>Has this costume ever won an award?</span>
+                            <app-context-help helpKey="costume.award" label="Award" />
+                          </span>
+                        </legend>
                         <mat-radio-group formControlName="has_won_award" aria-label="Has this costume ever won an award?">
                           <mat-radio-button [value]="true">Yes</mat-radio-button>
                           <mat-radio-button [value]="false">No</mat-radio-button>
@@ -115,7 +143,12 @@
                       </fieldset>
 
                       <fieldset class="bool-fieldset" role="group" aria-labelledby="purchased-most-legend-{{ section.gender }}-{{ i }}">
-                        <legend [id]="'purchased-most-legend-' + section.gender + '-' + i">Did you purchase most or all of the costume?</legend>
+                        <legend [id]="'purchased-most-legend-' + section.gender + '-' + i">
+                          <span class="fdp-section-label-with-help">
+                            <span>Did you purchase most or all of the costume?</span>
+                            <app-context-help helpKey="costume.purchasedMostAll" label="Purchased Most / All" />
+                          </span>
+                        </legend>
                         <mat-radio-group formControlName="purchased_most_or_all" aria-label="Did you purchase most or all of the costume?">
                           <mat-radio-button [value]="true">Yes</mat-radio-button>
                           <mat-radio-button [value]="false">No</mat-radio-button>
@@ -123,7 +156,12 @@
                       </fieldset>
 
                       <fieldset class="bool-fieldset" role="group" aria-labelledby="purchased-any-legend-{{ section.gender }}-{{ i }}">
-                        <legend [id]="'purchased-any-legend-' + section.gender + '-' + i">Did you purchase any parts of the costume?</legend>
+                        <legend [id]="'purchased-any-legend-' + section.gender + '-' + i">
+                          <span class="fdp-section-label-with-help">
+                            <span>Did you purchase any parts of the costume?</span>
+                            <app-context-help helpKey="costume.purchasedAnyParts" label="Purchased Any Parts" />
+                          </span>
+                        </legend>
                         <mat-radio-group formControlName="purchased_any_parts" aria-label="Did you purchase any parts of the costume?">
                           <mat-radio-button [value]="true">Yes</mat-radio-button>
                           <mat-radio-button [value]="false">No</mat-radio-button>
@@ -181,7 +219,12 @@
             <!-- Shared Costume Conflicts -->
             <section class="fdp-card conflicts-section" aria-labelledby="conflicts-heading">
               <div class="section-header">
-                <h2 id="conflicts-heading">Shared Costume Conflicts</h2>
+                <h2 id="conflicts-heading">
+                  <span class="fdp-section-label-with-help">
+                    <span>Shared Costume Conflicts</span>
+                    <app-context-help helpKey="costume.conflictSection" label="Costume Conflict" />
+                  </span>
+                </h2>
                 @if (canEdit() && !addingConflict() && editingConflictId() === null) {
                   <button mat-stroked-button (click)="startAddConflict()">
                     <mat-icon>add</mat-icon> Add Costume Conflict
@@ -192,7 +235,12 @@
               @if (addingConflict() || editingConflictId() !== null) {
                 <form [formGroup]="conflictForm" class="conflict-form" (ngSubmit)="saveConflict()">
                   <mat-form-field appearance="outline" class="full-field">
-                    <mat-label>Related Group</mat-label>
+                    <mat-label>
+                      <span class="fdp-label-with-help">
+                        <span>Related Group</span>
+                        <app-context-help helpKey="costume.relatedGroup" label="Related Group" />
+                      </span>
+                    </mat-label>
                     <input matInput
                            [value]="relatedGroupSearch()"
                            (input)="relatedGroupSearch.set($any($event.target).value)"
@@ -213,7 +261,12 @@
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="count-field">
-                    <mat-label>Number of Costumes Shared</mat-label>
+                    <mat-label>
+                      <span class="fdp-label-with-help">
+                        <span>Number of Costumes Shared</span>
+                        <app-context-help helpKey="costume.sharedCount" label="Number of Costumes Shared" />
+                      </span>
+                    </mat-label>
                     <input matInput type="number" formControlName="costume_count" min="1" step="1" />
                     @if (conflictForm.get('costume_count')?.invalid && conflictForm.get('costume_count')?.touched) {
                       <mat-error>Enter a positive whole number.</mat-error>

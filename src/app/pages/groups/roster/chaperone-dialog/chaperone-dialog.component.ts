@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Chaperone } from '../../../../services/roster.service';
+import { ContextHelpComponent } from '../../../../shared/context-help/context-help.component';
 
 export interface ChaperoneDialogData {
   chaperone?: Chaperone;
@@ -29,6 +30,7 @@ export interface ChaperoneDialogResult {
     MatInputModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    ContextHelpComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -37,7 +39,12 @@ export interface ChaperoneDialogResult {
     <mat-dialog-content>
       <form [formGroup]="form" novalidate>
         <mat-form-field>
-          <mat-label>First Name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>First Name</span>
+              <app-context-help helpKey="roster.chaperoneName" label="Chaperone Name" />
+            </span>
+          </mat-label>
           <input matInput formControlName="first_name"
                  autocomplete="off"
                  maxlength="100" />
@@ -47,7 +54,12 @@ export interface ChaperoneDialogResult {
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Last Name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Last Name</span>
+              <app-context-help helpKey="roster.chaperoneName" label="Chaperone Name" />
+            </span>
+          </mat-label>
           <input matInput formControlName="last_name"
                  autocomplete="off"
                  maxlength="100" />
@@ -57,7 +69,12 @@ export interface ChaperoneDialogResult {
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Phone Number</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Phone Number</span>
+              <app-context-help helpKey="roster.chaperonePhone" label="Chaperone Phone" />
+            </span>
+          </mat-label>
           <input matInput formControlName="phone"
                  type="tel"
                  autocomplete="off"
@@ -70,7 +87,10 @@ export interface ChaperoneDialogResult {
 
         <div class="age-confirmation">
           <mat-checkbox formControlName="is_21_or_older_confirmed" color="primary">
-            I confirm this chaperone will be at least 21 years old at FDF.
+            <span class="fdp-label-with-help">
+              <span>I confirm this chaperone will be at least 21 years old at FDF.</span>
+              <app-context-help helpKey="roster.chaperone21Plus" label="21+ Confirmation" />
+            </span>
           </mat-checkbox>
         </div>
 

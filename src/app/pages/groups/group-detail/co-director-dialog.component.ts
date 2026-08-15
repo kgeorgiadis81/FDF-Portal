@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { GroupDirector } from '../../../services/director.service';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 export interface CoDirectorDialogData {
   director?: GroupDirector;
@@ -15,6 +16,7 @@ export interface CoDirectorDialogData {
   imports: [
     ReactiveFormsModule, MatDialogModule,
     MatButtonModule, MatFormFieldModule, MatInputModule,
+    ContextHelpComponent,
   ],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
@@ -22,28 +24,48 @@ export interface CoDirectorDialogData {
     <mat-dialog-content>
       <form [formGroup]="form" class="co-dir-form">
         <mat-form-field>
-          <mat-label>First name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>First name</span>
+              <app-context-help helpKey="group.coDirector" label="Co-Director" />
+            </span>
+          </mat-label>
           <input matInput formControlName="first_name" autocomplete="given-name" />
           @if (form.get('first_name')?.invalid && form.get('first_name')?.touched) {
             <mat-error>First name is required.</mat-error>
           }
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Last name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Last name</span>
+              <app-context-help helpKey="group.coDirector" label="Co-Director" />
+            </span>
+          </mat-label>
           <input matInput formControlName="last_name" autocomplete="family-name" />
           @if (form.get('last_name')?.invalid && form.get('last_name')?.touched) {
             <mat-error>Last name is required.</mat-error>
           }
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Email (optional)</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Email (optional)</span>
+              <app-context-help helpKey="group.coDirectorEmail" label="Co-Director Email" />
+            </span>
+          </mat-label>
           <input matInput formControlName="email" type="email" autocomplete="email" />
           @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
             <mat-error>Enter a valid email address.</mat-error>
           }
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Cell phone (optional)</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Cell phone (optional)</span>
+              <app-context-help helpKey="group.coDirectorPhone" label="Co-Director Cell Phone" />
+            </span>
+          </mat-label>
           <input matInput formControlName="cell_phone" type="tel" autocomplete="tel" />
         </mat-form-field>
       </form>

@@ -42,7 +42,12 @@
       <div class="deadline-card fdp-card">
         <mat-icon>event</mat-icon>
         <div class="deadline-info">
-          <span class="deadline-label">Performance Information Deadline</span>
+          <span class="deadline-label">
+            <span class="fdp-section-label-with-help">
+              <span>Performance Information Deadline</span>
+              <app-context-help helpKey="deadline.section" label="Deadline" />
+            </span>
+          </span>
           <span class="deadline-date">{{ formatDeadlineDate(context()!.deadline.deadline_date) }}</span>
           @if (context()!.deadline.effective_cutoff && canEdit()) {
             <span class="deadline-cutoff">
@@ -56,7 +61,10 @@
     @if (context()!.submission?.submitted_at) {
       <div class="submitted-banner" role="status">
         <mat-icon>check_circle</mat-icon>
-        <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+        <span class="fdp-section-label-with-help">
+          <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+          <app-context-help helpKey="deadline.submitted" label="Submitted" />
+        </span>
       </div>
     }
 
@@ -71,6 +79,11 @@
       </div>
     }
 
+    <div class="fdp-section-label-with-help round-label">
+      <span>Round</span>
+      <app-context-help helpKey="performance.round" label="Round" />
+    </div>
+
     <mat-tab-group
       [selectedIndex]="selectedRoundIndex()"
       (selectedIndexChange)="onRoundChange($event)"
@@ -83,7 +96,14 @@
             <!-- Entries -->
             <section class="fdp-card section-card" [attr.aria-labelledby]="'entries-heading-' + i">
               <div class="section-header">
-                <h2 [id]="'entries-heading-' + i">{{ isDance() ? 'Dances' : 'Songs' }}</h2>
+                <h2 [id]="'entries-heading-' + i">
+                  <span class="fdp-section-label-with-help">
+                    <span>{{ isDance() ? 'Dances' : 'Songs' }}</span>
+                    <app-context-help
+                      [helpKey]="isDance() ? 'performance.danceOrder' : 'performance.songOrder'"
+                      [label]="isDance() ? 'Dance Order' : 'Song Order'" />
+                  </span>
+                </h2>
                 @if (canEdit()) {
                   <button mat-stroked-button (click)="openEntryDialog()">
                     <mat-icon>add</mat-icon>
@@ -151,7 +171,12 @@
 
             @if (isDance()) {
               <section class="fdp-card section-card" aria-labelledby="musicians-heading">
-                <h2 id="musicians-heading">Musicians &amp; Instruments</h2>
+                <h2 id="musicians-heading">
+                  <span class="fdp-section-label-with-help">
+                    <span>Musicians &amp; Instruments</span>
+                    <app-context-help helpKey="performance.musicians" label="Musicians" />
+                  </span>
+                </h2>
 
                 <p class="musician-count" aria-live="polite">
                   {{ perf.musicians.length }} of 8 musicians selected
@@ -200,7 +225,12 @@
                   </mat-chip-set>
                 }
 
-                <h3 class="subsection-title">Instruments</h3>
+                <h3 class="subsection-title">
+                  <span class="fdp-section-label-with-help">
+                    <span>Instruments</span>
+                    <app-context-help helpKey="performance.instruments" label="Instruments" />
+                  </span>
+                </h3>
                 <div class="instrument-grid" role="group" aria-label="Instruments">
                   @for (instr of instruments(); track instr.id) {
                     <button type="button"
@@ -216,25 +246,50 @@
             }
 
             <section class="fdp-card section-card" aria-labelledby="av-heading">
-              <h2 id="av-heading">Performance / AV Information</h2>
+              <h2 id="av-heading">
+                <span class="fdp-section-label-with-help">
+                  <span>Performance / AV Information</span>
+                  <app-context-help
+                    [helpKey]="isDance() ? 'performance.musicAudioNeeds' : 'performance.choralAv'"
+                    [label]="isDance() ? 'Music / Audio Needs' : 'Choral AV'" />
+                </span>
+              </h2>
 
               @if (canEdit()) {
                 <form [formGroup]="logisticsForm" (ngSubmit)="saveLogistics()" class="logistics-form">
                   @if (isDance()) {
                     <mat-checkbox formControlName="uses_fdf_tables_chairs">
-                      Uses FDF-supplied tables/chairs
+                      <span class="fdp-label-with-help">
+                        <span>Uses FDF-supplied tables/chairs</span>
+                        <app-context-help helpKey="performance.tablesChairs" label="Tables / Chairs" />
+                      </span>
                     </mat-checkbox>
                     <mat-form-field>
-                      <mat-label>Additional Props</mat-label>
+                      <mat-label>
+                        <span class="fdp-label-with-help">
+                          <span>Additional Props</span>
+                          <app-context-help helpKey="performance.additionalProps" label="Additional Props" />
+                        </span>
+                      </mat-label>
                       <textarea matInput formControlName="additional_props" rows="3"></textarea>
                     </mat-form-field>
                   }
                   <mat-form-field>
-                    <mat-label>{{ isDance() ? 'Music / Audio Needs' : 'Music / Audio Needs' }}</mat-label>
+                    <mat-label>
+                      <span class="fdp-label-with-help">
+                        <span>Music / Audio Needs</span>
+                        <app-context-help helpKey="performance.musicAudioNeeds" label="Music / Audio Needs" />
+                      </span>
+                    </mat-label>
                     <textarea matInput formControlName="music_audio_needs" rows="3"></textarea>
                   </mat-form-field>
                   <mat-form-field>
-                    <mat-label>{{ isDance() ? 'Special / Out-of-Ordinary Information' : 'Other AV / Performance Information' }}</mat-label>
+                    <mat-label>
+                      <span class="fdp-label-with-help">
+                        <span>{{ isDance() ? 'Special / Out-of-Ordinary Information' : 'Other AV / Performance Information' }}</span>
+                        <app-context-help helpKey="performance.specialRequirements" label="Special Requirements" />
+                      </span>
+                    </mat-label>
                     <textarea matInput formControlName="special_requirements" rows="3"></textarea>
                   </mat-form-field>
                   <button mat-stroked-button type="submit" [disabled]="saving()">

@@ -24,6 +24,7 @@ import {
   ChaperoneDialogResult,
 } from './chaperone-dialog/chaperone-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 @Component({
   selector: 'fdp-roster',
@@ -31,6 +32,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confi
     RouterLink,
     MatDialogModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatTooltipModule,
+    ContextHelpComponent,
   ],
   templateUrl: './roster.component.html',
   styleUrl: './roster.component.scss',

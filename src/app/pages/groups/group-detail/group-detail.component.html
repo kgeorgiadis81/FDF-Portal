@@ -173,7 +173,12 @@
       <!-- Edit form -->
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
         <mat-form-field>
-          <mat-label>Group name</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Group name</span>
+              <app-context-help helpKey="group.name" label="Group name" />
+            </span>
+          </mat-label>
           <input matInput formControlName="name" maxlength="200" />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <mat-error>Group name is required.</mat-error>
@@ -181,7 +186,12 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Parish</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Parish</span>
+              <app-context-help helpKey="group.parish" label="Parish" />
+            </span>
+          </mat-label>
           <input matInput formControlName="parishSearch"
                  [matAutocomplete]="parishAuto"
                  placeholder="Search parishes…" />
@@ -197,7 +207,12 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Group type</mat-label>
+          <mat-label>
+            <span class="fdp-label-with-help">
+              <span>Group type</span>
+              <app-context-help helpKey="group.groupType" label="Group type" />
+            </span>
+          </mat-label>
           <mat-select formControlName="groupType">
             @for (t of groupTypes; track t) {
               <mat-option [value]="t">{{ t }}</mat-option>
@@ -236,13 +251,23 @@
             <span class="director-email">{{ group()!.primaryDirector.email }}</span>
           }
         </div>
-        <span class="primary-label">Primary Director</span>
+        <span class="primary-label">
+          <span class="fdp-label-with-help">
+            <span>Primary Director</span>
+            <app-context-help helpKey="group.primaryDirector" label="Primary Director" />
+          </span>
+        </span>
       </div>
 
       <!-- Co-Directors -->
       <div class="codirectors-section">
         <div class="codirectors-header">
-          <span class="codirectors-label">Co-Directors</span>
+          <span class="codirectors-label">
+            <span class="fdp-section-label-with-help">
+              <span>Co-Directors</span>
+              <app-context-help helpKey="group.coDirector" label="Co-Director" />
+            </span>
+          </span>
           @if (!group()!.isReadOnly) {
             <button mat-stroked-button class="add-codir-btn" (click)="openAddDialog()"
                     aria-label="Add Co-Director">

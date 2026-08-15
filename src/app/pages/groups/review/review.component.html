@@ -33,7 +33,12 @@
     <div class="action-required-card fdp-card">
       <div class="action-required-header">
         <mat-icon class="action-icon">warning</mat-icon>
-        <h2>Action Required</h2>
+        <h2>
+          <span class="fdp-section-label-with-help">
+            <span>Action Required</span>
+            <app-context-help helpKey="review.actionRequired" label="Action Required" />
+          </span>
+        </h2>
       </div>
       <ul class="action-list" role="list">
         @for (item of summary()!.actionRequired; track item) {
@@ -91,6 +96,11 @@
         <h2 class="module-title">Roster</h2>
         <span class="module-status" [class]="submissionClass(summary()!.roster.submittedAt, summary()!.roster.deadline)">
           {{ submissionLabel(summary()!.roster.submittedAt, summary()!.roster.deadline) }}
+          @if (summary()!.roster.submittedAt) {
+            <app-context-help helpKey="deadline.submitted" label="Submitted" />
+          } @else if (!summary()!.roster.deadline.canEdit) {
+            <app-context-help helpKey="review.closed" label="Closed" />
+          }
         </span>
       </div>
       <dl class="module-info">
@@ -131,6 +141,11 @@
         <h2 class="module-title">Performance</h2>
         <span class="module-status" [class]="submissionClass(summary()!.performance.submittedAt, summary()!.performance.deadline)">
           {{ submissionLabel(summary()!.performance.submittedAt, summary()!.performance.deadline) }}
+          @if (summary()!.performance.submittedAt) {
+            <app-context-help helpKey="deadline.submitted" label="Submitted" />
+          } @else if (!summary()!.performance.deadline.canEdit) {
+            <app-context-help helpKey="review.closed" label="Closed" />
+          }
         </span>
       </div>
       <dl class="module-info">
@@ -165,6 +180,11 @@
           <h2 class="module-title">Costumes</h2>
           <span class="module-status" [class]="submissionClass(summary()!.costume!.submittedAt, summary()!.costume!.deadline)">
             {{ submissionLabel(summary()!.costume!.submittedAt, summary()!.costume!.deadline) }}
+            @if (summary()!.costume!.submittedAt) {
+              <app-context-help helpKey="deadline.submitted" label="Submitted" />
+            } @else if (!summary()!.costume!.deadline.canEdit) {
+              <app-context-help helpKey="review.closed" label="Closed" />
+            }
           </span>
         </div>
         <dl class="module-info">
@@ -212,6 +232,9 @@
           <dd>
             <span class="doc-status" [class]="docClass(summary()!.documents.signedRoster.status)">
               {{ docLabel(summary()!.documents.signedRoster.status, isActive()) }}
+              @if (summary()!.documents.signedRoster.status === 'VERIFIED') {
+                <app-context-help helpKey="review.verified" label="Verified" />
+              }
             </span>
           </dd>
         </div>
@@ -220,6 +243,9 @@
           <dd>
             <span class="doc-status" [class]="docClass(summary()!.documents.youthSafety.status)">
               {{ docLabel(summary()!.documents.youthSafety.status, isActive()) }}
+              @if (summary()!.documents.youthSafety.status === 'VERIFIED') {
+                <app-context-help helpKey="review.verified" label="Verified" />
+              }
             </span>
           </dd>
         </div>
@@ -234,7 +260,12 @@
     <div class="module-card fdp-card">
       <div class="module-header">
         <mat-icon class="module-icon">swap_horiz</mat-icon>
-        <h2 class="module-title">Conflicts</h2>
+        <h2 class="module-title">
+          <span class="fdp-section-label-with-help">
+            <span>Conflicts</span>
+            <app-context-help helpKey="review.conflicts" label="Conflicts" />
+          </span>
+        </h2>
         @if (totalConflicts() > 0) {
           <span class="module-status status-rejected">{{ totalConflicts() }} detected</span>
         } @else {
@@ -306,7 +337,12 @@
 
   <!-- Deadlines overview -->
   <div class="deadlines-card fdp-card">
-    <h2 class="summary-heading">Deadlines</h2>
+    <h2 class="summary-heading">
+      <span class="fdp-section-label-with-help">
+        <span>Deadlines</span>
+        <app-context-help helpKey="deadline.section" label="Deadline" />
+      </span>
+    </h2>
     <dl class="module-info">
       <div class="module-row">
         <dt>Roster</dt>
