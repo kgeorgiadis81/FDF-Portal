@@ -110,6 +110,29 @@
             Manage Performance
           </a>
         </div>
+
+        @if (isDanceGroup()) {
+          <div class="costumes-nav">
+            <div class="roster-overview">
+              <mat-icon class="roster-icon">checkroom</mat-icon>
+              <div class="roster-overview-info">
+                <span class="roster-heading">Costumes</span>
+                @if (group()!.costumeSubmittedAt) {
+                  <span class="roster-status submitted">Submitted</span>
+                } @else {
+                  <span class="roster-status not-started">Not submitted</span>
+                }
+              </div>
+            </div>
+            <a [routerLink]="['/groups', group()!.id, 'costumes']"
+               mat-stroked-button
+               class="costumes-link"
+               aria-label="Manage this group's costume registration">
+              <mat-icon>checkroom</mat-icon>
+              Manage Costumes
+            </a>
+          </div>
+        }
       }
     } @else {
       <!-- Edit form -->

@@ -13,6 +13,7 @@ export interface PortalGroup {
   rosterMemberCount: number;
   rosterSubmittedAt: string | null;
   performanceSubmittedAt?: string | null;
+  costumeSubmittedAt?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

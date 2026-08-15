@@ -1,0 +1,285 @@
+<div class="costumes-page">
+
+  @if (loading()) {
+    <div class="fdp-spinner-overlay" role="status" aria-label="Loading costume information…">
+      <mat-spinner />
+    </div>
+  } @else if (error()) {
+    <div class="error-state" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <a [routerLink]="['/groups', groupId]">Back to Group</a>
+    </div>
+  } @else if (context()) {
+
+    <div class="page-header">
+      <a [routerLink]="['/groups', groupId]" class="back-link">
+        <mat-icon>arrow_back</mat-icon> Back to Group
+      </a>
+      <h1 class="page-title">Costumes</h1>
+      <span class="event-name">{{ context()!.group.eventName }}</span>
+    </div>
+
+    @if (!isActiveEvent()) {
+      <div class="fdp-readonly-banner" role="status">
+        <mat-icon>history</mat-icon>
+        <div>
+          <strong>Past Event — Read Only</strong>
+          <span>Costume information for this past event can no longer be changed.</span>
+        </div>
+      </div>
+    } @else if (isReadOnly()) {
+      <div class="fdp-readonly-banner fdp-deadline-banner" role="status">
+        <mat-icon>lock_clock</mat-icon>
+        <div>
+          <strong>Costume editing is closed.</strong>
+          <span>Changes can no longer be made because the costume registration deadline has passed.</span>
+        </div>
+      </div>
+    }
+
+    @if (isActiveEvent() && context()!.deadline.deadline_date) {
+      <div class="deadline-card fdp-card">
+        <mat-icon>event</mat-icon>
+        <div class="deadline-info">
+          <span class="deadline-label">Costume Information Deadline</span>
+          <span class="deadline-date">{{ formatDeadlineDate(context()!.deadline.deadline_date) }}</span>
+          @if (context()!.deadline.effective_cutoff && canEdit()) {
+            <span class="deadline-cutoff">
+              Changes may be made until {{ formatEffectiveCutoff(context()!.deadline.effective_cutoff) }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    @if (context()!.submission?.submitted_at) {
+      <div class="submitted-banner" role="status">
+        <mat-icon>check_circle</mat-icon>
+        <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+      </div>
+    }
+
+    <mat-tab-group
+      [selectedIndex]="selectedRoundIndex()"
+      (selectedIndexChange)="onRoundChange($event)"
+      class="round-tabs"
+      aria-label="Costume rounds">
+      @for (perf of context()!.performances; track perf.id; let i = $index) {
+        <mat-tab [label]="perf.round">
+          <div class="round-content">
+
+            <div class="gender-grid">
+              @for (section of genderSections(); track section.gender) {
+                <section class="fdp-card costume-section" [attr.aria-labelledby]="'costume-' + section.gender + '-' + i">
+                  <div class="section-header">
+                    <h2 [id]="'costume-' + section.gender + '-' + i">{{ section.label }}</h2>
+                    @if (canEdit() && !section.editing && editingGender() === null) {
+                      <button mat-stroked-button (click)="startCostumeEdit(section.gender)">
+                        <mat-icon>{{ section.costume ? 'edit' : 'add' }}</mat-icon>
+                        {{ section.costume ? 'Edit' : 'Add Costume Information' }}
+                      </button>
+                    }
+                  </div>
+
+                  @if (section.editing) {
+                    <form [formGroup]="costumeForm" class="costume-form" (ngSubmit)="saveCostume(section.gender)">
+                      <mat-form-field appearance="outline" class="full-field">
+                        <mat-label>Region</mat-label>
+                        <input matInput formControlName="region" maxlength="500" />
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-field">
+                        <mat-label>Village</mat-label>
+                        <input matInput formControlName="village" maxlength="500" />
+                      </mat-form-field>
+
+                      <mat-form-field appearance="outline" class="full-field">
+                        <mat-label>Resources used in creating this costume</mat-label>
+                        <mat-select formControlName="resource_type_id">
+                          @for (rt of resourceTypes(); track rt.id) {
+                            <mat-option [value]="rt.id">{{ rt.label }}</mat-option>
+                          }
+                        </mat-select>
+                        @if (costumeForm.get('resource_type_id')?.invalid && costumeForm.get('resource_type_id')?.touched) {
+                          <mat-error>Please select a resource type.</mat-error>
+                        }
+                      </mat-form-field>
+
+                      <fieldset class="bool-fieldset" role="group" aria-labelledby="award-legend-{{ section.gender }}-{{ i }}">
+                        <legend [id]="'award-legend-' + section.gender + '-' + i">Has this costume ever won an award?</legend>
+                        <mat-radio-group formControlName="has_won_award" aria-label="Has this costume ever won an award?">
+                          <mat-radio-button [value]="true">Yes</mat-radio-button>
+                          <mat-radio-button [value]="false">No</mat-radio-button>
+                        </mat-radio-group>
+                      </fieldset>
+
+                      <fieldset class="bool-fieldset" role="group" aria-labelledby="purchased-most-legend-{{ section.gender }}-{{ i }}">
+                        <legend [id]="'purchased-most-legend-' + section.gender + '-' + i">Did you purchase most or all of the costume?</legend>
+                        <mat-radio-group formControlName="purchased_most_or_all" aria-label="Did you purchase most or all of the costume?">
+                          <mat-radio-button [value]="true">Yes</mat-radio-button>
+                          <mat-radio-button [value]="false">No</mat-radio-button>
+                        </mat-radio-group>
+                      </fieldset>
+
+                      <fieldset class="bool-fieldset" role="group" aria-labelledby="purchased-any-legend-{{ section.gender }}-{{ i }}">
+                        <legend [id]="'purchased-any-legend-' + section.gender + '-' + i">Did you purchase any parts of the costume?</legend>
+                        <mat-radio-group formControlName="purchased_any_parts" aria-label="Did you purchase any parts of the costume?">
+                          <mat-radio-button [value]="true">Yes</mat-radio-button>
+                          <mat-radio-button [value]="false">No</mat-radio-button>
+                        </mat-radio-group>
+                      </fieldset>
+
+                      <div class="form-actions">
+                        <button mat-stroked-button type="button" (click)="cancelCostumeEdit()">Cancel</button>
+                        <button mat-raised-button color="primary" type="submit"
+                                [disabled]="savingGender() === section.gender">
+                          @if (savingGender() === section.gender) {
+                            <mat-spinner diameter="18" />
+                          } @else {
+                            Save
+                          }
+                        </button>
+                      </div>
+                    </form>
+                  } @else if (section.costume) {
+                    <dl class="costume-details">
+                      <div class="detail-row">
+                        <dt>Region</dt>
+                        <dd>{{ section.costume.region || '—' }}</dd>
+                      </div>
+                      <div class="detail-row">
+                        <dt>Village</dt>
+                        <dd>{{ section.costume.village || '—' }}</dd>
+                      </div>
+                      <div class="detail-row">
+                        <dt>Resources</dt>
+                        <dd>{{ section.costume.resource_type_label || getResourceLabel(section.costume.resource_type_id) }}</dd>
+                      </div>
+                      <div class="detail-row">
+                        <dt>Won an award</dt>
+                        <dd>{{ formatBool(section.costume.has_won_award) }}</dd>
+                      </div>
+                      <div class="detail-row">
+                        <dt>Purchased most or all</dt>
+                        <dd>{{ formatBool(section.costume.purchased_most_or_all) }}</dd>
+                      </div>
+                      <div class="detail-row">
+                        <dt>Purchased any parts</dt>
+                        <dd>{{ formatBool(section.costume.purchased_any_parts) }}</dd>
+                      </div>
+                    </dl>
+                  } @else {
+                    <p class="empty-state">
+                      No costume information has been entered for the {{ section.label }} ({{ perf.round }}).
+                    </p>
+                  }
+                </section>
+              }
+            </div>
+
+            <!-- Shared Costume Conflicts -->
+            <section class="fdp-card conflicts-section" aria-labelledby="conflicts-heading">
+              <div class="section-header">
+                <h2 id="conflicts-heading">Shared Costume Conflicts</h2>
+                @if (canEdit() && !addingConflict() && editingConflictId() === null) {
+                  <button mat-stroked-button (click)="startAddConflict()">
+                    <mat-icon>add</mat-icon> Add Costume Conflict
+                  </button>
+                }
+              </div>
+
+              @if (addingConflict() || editingConflictId() !== null) {
+                <form [formGroup]="conflictForm" class="conflict-form" (ngSubmit)="saveConflict()">
+                  <mat-form-field appearance="outline" class="full-field">
+                    <mat-label>Related Group</mat-label>
+                    <input matInput
+                           [value]="relatedGroupSearch()"
+                           (input)="relatedGroupSearch.set($any($event.target).value)"
+                           [matAutocomplete]="relatedGroupAuto"
+                           placeholder="Search by group or parish name…" />
+                    <mat-autocomplete #relatedGroupAuto="matAutocomplete"
+                                      (optionSelected)="onRelatedGroupSelected($event.option.value)">
+                      @if (loadingRelatedGroups()) {
+                        <mat-option disabled>Loading related groups…</mat-option>
+                      }
+                      @for (opt of relatedGroupOptions(); track opt.id) {
+                        <mat-option [value]="opt">{{ opt.display_label }}</mat-option>
+                      }
+                    </mat-autocomplete>
+                    @if (conflictForm.get('related_group_id')?.invalid && conflictForm.get('related_group_id')?.touched) {
+                      <mat-error>Please select a related group.</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="count-field">
+                    <mat-label>Number of Costumes Shared</mat-label>
+                    <input matInput type="number" formControlName="costume_count" min="1" step="1" />
+                    @if (conflictForm.get('costume_count')?.invalid && conflictForm.get('costume_count')?.touched) {
+                      <mat-error>Enter a positive whole number.</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <div class="form-actions">
+                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Cancel</button>
+                    <button mat-raised-button color="primary" type="submit" [disabled]="savingConflict()">
+                      @if (savingConflict()) { <mat-spinner diameter="18" /> } @else { Save }
+                    </button>
+                  </div>
+                </form>
+              }
+
+              @if (roundConflicts().length === 0 && !addingConflict()) {
+                <p class="empty-state">
+                  No costume conflicts have been reported for the {{ perf.round }}.
+                </p>
+              } @else {
+                <ul class="conflict-list" role="list">
+                  @for (conflict of roundConflicts(); track conflict.id) {
+                    <li class="conflict-row">
+                      <div class="conflict-info">
+                        <span class="conflict-group">{{ conflict.related_group_name }}</span>
+                        @if (conflict.related_parish_name) {
+                          <span class="conflict-parish">{{ conflict.related_parish_name }}</span>
+                        }
+                        <span class="conflict-count">{{ conflict.costume_count }} costume{{ conflict.costume_count !== 1 ? 's' : '' }} shared</span>
+                      </div>
+                      @if (canEdit()) {
+                        <div class="conflict-actions">
+                          <button mat-icon-button type="button"
+                                  [attr.aria-label]="'Edit conflict with ' + conflict.related_group_name"
+                                  (click)="startEditConflict(conflict)">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button type="button"
+                                  [attr.aria-label]="'Remove conflict with ' + conflict.related_group_name"
+                                  (click)="confirmDeleteConflict(conflict)">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </section>
+
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+
+    @if (canEdit()) {
+      <div class="submit-section">
+        <button mat-raised-button color="primary" (click)="submitCostumes()" [disabled]="submitting()">
+          @if (submitting()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Submit Costume Information
+          }
+        </button>
+      </div>
+    }
+
+  }
+</div>

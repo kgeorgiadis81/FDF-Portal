@@ -1,4 +1,25 @@
-# FDF Portal — E2E Test Inventory (Phase 5)
+# FDF Portal — E2E Test Inventory (Phase 5–6)
+
+## Costume Registration (Phase 6)
+
+| Scenario | Spec file | Status |
+|----------|-----------|--------|
+| Dance costumes page (rounds, MEN/WOMEN) | `costumes.spec.ts` | Covered |
+| Choral navigation absent + API rejection | `costumes.spec.ts` | Covered |
+| Semi-Final Men's save + UI persistence | `costumes.spec.ts` | Covered |
+| Round/gender isolation (4 records) | `costumes.spec.ts` | Covered |
+| Costume conflict API + UI | `costumes.spec.ts` | Covered |
+| Costume submission + post-submit edit | `costumes.spec.ts` | Covered |
+| Costume deadline closed | `costumes.spec.ts` | Covered |
+| Historical read-only | `costumes.spec.ts` | Covered |
+| Costume IDOR | `costumes-security.spec.ts` | Covered |
+| Self/cross-event conflict rejection | `costumes-security.spec.ts` | Covered |
+| costume_count validation | `costumes-security.spec.ts` | Covered |
+| Related-group selector privacy | `costumes-security.spec.ts` | Covered |
+| Mass assignment / performance IDOR | `costumes-security.spec.ts` | Covered |
+| Stored XSS (plain text) | `costumes-security.spec.ts` | Covered |
+| Duplicate performance+gender (409) | `costumes-security.spec.ts` | Covered |
+| Choral costume API rejection | `costumes-security.spec.ts` | Covered |
 
 ## Performance Registration
 

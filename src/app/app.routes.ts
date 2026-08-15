@@ -84,6 +84,10 @@ export const routes: Routes = [
                 path: 'performance',
                 loadComponent: () => import('./pages/groups/performance/performance.component').then(m => m.PerformanceComponent),
               },
+              {
+                path: 'costumes',
+                loadComponent: () => import('./pages/groups/costumes/costumes.component').then(m => m.CostumesComponent),
+              },
             ],
           },
         ],

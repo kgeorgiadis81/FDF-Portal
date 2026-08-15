@@ -97,6 +97,16 @@
                   <span class="status-label not-started">Performance not submitted</span>
                 }
               </div>
+              @if (group.groupType.toUpperCase() === 'DANCE') {
+                <div class="status-row costumes-status">
+                  <mat-icon class="status-icon">checkroom</mat-icon>
+                  @if (group.costumeSubmittedAt) {
+                    <span class="status-label submitted">Costumes submitted</span>
+                  } @else {
+                    <span class="status-label not-started">Costumes not submitted</span>
+                  }
+                </div>
+              }
             </div>
             <mat-icon class="arrow">chevron_right</mat-icon>
           </div>

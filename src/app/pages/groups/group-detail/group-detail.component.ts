@@ -40,6 +40,11 @@ export class GroupDetailComponent implements OnInit {
   filteredParishes$!: Observable<Parish[]>;
   readonly groupTypes = ['Dance', 'Choral'];
 
+  isDanceGroup(): boolean {
+    const t = (this.group()?.groupType ?? '').toUpperCase();
+    return t === 'DANCE';
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
