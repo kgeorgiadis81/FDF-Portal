@@ -1,0 +1,251 @@
+// FDF Portal — Consistent Forms Styling
+// Unified spacing, help icon alignment, and responsive layouts for all forms across the Portal.
+
+// ─── Form Container & Field Spacing ──────────────────────────────────────────
+.fdp-form,
+form {
+  mat-form-field.mat-mdc-form-field {
+    display: block;
+    width: 100%;
+    margin-bottom: 1.25rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Dialog forms
+mat-dialog-content {
+  form {
+    mat-form-field.mat-mdc-form-field {
+      display: block;
+      width: 100%;
+      margin-bottom: 1.25rem;
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// ─── Two-Column Layout (Name fields, etc.) ──────────────────────────────────
+.name-row,
+.fdp-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  mat-form-field.mat-mdc-form-field {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+
+    mat-form-field.mat-mdc-form-field {
+      margin-bottom: 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// ─── Date Input Styling ─────────────────────────────────────────────────────
+input[type='date'] {
+  min-height: 1.5rem;
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.65;
+  }
+
+  // Hide browser placeholder until focused or filled
+  &:not(:focus):invalid::-webkit-datetime-edit {
+    color: transparent;
+  }
+
+  &:focus::-webkit-datetime-edit,
+  &:valid::-webkit-datetime-edit {
+    color: var(--color-text-primary);
+  }
+}
+
+// ─── Help Icon with Labels ──────────────────────────────────────────────────
+// Use `<span class="fdp-label-with-help">` for inline labels + help icons
+.fdp-label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+// ─── Error Messages ────────────────────────────────────────────────────────
+.form-error,
+.server-error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+  margin: 0.5rem 0 1rem;
+  padding: 0.625rem 0.75rem;
+  background: #fdecea;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-error);
+}
+
+// ─── Form Actions ──────────────────────────────────────────────────────────
+.form-actions,
+.edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+  justify-content: flex-end;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+
+    button,
+    a {
+      width: 100%;
+    }
+  }
+}
+
+// ─── Checkbox Rows (Consent, etc.) ────────────────────────────────────────
+.consent-row,
+.fdp-checkbox-row {
+  margin: 0.5rem 0 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #f8f9fd;
+
+  .mat-mdc-checkbox {
+    align-items: flex-start;
+  }
+
+  .checkbox-text,
+  .consent-text {
+    display: inline;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-primary);
+
+    a {
+      font-weight: 600;
+    }
+  }
+}
+
+// ─── Inline Help Icons (inside text) ────────────────────────────────────────
+.consent-help-inline,
+.fdp-help-inline {
+  display: inline-flex;
+  vertical-align: text-bottom;
+  margin: 0 0.15rem;
+}
+
+// ─── Form Field Hints & Errors ────────────────────────────────────────────
+.mat-mdc-form-field {
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error {
+    font-size: 0.8125rem !important;
+  }
+
+  .mat-mdc-form-field-hint {
+    color: var(--color-text-muted) !important;
+  }
+
+  .mat-mdc-form-field-error {
+    color: var(--color-error) !important;
+  }
+}
+
+// ─── Autocomplete Styling ──────────────────────────────────────────────────
+.mat-mdc-autocomplete-panel {
+  .mat-mdc-option {
+    font-size: 0.9rem !important;
+  }
+
+  .parish-name {
+    font-weight: 500;
+  }
+
+  .parish-loc {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+}
+
+// ─── Material Select Styling ────────────────────────────────────────────────
+.mat-mdc-select {
+  width: 100%;
+}
+
+// ─── Dialog Title Styling ──────────────────────────────────────────────────
+mat-dialog-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: var(--color-text-primary) !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0 !important;
+}
+
+// ─── Dialog Content Padding ────────────────────────────────────────────────
+mat-dialog-content {
+  padding: 1rem 0 1.5rem 0 !important;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.25);
+    }
+  }
+}
+
+// ─── Dialog Actions Styling ────────────────────────────────────────────────
+mat-dialog-actions {
+  padding: 1rem 0 0 0 !important;
+  margin: 0 !important;
+  gap: 0.75rem !important;
+
+  button {
+    min-width: 80px;
+  }
+}
+
+// ─── Link Buttons in Forms ────────────────────────────────────────────────
+.form-links {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+  gap: 1rem;
+
+  a {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+// ─── Mobile-Friendly Button Sizing ─────────────────────────────────────────
+@media (max-width: 480px) {
+  button[mat-raised-button],
+  button[mat-stroked-button] {
+    min-height: 44px; // Touch target
+  }
+}

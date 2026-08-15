@@ -38,48 +38,36 @@ export interface ChaperoneDialogResult {
 
     <mat-dialog-content>
       <form [formGroup]="form" novalidate>
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>First Name</span>
-              <app-context-help helpKey="roster.chaperoneName" label="Chaperone Name" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>First Name</mat-label>
           <input matInput formControlName="first_name"
                  autocomplete="off"
                  maxlength="100" />
+          <app-context-help helpKey="roster.chaperoneName" label="Chaperone Name" [compact]="true" matSuffix />
           @if (form.get('first_name')?.invalid && form.get('first_name')?.touched) {
             <mat-error>First name is required.</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Last Name</span>
-              <app-context-help helpKey="roster.chaperoneName" label="Chaperone Name" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Last Name</mat-label>
           <input matInput formControlName="last_name"
                  autocomplete="off"
                  maxlength="100" />
+          <app-context-help helpKey="roster.chaperoneName" label="Chaperone Name" [compact]="true" matSuffix />
           @if (form.get('last_name')?.invalid && form.get('last_name')?.touched) {
             <mat-error>Last name is required.</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Phone Number</span>
-              <app-context-help helpKey="roster.chaperonePhone" label="Chaperone Phone" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Phone Number</mat-label>
           <input matInput formControlName="phone"
                  type="tel"
                  autocomplete="off"
                  maxlength="30"
                  placeholder="Optional" />
+          <app-context-help helpKey="roster.chaperonePhone" label="Chaperone Phone" [compact]="true" matSuffix />
           @if (form.get('phone')?.errors?.['maxlength']) {
             <mat-error>Phone number is too long.</mat-error>
           }
@@ -89,7 +77,7 @@ export interface ChaperoneDialogResult {
           <mat-checkbox formControlName="is_21_or_older_confirmed" color="primary">
             <span class="fdp-label-with-help">
               <span>I confirm this chaperone will be at least 21 years old at FDF.</span>
-              <app-context-help helpKey="roster.chaperone21Plus" label="21+ Confirmation" />
+              <app-context-help helpKey="roster.chaperone21Plus" label="21+ Confirmation" [compact]="true" />
             </span>
           </mat-checkbox>
         </div>

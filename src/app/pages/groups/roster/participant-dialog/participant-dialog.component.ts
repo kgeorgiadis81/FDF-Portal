@@ -48,47 +48,35 @@ function notFutureDateValidator(control: AbstractControl) {
 
     <mat-dialog-content>
       <form [formGroup]="form" novalidate>
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>First Name</span>
-              <app-context-help helpKey="roster.firstName" label="Participant First Name" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>First Name</mat-label>
           <input matInput formControlName="first_name"
                  autocomplete="off"
                  maxlength="100" />
+          <app-context-help helpKey="roster.firstName" label="Participant First Name" [compact]="true" matSuffix />
           @if (form.get('first_name')?.invalid && form.get('first_name')?.touched) {
             <mat-error>First name is required.</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Last Name</span>
-              <app-context-help helpKey="roster.lastName" label="Participant Last Name" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Last Name</mat-label>
           <input matInput formControlName="last_name"
                  autocomplete="off"
                  maxlength="100" />
+          <app-context-help helpKey="roster.lastName" label="Participant Last Name" [compact]="true" matSuffix />
           @if (form.get('last_name')?.invalid && form.get('last_name')?.touched) {
             <mat-error>Last name is required.</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Date of Birth</span>
-              <app-context-help helpKey="roster.dateOfBirth" label="Date of Birth" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Date of Birth</mat-label>
           <input matInput formControlName="date_of_birth"
                  type="date"
                  autocomplete="off"
                  [max]="today" />
+          <app-context-help helpKey="roster.dateOfBirth" label="Date of Birth" [compact]="true" matSuffix />
           @if (form.get('date_of_birth')?.errors?.['required'] && form.get('date_of_birth')?.touched) {
             <mat-error>Date of birth is required.</mat-error>
           } @else if (form.get('date_of_birth')?.errors?.['futureDate'] && form.get('date_of_birth')?.touched) {

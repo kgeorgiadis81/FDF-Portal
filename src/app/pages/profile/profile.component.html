@@ -70,14 +70,14 @@
       <!-- Edit form -->
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
         <div class="name-row">
-          <mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>First name</mat-label>
             <input matInput formControlName="firstName" autocomplete="given-name" />
             @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
               <mat-error>First name is required.</mat-error>
             }
           </mat-form-field>
-          <mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Last name</mat-label>
             <input matInput formControlName="lastName" autocomplete="family-name" />
             @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
@@ -86,7 +86,7 @@
           </mat-form-field>
         </div>
 
-        <mat-form-field>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Phone number (optional)</mat-label>
           <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" inputmode="tel" />
         </mat-form-field>

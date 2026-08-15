@@ -38,102 +38,88 @@ export type EntryDialogResult = Record<string, unknown>;
 
     <mat-dialog-content>
       <form [formGroup]="form" novalidate>
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>{{ isDance ? 'Dance Name' : 'Song Name' }}</span>
-              <app-context-help
-                [helpKey]="isDance ? 'performance.danceName' : 'performance.songName'"
-                [label]="isDance ? 'Dance Name' : 'Song Name'" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ isDance ? 'Dance Name' : 'Song Name' }}</mat-label>
           <input matInput formControlName="name" maxlength="255" />
+          <app-context-help
+            [helpKey]="isDance ? 'performance.danceName' : 'performance.songName'"
+            [label]="isDance ? 'Dance Name' : 'Song Name'"
+            [compact]="true"
+            matSuffix />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <mat-error>Name is required.</mat-error>
           }
         </mat-form-field>
 
         @if (isDance) {
-          <mat-form-field>
-            <mat-label>
-              <span class="fdp-label-with-help">
-                <span>Region</span>
-                <app-context-help helpKey="performance.region" label="Region" />
-              </span>
-            </mat-label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Region</mat-label>
             <input matInput formControlName="region" maxlength="255" />
+            <app-context-help helpKey="performance.region" label="Region" [compact]="true" matSuffix />
           </mat-form-field>
-          <mat-form-field>
-            <mat-label>
-              <span class="fdp-label-with-help">
-                <span>Village</span>
-                <app-context-help helpKey="performance.village" label="Village" />
-              </span>
-            </mat-label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Village</mat-label>
             <input matInput formControlName="village" maxlength="255" />
+            <app-context-help helpKey="performance.village" label="Village" [compact]="true" matSuffix />
           </mat-form-field>
           <div class="checkbox-group" role="group" aria-label="Music and singing options">
             <mat-checkbox formControlName="uses_live_music">
               <span class="fdp-label-with-help">
                 <span>Live Music</span>
-                <app-context-help helpKey="performance.liveMusic" label="Live Music" />
+                <app-context-help helpKey="performance.liveMusic" label="Live Music" [compact]="true" />
               </span>
             </mat-checkbox>
             <mat-checkbox formControlName="uses_recorded_music">
               <span class="fdp-label-with-help">
                 <span>Recorded Music</span>
-                <app-context-help helpKey="performance.recordedMusic" label="Recorded Music" />
+                <app-context-help helpKey="performance.recordedMusic" label="Recorded Music" [compact]="true" />
               </span>
             </mat-checkbox>
             <mat-checkbox formControlName="is_acapella">
               <span class="fdp-label-with-help">
                 <span>Acapella</span>
-                <app-context-help helpKey="performance.acapella" label="Acapella" />
+                <app-context-help helpKey="performance.acapella" label="Acapella" [compact]="true" />
               </span>
             </mat-checkbox>
             <mat-checkbox formControlName="dancers_singing">
               <span class="fdp-label-with-help">
                 <span>Dancer(s) Singing</span>
-                <app-context-help helpKey="performance.dancersSinging" label="Dancer(s) Singing" />
+                <app-context-help helpKey="performance.dancersSinging" label="Dancer(s) Singing" [compact]="true" />
               </span>
             </mat-checkbox>
             <mat-checkbox formControlName="musicians_singing">
               <span class="fdp-label-with-help">
                 <span>Musician(s) Singing</span>
-                <app-context-help helpKey="performance.musiciansSinging" label="Musician(s) Singing" />
+                <app-context-help helpKey="performance.musiciansSinging" label="Musician(s) Singing" [compact]="true" />
               </span>
             </mat-checkbox>
             <mat-checkbox formControlName="individual_singing">
               <span class="fdp-label-with-help">
                 <span>Individual Singing</span>
-                <app-context-help helpKey="performance.individualSinging" label="Individual Singing" />
+                <app-context-help helpKey="performance.individualSinging" label="Individual Singing" [compact]="true" />
               </span>
             </mat-checkbox>
           </div>
         } @else {
-          <mat-form-field>
-            <mat-label>
-              <span class="fdp-label-with-help">
-                <span>Secular / Liturgical</span>
-                <app-context-help helpKey="performance.secularLiturgical" label="Secular / Liturgical" />
-              </span>
-            </mat-label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Secular / Liturgical</mat-label>
             <mat-select formControlName="choral_classification">
               <mat-option value="SECULAR">Secular</mat-option>
               <mat-option value="LITURGICAL">Liturgical</mat-option>
             </mat-select>
+            <app-context-help helpKey="performance.secularLiturgical" label="Secular / Liturgical" [compact]="true" matSuffix />
           </mat-form-field>
           <div class="checkbox-group" role="group" aria-label="Music options">
             <mat-checkbox formControlName="uses_live_music">
               <span class="fdp-label-with-help">
                 <span>Live Music</span>
-                <app-context-help helpKey="performance.liveMusic" label="Live Music" />
+                <app-context-help helpKey="performance.liveMusic" label="Live Music" [compact]="true" />
               </span>
             </mat-checkbox>
             <mat-checkbox formControlName="uses_recorded_music">
               <span class="fdp-label-with-help">
                 <span>Recorded Music</span>
-                <app-context-help helpKey="performance.recordedMusic" label="Recorded Music" />
+                <app-context-help helpKey="performance.recordedMusic" label="Recorded Music" [compact]="true" />
               </span>
             </mat-checkbox>
           </div>
