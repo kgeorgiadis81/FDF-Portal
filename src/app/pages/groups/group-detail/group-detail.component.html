@@ -172,29 +172,21 @@
     } @else {
       <!-- Edit form -->
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Group name</span>
-              <app-context-help helpKey="group.name" label="Group name" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Group name</mat-label>
           <input matInput formControlName="name" maxlength="200" />
+          <app-context-help matSuffix helpKey="group.name" label="Group name" [compact]="true" />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <mat-error>Group name is required.</mat-error>
           }
         </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Parish</span>
-              <app-context-help helpKey="group.parish" label="Parish" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Parish</mat-label>
           <input matInput formControlName="parishSearch"
                  [matAutocomplete]="parishAuto"
                  placeholder="Search parishes…" />
+          <app-context-help matSuffix helpKey="group.parish" label="Parish" [compact]="true" />
           <mat-autocomplete #parishAuto="matAutocomplete"
                             [displayWith]="displayParish.bind(this)"
                             (optionSelected)="onParishSelected($event.option.value)">

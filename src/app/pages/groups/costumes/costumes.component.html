@@ -93,37 +93,25 @@
                   @if (section.editing) {
                     <form [formGroup]="costumeForm" class="costume-form" (ngSubmit)="saveCostume(section.gender)">
                       <mat-form-field appearance="outline" class="full-field">
-                        <mat-label>
-                          <span class="fdp-label-with-help">
-                            <span>Region</span>
-                            <app-context-help helpKey="costume.region" label="Costume Region" />
-                          </span>
-                        </mat-label>
+                        <mat-label>Region</mat-label>
                         <input matInput formControlName="region" maxlength="500" />
+                        <app-context-help matSuffix helpKey="costume.region" label="Costume Region" [compact]="true" />
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="full-field">
-                        <mat-label>
-                          <span class="fdp-label-with-help">
-                            <span>Village</span>
-                            <app-context-help helpKey="costume.village" label="Costume Village" />
-                          </span>
-                        </mat-label>
+                        <mat-label>Village</mat-label>
                         <input matInput formControlName="village" maxlength="500" />
+                        <app-context-help matSuffix helpKey="costume.village" label="Costume Village" [compact]="true" />
                       </mat-form-field>
 
                       <mat-form-field appearance="outline" class="full-field">
-                        <mat-label>
-                          <span class="fdp-label-with-help">
-                            <span>Resources used in creating this costume</span>
-                            <app-context-help helpKey="costume.resources" label="Resources" />
-                          </span>
-                        </mat-label>
+                        <mat-label>Resources used in creating this costume</mat-label>
                         <mat-select formControlName="resource_type_id">
                           @for (rt of resourceTypes(); track rt.id) {
                             <mat-option [value]="rt.id">{{ rt.label }}</mat-option>
                           }
                         </mat-select>
+                        <app-context-help matSuffix helpKey="costume.resources" label="Resources" [compact]="true" />
                         @if (costumeForm.get('resource_type_id')?.invalid && costumeForm.get('resource_type_id')?.touched) {
                           <mat-error>Please select a resource type.</mat-error>
                         }
