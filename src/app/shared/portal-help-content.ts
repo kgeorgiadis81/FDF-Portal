@@ -73,8 +73,8 @@ export const PORTAL_HELP: Record<PortalHelpKey, PortalHelpItem> = {
       'Enter your correct date of birth. FDF uses this information to help identify possible scheduling conflicts when a Director also participates with a group.',
   },
   'signup.consent': {
-    title: 'Consent',
-    body: 'Review and accept the required policies before creating your Director account.',
+    title: 'Privacy & data responsibility',
+    body: 'You must accept FDF’s privacy and data responsibility policies before your Director account can be created.',
   },
   'group.name': {
     title: 'Group Name',

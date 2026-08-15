@@ -1,16 +1,17 @@
 <h1 class="page-title">Sign in</h1>
+<p class="page-desc">Access your Director dashboard to manage groups and registrations.</p>
 
-<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <mat-form-field>
+<form class="auth-form auth-form--login" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Email address</mat-label>
     <input matInput type="email" formControlName="email"
-           autocomplete="email" inputmode="email" placeholder="you@example.com" />
+           autocomplete="email" inputmode="email" />
     @if (form.get('email')?.invalid && form.get('email')?.touched) {
       <mat-error>Enter a valid email address.</mat-error>
     }
   </mat-form-field>
 
-  <mat-form-field class="mt-4">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Password</mat-label>
     <input matInput [type]="showPassword() ? 'text' : 'password'"
            formControlName="password" autocomplete="current-password" />
@@ -42,10 +43,10 @@
 </div>
 
 @if (googleAvailable()) {
-  <div class="divider"><span>or</span></div>
+  <div class="auth-divider"><span>or</span></div>
   <div id="google-signin-btn" class="google-btn-wrapper"></div>
 }
 
-<p class="signup-link">
+<p class="auth-footer-link">
   Don't have an account? <a routerLink="/auth/signup">Create account</a>
 </p>

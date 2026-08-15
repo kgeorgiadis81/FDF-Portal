@@ -21,6 +21,8 @@ import { ContextHelpService } from './context-help.service';
       mat-icon-button
       type="button"
       class="context-help-btn"
+      [class.context-help-btn--suffix]="formFieldSuffix()"
+      [class.context-help-btn--compact]="compact()"
       [matMenuTriggerFor]="helpMenu"
       #menuTrigger="matMenuTrigger"
       (menuOpened)="onMenuOpened(menuTrigger)"
@@ -58,12 +60,49 @@ import { ContextHelpService } from './context-help.service';
   `,
   styles: [
     `
+      :host {
+        display: inline-flex;
+        vertical-align: middle;
+      }
+
+      :host([matsuffix]) {
+        align-self: center;
+      }
+
       .context-help-btn {
         width: 32px;
         height: 32px;
-        line-height: 32px;
+        min-width: 32px;
+        padding: 4px;
         color: #607d8b;
         vertical-align: middle;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+      }
+
+      .context-help-btn:hover {
+        background-color: rgba(96, 125, 139, 0.08);
+      }
+
+      .context-help-btn--suffix {
+        width: 2rem;
+        height: 2rem;
+        min-width: 2rem;
+        padding: 2px;
+        margin-right: -0.25rem;
+      }
+
+      .context-help-btn--compact {
+        width: 1.5rem;
+        height: 1.5rem;
+        min-width: 1.5rem;
+        padding: 2px;
+      }
+
+      .context-help-btn--compact .mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
       }
 
       .context-help-panel {
@@ -105,6 +144,10 @@ export class ContextHelpComponent {
 
   readonly helpKey = input.required<PortalHelpKey>();
   readonly label = input.required<string>();
+  /** When true, renders as a mat-form-field suffix (e.g. beside a date input). */
+  readonly formFieldSuffix = input(false);
+  /** Smaller icon for inline use beside labels. */
+  readonly compact = input(false);
 
   readonly menuTrigger = viewChild.required<MatMenuTrigger>('menuTrigger');
 

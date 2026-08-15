@@ -119,8 +119,14 @@ a {
   width: 100%;
   height: 48px;
   font-size: 1rem;
-  letter-spacing: .02em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   border-radius: var(--radius-sm) !important;
+  box-shadow: 0 2px 8px rgba(40, 53, 147, 0.28) !important;
+
+  &:not([disabled]):hover {
+    background-color: var(--color-navy-dark) !important;
+  }
 }
 
 // ─── Loading spinner centering ────────────────────────────────────────────────
@@ -164,4 +170,6 @@ a {
   font-weight: 600;
   color: var(--color-text-primary);
 }
+
+@import './app/pages/auth/auth-shared';
 
