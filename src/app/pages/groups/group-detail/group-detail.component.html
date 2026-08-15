@@ -133,6 +133,36 @@
             </a>
           </div>
         }
+
+        <div class="documents-nav">
+          <div class="roster-overview">
+            <mat-icon class="roster-icon">folder</mat-icon>
+            <div class="roster-overview-info">
+              <span class="roster-heading">Documents</span>
+              <div class="doc-status-row">
+                <span class="doc-status-item">
+                  Signed Roster:
+                  <span class="roster-status" [class]="docStatusClass(group()!.documents?.signedRoster)">
+                    {{ docStatusLabel(group()!.documents?.signedRoster) }}
+                  </span>
+                </span>
+                <span class="doc-status-item">
+                  Youth Safety:
+                  <span class="roster-status" [class]="docStatusClass(group()!.documents?.youthSafety)">
+                    {{ docStatusLabel(group()!.documents?.youthSafety) }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <a [routerLink]="['/groups', group()!.id, 'documents']"
+             mat-stroked-button
+             class="documents-link"
+             aria-label="Manage this group's registration documents">
+            <mat-icon>folder</mat-icon>
+            Manage Documents
+          </a>
+        </div>
       }
     } @else {
       <!-- Edit form -->

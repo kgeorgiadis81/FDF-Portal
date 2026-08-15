@@ -14,6 +14,10 @@ export interface PortalGroup {
   rosterSubmittedAt: string | null;
   performanceSubmittedAt?: string | null;
   costumeSubmittedAt?: string | null;
+  documents?: {
+    signedRoster: string;
+    youthSafety: string;
+  };
 }
 
 @Injectable({ providedIn: 'root' })

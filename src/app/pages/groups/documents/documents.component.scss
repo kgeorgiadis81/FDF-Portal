@@ -1,0 +1,228 @@
+.documents-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.page-header {
+  margin-bottom: 1.25rem;
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+}
+
+.deadline-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  mat-icon { color: var(--color-primary); }
+
+  .deadline-label { display: block; font-weight: 600; }
+  .deadline-date { display: block; margin-top: 0.125rem; }
+  .deadline-cutoff {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+  }
+}
+
+.format-note {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+.doc-card {
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.doc-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  h2 { margin: 0; font-size: 1.125rem; }
+  .doc-description {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .doc-icon { color: var(--color-primary); }
+}
+
+.status-badge {
+  margin-left: auto;
+  padding: 0.25rem 0.625rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.status-verified { background: #e8f5e9; color: #2e7d32; }
+  &.status-pending { background: #fff8e1; color: #f57f17; }
+  &.status-rejected { background: #ffebee; color: #c62828; }
+  &.status-missing { background: #f5f5f5; color: #616161; }
+}
+
+.doc-meta {
+  margin: 0 0 1rem;
+  .meta-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    dt { font-weight: 600; min-width: 5rem; }
+    dd { margin: 0; word-break: break-all; }
+  }
+}
+
+.verified-banner, .rejected-banner {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+
+  mat-icon { flex-shrink: 0; }
+  p { margin: 0.25rem 0 0; }
+}
+
+.verified-banner {
+  background: #e8f5e9;
+  mat-icon { color: #2e7d32; }
+}
+
+.rejected-banner {
+  background: #ffebee;
+  mat-icon { color: #c62828; }
+}
+
+.doc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  button { min-height: 44px; }
+}
+
+.no-doc {
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+}
+
+.upload-area {
+  border-top: 1px solid var(--color-border, #e0e0e0);
+  padding-top: 1rem;
+
+  .replace-note {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0 0 0.75rem;
+  }
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  min-height: 44px;
+  border: 2px dashed var(--color-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-primary);
+
+  .file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+}
+
+.uploading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.history-toggle { margin-top: 0.5rem; }
+
+.history-card {
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  h3 { margin: 0 0 0.75rem; font-size: 1rem; }
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border, #eee);
+    font-size: 0.875rem;
+  }
+}
+
+.history-status {
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.status-verified { background: #e8f5e9; color: #2e7d32; }
+  &.status-pending { background: #fff8e1; color: #f57f17; }
+  &.status-rejected { background: #ffebee; color: #c62828; }
+}
+
+.current-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.history-date { color: var(--color-text-muted); margin-left: auto; }
+
+.error-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  mat-icon { font-size: 3rem; width: 3rem; height: 3rem; color: #c62828; }
+}
+
+@media (max-width: 480px) {
+  .doc-card-header { flex-wrap: wrap; }
+  .status-badge { margin-left: 0; margin-top: 0.5rem; }
+  .doc-actions button { flex: 1 1 100%; }
+}

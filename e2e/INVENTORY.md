@@ -1,4 +1,21 @@
-# FDF Portal — E2E Test Inventory (Phase 5–6)
+# FDF Portal — E2E Test Inventory (Phase 5–7)
+
+## Registration Documents (Phase 7)
+
+| Scenario | Spec file | Status |
+|----------|-----------|--------|
+| Documents page navigation | `documents.spec.ts` | Covered |
+| Signed Roster upload (PDF) | `documents.spec.ts` | Covered |
+| Cross-portal lifecycle (upload/reject/replace/verify/lock) | `documents.spec.ts` | Covered |
+| Youth Safety independent lifecycle | `documents.spec.ts` | Covered |
+| Document deadline open/closed | `documents.spec.ts` | Covered |
+| Historical read-only | `documents.spec.ts` | Covered |
+| Choral documents smoke | `documents.spec.ts` | Covered |
+| Invalid MIME rejection | `documents.spec.ts` | Covered |
+| Secure content download | `documents.spec.ts` | Covered |
+| Document IDOR | `documents-security.spec.ts` | Covered |
+| Role security (admin/viewer/director) | `documents-security.spec.ts` | Covered |
+| Storage key leakage | `documents-security.spec.ts` | Covered |
 
 ## Costume Registration (Phase 6)
 

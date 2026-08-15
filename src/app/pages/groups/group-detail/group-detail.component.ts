@@ -45,6 +45,24 @@ export class GroupDetailComponent implements OnInit {
     return t === 'DANCE';
   }
 
+  docStatusLabel(status?: string | null): string {
+    switch (status) {
+      case 'VERIFIED': return 'Verified';
+      case 'REJECTED': return 'Rejected';
+      case 'PENDING': return 'Pending';
+      default: return 'Missing';
+    }
+  }
+
+  docStatusClass(status?: string | null): string {
+    switch (status) {
+      case 'VERIFIED': return 'submitted';
+      case 'REJECTED': return 'rejected';
+      case 'PENDING': return 'in-progress';
+      default: return 'not-started';
+    }
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,

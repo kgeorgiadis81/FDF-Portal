@@ -55,7 +55,8 @@
 
 .roster-nav,
 .performance-nav,
-.costumes-nav {
+.costumes-nav,
+.documents-nav {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
@@ -93,6 +94,14 @@
         &.submitted  { color: var(--color-success, #2e7d32); font-weight: 500; }
         &.in-progress { color: var(--color-primary); }
         &.not-started { color: var(--color-text-muted); }
+        &.rejected { color: #c62828; }
+      }
+
+      .doc-status-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        font-size: 0.8rem;
       }
     }
   }

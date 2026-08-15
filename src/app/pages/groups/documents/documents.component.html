@@ -1,0 +1,180 @@
+<div class="documents-page">
+
+  @if (loading()) {
+    <div class="fdp-spinner-overlay" role="status" aria-label="Loading documents…">
+      <mat-spinner />
+    </div>
+  } @else if (error()) {
+    <div class="error-state" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <a [routerLink]="['/groups', groupId]">Back to Group</a>
+    </div>
+  } @else if (context()) {
+
+    <div class="page-header">
+      <a [routerLink]="['/groups', groupId]" class="back-link">
+        <mat-icon>arrow_back</mat-icon> Back to Group
+      </a>
+      <h1 class="page-title">Registration Documents</h1>
+    </div>
+
+    @if (!isActiveEvent()) {
+      <div class="fdp-readonly-banner" role="status">
+        <mat-icon>history</mat-icon>
+        <div>
+          <strong>Past Event — Read Only</strong>
+          <span>Documents for this past event can be viewed but not changed.</span>
+        </div>
+      </div>
+    } @else if (isReadOnly()) {
+      <div class="fdp-readonly-banner fdp-deadline-banner" role="status">
+        <mat-icon>lock_clock</mat-icon>
+        <div>
+          <strong>Document editing is closed.</strong>
+          <span>The documents deadline has passed. Contact FDF if you need assistance.</span>
+        </div>
+      </div>
+    }
+
+    @if (isActiveEvent() && context()!.deadline.deadline_date) {
+      <div class="deadline-card fdp-card">
+        <mat-icon>event</mat-icon>
+        <div class="deadline-info">
+          <span class="deadline-label">Documents Deadline</span>
+          <span class="deadline-date">{{ formatDeadlineDate(context()!.deadline.deadline_date) }}</span>
+          @if (context()!.deadline.effective_cutoff && canEdit()) {
+            <span class="deadline-cutoff">
+              Changes may be made until {{ formatEffectiveCutoff(context()!.deadline.effective_cutoff) }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <p class="format-note">Accepted format: PDF only. Maximum size: 10 MB.</p>
+
+    @for (section of sections(); track section.type) {
+      <section class="doc-card fdp-card" [attr.aria-labelledby]="'doc-' + section.type">
+        <div class="doc-card-header">
+          <mat-icon class="doc-icon">description</mat-icon>
+          <div>
+            <h2 [id]="'doc-' + section.type">{{ section.label }}</h2>
+            <p class="doc-description">{{ section.description }}</p>
+          </div>
+          <span class="status-badge" [class]="statusClass(section.ctx.status)">
+            {{ statusLabel(section.ctx.status) }}
+          </span>
+        </div>
+
+        @if (section.ctx.current) {
+          @let doc = section.ctx.current;
+          <dl class="doc-meta">
+            <div class="meta-row">
+              <dt>File</dt>
+              <dd>{{ doc.original_filename }}</dd>
+            </div>
+            <div class="meta-row">
+              <dt>Size</dt>
+              <dd>{{ formatBytes(doc.size_bytes) }}</dd>
+            </div>
+            <div class="meta-row">
+              <dt>Uploaded</dt>
+              <dd>{{ doc.uploaded_at | date:'medium' }}</dd>
+            </div>
+          </dl>
+
+          @if (section.ctx.status === 'VERIFIED') {
+            <div class="verified-banner" role="status">
+              <mat-icon>verified</mat-icon>
+              <div>
+                <strong>Verified by FDF</strong>
+                @if (doc.verified_at) {
+                  <span>{{ doc.verified_at | date:'medium' }}</span>
+                }
+                <p>This document has been accepted and can no longer be replaced.</p>
+              </div>
+            </div>
+          }
+
+          @if (section.ctx.status === 'REJECTED' && doc.rejection_reason) {
+            <div class="rejected-banner" role="alert">
+              <mat-icon>error</mat-icon>
+              <div>
+                <strong>Action Required</strong>
+                <p>FDF rejected this document.</p>
+                <p class="rejection-reason"><strong>Reason:</strong> {{ doc.rejection_reason }}</p>
+              </div>
+            </div>
+          }
+
+          <div class="doc-actions">
+            <button mat-stroked-button (click)="viewDocument(doc.id)" aria-label="View {{ section.label }}">
+              <mat-icon>visibility</mat-icon> View
+            </button>
+            <button mat-stroked-button (click)="downloadDocument(doc.id, doc.original_filename)"
+                    aria-label="Download {{ section.label }}">
+              <mat-icon>download</mat-icon> Download
+            </button>
+          </div>
+        } @else {
+          <p class="no-doc">No document uploaded yet.</p>
+        }
+
+        @if (section.ctx.can_upload || section.ctx.can_replace) {
+          <div class="upload-area">
+            @if (section.ctx.can_replace) {
+              <p class="replace-note">The current version will remain in document history.</p>
+            }
+            @if (uploading() === section.type) {
+              <div class="uploading" role="status">
+                <mat-spinner diameter="24" />
+                <span>Uploading…</span>
+              </div>
+            } @else {
+              <label class="upload-btn" tabindex="0" role="button"
+                     [attr.aria-label]="section.ctx.current ? 'Upload replacement for ' + section.label : 'Upload ' + section.label">
+                <mat-icon>upload_file</mat-icon>
+                {{ section.ctx.current ? 'Upload Replacement' : 'Choose PDF' }}
+                <input type="file" class="file-input" accept="application/pdf,.pdf"
+                       (change)="onFileSelected($event, section.type)" />
+              </label>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <div class="history-toggle">
+      <button mat-button (click)="toggleHistory()">
+        <mat-icon>{{ showHistory() ? 'expand_less' : 'history' }}</mat-icon>
+        {{ showHistory() ? 'Hide Previous Versions' : 'Previous Versions' }}
+      </button>
+    </div>
+
+    @if (showHistory()) {
+      @for (section of sections(); track section.type) {
+        @if (historyForType(section.type).length > 0) {
+          <section class="history-card fdp-card">
+            <h3>{{ section.label }} — History</h3>
+            <ul class="history-list">
+              @for (h of historyForType(section.type); track h.id) {
+                <li>
+                  <span class="history-status" [class]="statusClass(h.verification_status)">
+                    {{ statusLabel(h.verification_status) }}
+                  </span>
+                  @if (h.is_current) { <span class="current-tag">Current</span> }
+                  <span class="history-date">{{ h.uploaded_at | date:'medium' }}</span>
+                  <button mat-icon-button (click)="viewDocument(h.id)"
+                          [attr.aria-label]="'View version from ' + h.uploaded_at">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      }
+    }
+  }
+</div>
