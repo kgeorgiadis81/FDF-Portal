@@ -1,0 +1,107 @@
+<h1 class="page-title">My Profile</h1>
+
+@if (loading()) {
+  <div class="fdp-spinner-overlay"><mat-spinner /></div>
+} @else if (error()) {
+  <p class="text-error">{{ error() }}</p>
+} @else if (profile()) {
+
+  @if (saved()) {
+    <div class="success-banner"><mat-icon>check_circle</mat-icon> Changes saved.</div>
+  }
+
+  <div class="profile-card fdp-card">
+
+    @if (!editMode()) {
+      <div class="profile-header">
+        <div class="avatar">{{ (profile()!.firstName || '')[0] }}{{ (profile()!.lastName || '')[0] }}</div>
+        <div>
+          <h2>{{ profile()!.name }}</h2>
+          <p class="text-muted">{{ profile()!.email }}</p>
+        </div>
+        <button mat-stroked-button class="edit-btn" (click)="startEdit()">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+      </div>
+
+      <dl class="info-list">
+        <div class="info-row">
+          <dt>First name</dt><dd>{{ profile()!.firstName }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Last name</dt><dd>{{ profile()!.lastName }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Email</dt>
+          <dd>
+            {{ profile()!.email }}
+            @if (profile()!.emailVerified) {
+              <span class="verified-badge"><mat-icon class="tiny">verified</mat-icon> Verified</span>
+            }
+          </dd>
+        </div>
+        <div class="info-row">
+          <dt>Phone</dt><dd>{{ profile()!.phoneNumber || '—' }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Sign-in methods</dt>
+          <dd>
+            <span class="auth-method">Password</span>
+            @if (profile()!.googleLinked) { <span class="auth-method google">Google</span> }
+          </dd>
+        </div>
+        <div class="info-row">
+          <dt>Consent</dt>
+          <dd>
+            @if (profile()!.consent.accepted) {
+              <span class="verified-badge"><mat-icon class="tiny">check_circle</mat-icon> Accepted (v{{ profile()!.consent.version }})</span>
+            } @else {
+              <span class="text-error">Pending</span>
+            }
+          </dd>
+        </div>
+      </dl>
+
+      <p class="read-only-note">
+        <mat-icon class="tiny">info</mat-icon>
+        Email and date of birth cannot be changed here. Contact FDF Management for account changes.
+      </p>
+    } @else {
+      <!-- Edit form -->
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="name-row">
+          <mat-form-field>
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="firstName" autocomplete="given-name" />
+            @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+              <mat-error>First name is required.</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="lastName" autocomplete="family-name" />
+            @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+              <mat-error>Last name is required.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field>
+          <mat-label>Phone number (optional)</mat-label>
+          <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" inputmode="tel" />
+        </mat-form-field>
+
+        @if (saveError()) {
+          <p class="form-error" role="alert">{{ saveError() }}</p>
+        }
+
+        <div class="edit-actions">
+          <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+            @if (saving()) { <mat-spinner diameter="18" /> } @else { Save changes }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+}

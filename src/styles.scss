@@ -1,0 +1,151 @@
+// FDF Portal — Global Styles
+// Design: simple, clear, trustworthy, mobile-first.
+// Palette: deep navy primary, warm gold accent, clean white/off-white surfaces.
+
+@use '@angular/material' as mat;
+
+// ─── Custom Palette ──────────────────────────────────────────────────────────
+// Navy blue for authority and trust; gold for warmth and Greek heritage.
+$portal-primary: mat.m2-define-palette(
+  mat.$m2-indigo-palette, 800, 600, 900
+);
+$portal-accent: mat.m2-define-palette(
+  mat.$m2-amber-palette, 600, 400, 800
+);
+$portal-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$portal-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $portal-primary,
+    accent:  $portal-accent,
+    warn:    $portal-warn,
+  ),
+  typography: mat.m2-define-typography-config(
+    $font-family: '"Inter", "Roboto", sans-serif',
+  ),
+  density: 0,
+));
+
+@include mat.all-component-themes($portal-theme);
+
+// ─── CSS Custom Properties ───────────────────────────────────────────────────
+:root {
+  --color-navy:         #283593;
+  --color-navy-dark:    #1a237e;
+  --color-gold:         #f9a825;
+  --color-gold-light:   #ffd54f;
+  --color-surface:      #ffffff;
+  --color-bg:           #f5f6fa;
+  --color-text-primary: #1c1c2e;
+  --color-text-muted:   #6b7280;
+  --color-error:        #d32f2f;
+  --color-success:      #2e7d32;
+  --color-border:       #e0e3ef;
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.10);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,.14);
+}
+
+// ─── Base Reset ───────────────────────────────────────────────────────────────
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+// ─── Typography Scale ─────────────────────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 { margin: 0; line-height: 1.2; font-weight: 700; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
+h2 { font-size: clamp(1.3rem, 3vw, 1.8rem); }
+h3 { font-size: 1.2rem; }
+
+p { margin: 0 0 0.75rem; }
+
+// ─── Links ───────────────────────────────────────────────────────────────────
+a {
+  color: var(--color-navy);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid var(--color-navy); outline-offset: 2px; border-radius: 2px; }
+}
+
+// ─── Utility Classes ─────────────────────────────────────────────────────────
+.text-muted  { color: var(--color-text-muted); }
+.text-error  { color: var(--color-error); }
+.text-success{ color: var(--color-success); }
+.text-center { text-align: center; }
+.mt-4 { margin-top: 1rem; }
+.mt-8 { margin-top: 2rem; }
+
+// ─── Card ─────────────────────────────────────────────────────────────────────
+.fdp-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+
+  @media (min-width: 480px) { padding: 2rem; }
+}
+
+// ─── Snackbar ─────────────────────────────────────────────────────────────────
+.snack-success { background: var(--color-success) !important; color: #fff !important; }
+.snack-error   { background: var(--color-error)   !important; color: #fff !important; }
+
+// ─── Form Fields — Material overrides ────────────────────────────────────────
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+.mat-mdc-raised-button.fdp-primary-btn {
+  background-color: var(--color-navy) !important;
+  color: #fff !important;
+  width: 100%;
+  height: 48px;
+  font-size: 1rem;
+  letter-spacing: .02em;
+  border-radius: var(--radius-sm) !important;
+}
+
+// ─── Loading spinner centering ────────────────────────────────────────────────
+.fdp-spinner-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+// ─── Read-only banner ─────────────────────────────────────────────────────────
+.fdp-readonly-banner {
+  background: #fff3e0;
+  border-left: 4px solid var(--color-gold);
+  border-radius: var(--radius-sm);
+  padding: .75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: .9rem;
+  color: #663c00;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+// ─── Responsive helpers ───────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .hide-mobile { display: none !important; }
+}

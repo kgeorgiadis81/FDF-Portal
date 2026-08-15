@@ -1,0 +1,96 @@
+---
+description: FDF UI/UX quality standards. Activates when creating or significantly modifying pages, dialogs, forms, navigation, tables, dashboards, cards, grids, or multi-step workflows.
+globs:
+  - "src/**/*.html"
+  - "src/**/*.ts"
+  - "src/**/*.scss"
+  - "src/**/*.css"
+alwaysApply: false
+---
+
+# FDF UI/UX Quality Standards
+
+## Mandatory Skills
+
+**When creating or substantially redesigning an interface**, read and follow:
+`.agents/skills/frontend-design/SKILL.md`
+
+**When reviewing or validating UI quality**, read and follow:
+`.agents/skills/frontend-design-review/SKILL.md`
+
+**For Angular-specific patterns**, see `fdf-angular-development.mdc`.
+
+These skills are complementary:
+- `frontend-design` → design creation and direction
+- `frontend-design-review` → quality review and validation
+
+## FDF UX Principles
+
+FDF Management is an **operational system**. Every UI decision must optimize for:
+
+1. **Operational speed** — users process records quickly under time pressure
+2. **Clarity** — purpose of every screen is immediately obvious
+3. **Low cognitive load** — minimise decisions, steps, and distractions
+4. **Strong information hierarchy** — critical data is visually dominant
+5. **Accessibility** — WCAG 2.1 AA minimum; usable by all staff
+6. **Responsive/mobile usability** — critical for both portal and admin flows
+7. **Design system consistency** — match existing Angular Material patterns already in use
+8. **Clear validation and errors** — users understand what is wrong and how to fix it
+9. **Safe destructive operations** — always confirm before delete/irreversible actions
+10. **Role-aware interfaces** — show only what the current role requires
+
+> Do not redesign something merely to make it visually different. Usability > aesthetics.
+
+## Mandatory Scope
+
+Apply these standards when creating or substantially modifying:
+- Pages and route-level views
+- Dialogs and overlays
+- Forms (any form with more than one field)
+- Navigation (sidebar, breadcrumbs, tabs)
+- Tables and data grids
+- Dashboards and summary views
+- Cards and list items
+- Mobile-specific layouts
+- Any workflow requiring multiple sequential user actions
+
+## Mobile-First / Responsive Requirements
+
+All new UI must be usable on Desktop, Laptop, Tablet, and Mobile.
+
+### Hard Requirements
+
+- **No horizontal page scrolling** on any mobile viewport (320px minimum)
+- **Touch targets ≥ 44×44px** for all interactive controls
+- **Readable typography** — minimum 16px body text on mobile
+- **Sensible form stacking** — single-column on mobile, multi-column where space allows
+- **Responsive tables** — use horizontal scroll container, collapsible columns, or card fallback depending on data criticality; never silently truncate important data
+- **Usable dialogs on small screens** — dialogs must not exceed viewport height; scrollable content inside dialog where necessary
+- **Proper spacing** — minimum 8px between interactive elements on touch
+- **Keyboard usability** — all interactive elements reachable via Tab; logical focus order
+- **Visible focus states** — `:focus-visible` outlines present and clearly visible
+- **Accessible form labels** — every input has an associated `<label>` or `aria-label`
+- **Accessible error messages** — linked to input via `aria-describedby` or Angular Material error pattern
+- **ARIA semantics** — use Angular Material semantics where available; add explicit ARIA only where Material does not already provide it
+- **No information conveyed by color alone** — always pair color with icon, text, or pattern
+
+## UI Completion Gate
+
+Before declaring any UI work complete:
+- [ ] `frontend-design-review` skill consulted
+- [ ] Angular patterns correct (see `fdf-angular-development.mdc`)
+- [ ] Desktop layout verified (≥1280px)
+- [ ] Tablet layout verified (768px–1024px)
+- [ ] Mobile layout verified (375px–767px)
+- [ ] No horizontal scroll on 375px viewport
+- [ ] Touch targets meet 44px minimum
+- [ ] Keyboard navigation tested
+- [ ] Focus indicators visible
+- [ ] Form labels and error messages accessible
+- [ ] Color contrast meets WCAG AA (4.5:1 text, 3:1 UI components)
+- [ ] Loading state present for async operations
+- [ ] Empty state handled gracefully
+- [ ] Error state communicated clearly
+- [ ] Destructive actions confirmed before execution
+- [ ] Playwright E2E test updated (see `fdf-e2e-testing.mdc`)
+- [ ] Security review performed where applicable (see `fdf-security.mdc`)

@@ -1,0 +1,49 @@
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: var(--color-navy-dark);
+}
+
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+
+  @media (max-width: 380px) { grid-template-columns: 1fr; }
+}
+
+.consent-row {
+  margin: .75rem 0;
+
+  a { color: var(--color-navy); }
+}
+
+.consent-error {
+  color: var(--color-error);
+  font-size: .8rem;
+  margin: .25rem 0 0 1.75rem;
+}
+
+.form-error {
+  color: var(--color-error);
+  font-size: .875rem;
+  margin: .5rem 0;
+  padding: .5rem .75rem;
+  background: #fdecea;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-error);
+}
+
+.signin-link {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: .875rem;
+  color: var(--color-text-muted);
+  a { font-weight: 600; }
+}
+
+mat-spinner {
+  display: inline-block;
+  --mdc-circular-progress-active-indicator-color: #fff;
+}

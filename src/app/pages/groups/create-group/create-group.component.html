@@ -1,0 +1,64 @@
+<div class="page-header">
+  <a routerLink="/dashboard" class="back-link">
+    <mat-icon>arrow_back</mat-icon> My Groups
+  </a>
+  <h1>Register a group</h1>
+</div>
+
+<div class="create-card fdp-card">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+    <mat-form-field>
+      <mat-label>Group name</mat-label>
+      <input matInput formControlName="name" maxlength="200" />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <mat-error>Group name is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Parish searchable autocomplete -->
+    <mat-form-field>
+      <mat-label>Parish</mat-label>
+      <input matInput formControlName="parishSearch"
+             [matAutocomplete]="parishAuto"
+             placeholder="Type to search parishes…" />
+      <mat-autocomplete #parishAuto="matAutocomplete"
+                        [displayWith]="displayParish.bind(this)"
+                        (optionSelected)="onParishSelected($event.option.value)">
+        @for (parish of (filteredParishes$ | async); track parish.id) {
+          <mat-option [value]="parish">
+            <span class="parish-name">{{ parish.name }}</span>
+            @if (parish.location) { <span class="parish-loc"> — {{ parish.location }}</span> }
+          </mat-option>
+        }
+      </mat-autocomplete>
+      @if (form.get('parishId')?.invalid && form.get('parishId')?.touched) {
+        <mat-error>Please select a parish from the list.</mat-error>
+      }
+      <mat-hint>Can't find your parish? Contact FDF Management.</mat-hint>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Group type</mat-label>
+      <mat-select formControlName="groupType">
+        @for (type of groupTypes; track type) {
+          <mat-option [value]="type">{{ type }}</mat-option>
+        }
+      </mat-select>
+      @if (form.get('groupType')?.invalid && form.get('groupType')?.touched) {
+        <mat-error>Please select a group type.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="form-actions">
+      <a mat-stroked-button routerLink="/dashboard">Cancel</a>
+      <button mat-raised-button color="primary" type="submit" [disabled]="loading()">
+        @if (loading()) { <mat-spinner diameter="20" /> } @else { Register group }
+      </button>
+    </div>
+  </form>
+</div>

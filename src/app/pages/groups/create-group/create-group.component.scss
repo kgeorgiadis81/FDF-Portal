@@ -1,0 +1,49 @@
+.page-header {
+  margin-bottom: 1.25rem;
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    font-size: .875rem;
+    color: var(--color-text-muted);
+    margin-bottom: .5rem;
+
+    mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+    &:hover { color: var(--color-navy); text-decoration: none; }
+  }
+
+  h1 { font-size: 1.5rem; }
+}
+
+.create-card {
+  max-width: 540px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+
+  button[mat-raised-button] {
+    background: var(--color-navy) !important;
+    color: #fff !important;
+    min-width: 140px;
+  }
+}
+
+.form-error {
+  color: var(--color-error);
+  font-size: .875rem;
+  padding: .5rem .75rem;
+  background: #fdecea;
+  border-radius: 6px;
+  border-left: 3px solid var(--color-error);
+  margin-top: .5rem;
+}
+
+.parish-loc { color: var(--color-text-muted); font-size: .85rem; }
+
+mat-spinner { display: inline-block; --mdc-circular-progress-active-indicator-color: #fff; }

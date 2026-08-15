@@ -1,0 +1,75 @@
+.page-title { font-size: 1.5rem; margin-bottom: 1.25rem; }
+
+.success-banner {
+  display: flex; align-items: center; gap: .5rem;
+  background: #e8f5e9; border-left: 4px solid var(--color-success);
+  border-radius: 6px; padding: .6rem 1rem; margin-bottom: 1rem;
+  color: var(--color-success); font-weight: 500;
+  mat-icon { font-size: 1.2rem; }
+}
+
+.profile-card { max-width: 600px; }
+
+.profile-header {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+
+  .avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--color-navy); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; font-weight: 700; flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  h2 { font-size: 1.2rem; margin-bottom: .1rem; }
+  p  { margin: 0; font-size: .875rem; }
+
+  .edit-btn { margin-left: auto; }
+}
+
+.info-list { margin: 0 0 1rem; padding: 0; }
+.info-row {
+  display: grid; grid-template-columns: 150px 1fr;
+  padding: .6rem 0; border-bottom: 1px solid var(--color-border);
+  &:last-child { border-bottom: none; }
+  dt { font-weight: 600; color: var(--color-text-muted); font-size: .875rem; }
+  dd { margin: 0; }
+  @media (max-width: 400px) { grid-template-columns: 1fr; gap: .15rem; }
+}
+
+.verified-badge {
+  display: inline-flex; align-items: center; gap: .2rem;
+  color: var(--color-success); font-size: .85rem; font-weight: 600;
+}
+
+.auth-method {
+  display: inline-block;
+  background: var(--color-bg); border: 1px solid var(--color-border);
+  border-radius: 4px; padding: .1rem .45rem; font-size: .8rem; margin-right: .35rem;
+  &.google { border-color: #4285f4; color: #4285f4; }
+}
+
+.tiny { font-size: 1rem; width: 1rem; height: 1rem; vertical-align: middle; }
+
+.read-only-note {
+  display: flex; align-items: center; gap: .4rem;
+  font-size: .8rem; color: var(--color-text-muted); margin: 0;
+}
+
+.name-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+  @media (max-width: 380px) { grid-template-columns: 1fr; }
+}
+
+.edit-actions {
+  display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1rem;
+  button[mat-raised-button] { background: var(--color-navy) !important; color: #fff !important; }
+}
+
+.form-error {
+  color: var(--color-error); font-size: .875rem; padding: .5rem .75rem;
+  background: #fdecea; border-radius: 6px; border-left: 3px solid var(--color-error);
+}
+
+mat-spinner { display: inline-block; --mdc-circular-progress-active-indicator-color: #fff; }

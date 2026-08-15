@@ -1,0 +1,95 @@
+:host { display: block; min-height: 100vh; }
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg);
+
+  &__nav {
+    background: var(--color-navy) !important;
+    color: #fff !important;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    height: 60px !important;
+  }
+
+  &__nav-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 1rem;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+    flex: 0 0 auto;
+
+    &:hover { text-decoration: none; opacity: .9; }
+  }
+
+  &__brand-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  &__brand-name {
+    letter-spacing: .04em;
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    flex: 1;
+    margin-left: 1rem;
+  }
+
+  &__link {
+    color: rgba(255,255,255,.85);
+    text-decoration: none;
+    padding: .4rem .8rem;
+    border-radius: 6px;
+    font-size: .9rem;
+    font-weight: 500;
+    transition: background .15s;
+
+    &:hover { background: rgba(255,255,255,.12); color: #fff; }
+    &.active { background: rgba(255,255,255,.18); color: #fff; }
+  }
+
+  &__menu-header {
+    padding: .75rem 1rem .5rem;
+    border-bottom: none;
+  }
+
+  &__menu-name {
+    font-weight: 600;
+    font-size: .95rem;
+    color: var(--color-text-primary);
+  }
+
+  &__content {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 1.5rem 1rem 2rem;
+
+    @media (min-width: 768px) { padding: 2rem 1.5rem; }
+    @media (min-width: 1024px){ padding: 2rem 2rem; }
+  }
+}
+
+// Force icon color in mat-menu
+::ng-deep .mat-mdc-menu-item .mat-icon { color: var(--color-text-muted); }

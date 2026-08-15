@@ -1,0 +1,35 @@
+.verify-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .75rem;
+  padding: .5rem 0;
+
+  h2 { font-size: 1.3rem; }
+  p  { color: var(--color-text-muted); }
+
+  &.success .state-icon { color: var(--color-success); }
+  &.error   .state-icon { color: var(--color-error); }
+  &.pending .state-icon { color: var(--color-navy); }
+
+  .state-icon { font-size: 3rem; width: 3rem; height: 3rem; }
+
+  button { margin-top: .5rem; min-width: 160px; }
+}
+
+.resent-msg {
+  color: var(--color-success);
+  font-weight: 500;
+  font-size: .9rem;
+}
+
+.actions-secondary {
+  margin-top: .5rem;
+  font-size: .85rem;
+}
+
+mat-spinner {
+  display: inline-block;
+  --mdc-circular-progress-active-indicator-color: var(--color-navy);
+}

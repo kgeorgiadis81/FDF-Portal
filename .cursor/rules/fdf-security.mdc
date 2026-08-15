@@ -1,0 +1,141 @@
+---
+description: FDF mandatory security rule. Always applied — FDF stores sensitive personal data including information relating to minors.
+alwaysApply: true
+---
+
+# FDF Mandatory Security Standards
+
+FDF Management stores sensitive personal information including data relating to minors.
+Security is non-negotiable. This rule applies to every agent session.
+
+## OWASP Security Procedures
+
+When performing security-sensitive work, use the vendored OWASP procedures:
+
+```
+tooling/owasp-security-playbook/code-security-skills/
+```
+
+Relevant plays and skills:
+- `plays/code-review-security.md` — general code security review
+- `plays/api-security-review.md` — API endpoint security
+- `plays/secrets-scan.md` — credential/secret detection
+- `plays/sca-audit.md` — dependency vulnerability audit
+- `plays/owasp-top10-web-review.md` — OWASP Top 10 web review
+- `skills/web-security-review/SKILL.md` — web security skill
+- `skills/api-security-review/SKILL.md` — API security skill
+- `skills/code-review-security/SKILL.md` — code review security skill
+- `skills/secrets-scan/SKILL.md` — secrets scanning skill
+- `skills/sca-audit/SKILL.md` — SCA dependency audit skill
+- `skills/security-guidance/SKILL.md` — general security guidance
+- `skills/securability-engineering/SKILL.md` — secure design skill
+- `skills/securability-engineering-review/SKILL.md` — secure design review
+
+## Triggers: When Security Review is Mandatory
+
+Security consideration is required whenever code touches:
+
+- Authentication (login, logout, session, tokens)
+- Authorization (roles, permissions, ownership)
+- PII: names, dates of birth, emails, phone numbers
+- Data relating to minors
+- Uploaded documents or files
+- Passwords or password reset flows
+- OAuth/OIDC flows
+- JWT/session handling
+- Database access or SQL
+- REST APIs (any endpoint)
+- File uploads or downloads
+- Reports containing PII
+- Audit logs
+- External integrations (Brevo, Google Auth)
+- Director group access and ownership
+
+## Authorization
+
+- **Never rely only on Angular route guards.**
+- Every protected backend operation must validate authorization server-side.
+- Future Director access must enforce group ownership server-side, not merely hide records in Angular.
+- Role checks must happen in the Express route handler or a dedicated middleware — not solely on the frontend.
+
+## PII Protection
+
+Never expose PII fields to roles that do not require them.
+
+**Never log:**
+- Dates of birth
+- Passwords (hashed or plaintext)
+- Password reset tokens
+- JWTs or OAuth tokens
+- Uploaded document contents
+- Sensitive roster information
+
+Avoid logging email or phone number unless genuinely necessary for debugging and approved.
+
+## SQL Security
+
+- All SQL must be **parameterized**.
+- Never concatenate user-controlled values into SQL strings.
+- Review all query-building code for injection risk.
+
+## Authentication Security
+
+Security-sensitive auth work must consider:
+- Brute-force protection and rate limiting
+- Secure password hashing (bcryptjs already in use — maintain appropriate cost factor)
+- Secure, unpredictable reset tokens with short expiry
+- Email verification for account operations
+- Account enumeration resistance (consistent error messages)
+- Token invalidation on password change/reset
+- Session expiry and renewal
+- CSRF protection where applicable (check SameSite cookie policy)
+- XSS implications for anything rendered in the browser
+- OAuth/OIDC token validation (audience, issuer, expiry)
+
+## File Uploads (Future)
+
+Roster and compliance uploads must validate:
+- MIME type (server-side, not only Content-Type header)
+- File extension whitelist
+- Maximum file size
+- Sanitized filename (prevent path traversal)
+- Authorized uploader
+- Access-controlled storage
+- Never store executable uploads in publicly accessible or executable locations
+
+## Secrets Management
+
+**Never commit:**
+- Brevo API keys
+- Google OAuth client secrets
+- Database passwords
+- JWT signing secrets
+- Encryption keys
+- Any `.env` values
+
+Use `.env` files (in `.gitignore`) and document required variables in `.env.example`.
+
+## Dependency Security
+
+Before declaring security-related implementation complete:
+
+1. Run `npm audit` in the relevant project directory.
+2. Assess each finding:
+   - Severity (Critical/High/Medium/Low)
+   - Whether the vulnerable code path is actually reachable in FDF
+   - Compatibility risk of upgrading
+   - Safest remediation (upgrade, patch, or accept with justification)
+3. **Do not automatically upgrade all dependencies** to resolve audit findings.
+4. Report unresolved **Critical** and **High** findings explicitly. Do not silently ignore them.
+
+## Security Completion Gate
+
+Before declaring security-sensitive work complete:
+- [ ] Authorization enforced server-side
+- [ ] PII minimized in responses
+- [ ] PII absent from logs
+- [ ] SQL fully parameterized
+- [ ] Secrets absent from code and version control
+- [ ] Relevant OWASP play/skill consulted
+- [ ] `npm audit` run; Critical/High findings addressed or documented
+- [ ] Relevant E2E tests cover permission-denied and authorization scenarios

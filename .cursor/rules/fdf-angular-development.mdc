@@ -1,0 +1,71 @@
+---
+description: Angular development standards for FDF Portal. Activates on Angular component, service, routing, and test work.
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.html"
+  - "src/**/*.scss"
+  - "src/**/*.css"
+alwaysApply: false
+---
+
+# FDF Angular Development Standards
+
+## Mandatory: Use the Angular Developer Skill
+
+Before creating or substantially editing any Angular artifact, read and follow:
+`.agents/skills/angular-developer/SKILL.md`
+
+This applies to:
+- Creating or editing components
+- Creating or editing services
+- Routing and route guards
+- Reactive and template-driven forms
+- Angular Signals, linkedSignal, resource
+- Dependency injection
+- Reusable UI abstractions
+- Accessibility (ARIA) in Angular
+- Angular testing (unit + integration)
+- Architecture refactoring
+
+## Project Context
+
+- **Framework**: Angular 22 (standalone components, Signals-first)
+- **UI Library**: Angular Material 22
+- **Package manager**: npm
+- **Backend**: Node.js/Express REST API
+- **Auth**: Google Sign-In (OAuth/OIDC) for Directors; JWT for backend validation
+- **Roles**: `Director` — group ownership enforced server-side
+
+## Architecture Rules
+
+- Use **standalone components** — do not introduce NgModules unless already present.
+- Use **Signals** for local reactive state (avoid `BehaviorSubject` for new code).
+- Use `inject()` instead of constructor injection for new services.
+- Follow **lazy-loaded routes** as already established in `app.routes.ts`.
+- Do not bypass the existing `AuthGuard`/`RoleGuard` pattern.
+- Server-side authorization must never be replaced by frontend-only guard logic.
+
+## Code Quality
+
+- Every public service method needs a JSDoc comment for non-trivial logic.
+- Never use `any` without justification — prefer typed models from `src/app/models/`.
+- Keep components focused — extract logic into services if business logic creeps in.
+- Run `ng lint` and `ng build` before declaring work complete.
+
+## UI Completion Gate
+
+Before declaring a UI change complete, verify:
+- [ ] Correct Angular patterns used (Signals, standalone, inject())
+- [ ] UI/UX design review performed (`frontend-design-review` skill)
+- [ ] Desktop layout verified
+- [ ] Mobile layout verified (no horizontal scroll, touch targets ≥ 44px)
+- [ ] Keyboard operation verified
+- [ ] Accessibility checked (roles, labels, live regions)
+- [ ] Loading state present where async operations occur
+- [ ] Empty state handled
+- [ ] Error state handled with user-readable messages
+- [ ] Validation errors accessible and descriptive
+- [ ] Role permissions respected (backend authorization also in place)
+- [ ] Playwright E2E test created or updated
+- [ ] Relevant Playwright test passes
+- [ ] Security implications reviewed (see `fdf-security.mdc`)

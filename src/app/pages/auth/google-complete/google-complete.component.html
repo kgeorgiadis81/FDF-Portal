@@ -1,0 +1,47 @@
+<h1 class="page-title">Complete your FDF profile</h1>
+<p class="page-desc">We need a few more details to set up your Director account.</p>
+
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="name-row">
+    <mat-form-field>
+      <mat-label>First name</mat-label>
+      <input matInput formControlName="firstName" autocomplete="given-name" />
+      @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+        <mat-error>First name is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Last name</mat-label>
+      <input matInput formControlName="lastName" autocomplete="family-name" />
+      @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+        <mat-error>Last name is required.</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <mat-form-field>
+    <mat-label>Date of birth</mat-label>
+    <input matInput type="date" formControlName="dateOfBirth" [max]="today" autocomplete="bday" />
+    @if (form.get('dateOfBirth')?.invalid && form.get('dateOfBirth')?.touched) {
+      <mat-error>Date of birth is required.</mat-error>
+    }
+  </mat-form-field>
+
+  <div class="consent-row">
+    <mat-checkbox formControlName="consentAccepted" color="primary">
+      I accept the FDF Portal <a href="#" target="_blank" rel="noopener">Privacy & Data Responsibility</a> terms.
+    </mat-checkbox>
+    @if (form.get('consentAccepted')?.invalid && form.get('consentAccepted')?.touched) {
+      <p class="consent-error">You must accept the terms to continue.</p>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="form-error" role="alert">{{ error() }}</p>
+  }
+
+  <button mat-raised-button class="fdp-primary-btn mt-4" type="submit" [disabled]="loading()">
+    @if (loading()) { <mat-spinner diameter="20" /> } @else { Complete setup }
+  </button>
+</form>

@@ -1,0 +1,100 @@
+<!-- Welcome header -->
+<div class="dashboard-header">
+  <div>
+    <h1 class="welcome">Welcome, {{ directorName() }}</h1>
+    <p class="subtitle">Manage your FDF group registrations.</p>
+  </div>
+</div>
+
+<!-- Event context -->
+<div class="event-bar">
+  @if (loadingEvents()) {
+    <mat-spinner diameter="24" />
+  } @else if (allEvents().length > 1) {
+    <mat-form-field class="event-select">
+      <mat-label>Event</mat-label>
+      <mat-select [value]="selectedEventId()" (valueChange)="onEventChange($event)">
+        @for (evt of allEvents(); track evt.id) {
+          <mat-option [value]="evt.id">
+            {{ evt.name }}{{ evt.isActive ? ' — Active' : '' }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  } @else if (selectedEvent()) {
+    <div class="event-badge">
+      <span class="event-name">{{ selectedEvent()?.name }}</span>
+      @if (selectedEvent()?.isActive) {
+        <span class="badge active">Active Event</span>
+      } @else {
+        <span class="badge past">Past Event · Read Only</span>
+      }
+    </div>
+  }
+</div>
+
+<!-- Groups section -->
+<section class="groups-section">
+  <div class="groups-header">
+    <h2>My Groups</h2>
+    @if (isViewingActiveEvent()) {
+      <a mat-raised-button color="primary" routerLink="/groups/new" class="create-btn">
+        <mat-icon>add</mat-icon> Register a Group
+      </a>
+    }
+  </div>
+
+  @if (loadingGroups()) {
+    <div class="fdp-spinner-overlay"><mat-spinner /></div>
+  } @else if (groups().length === 0) {
+    <!-- Empty state -->
+    <div class="empty-state">
+      <mat-icon class="empty-icon">groups</mat-icon>
+      @if (isViewingActiveEvent()) {
+        <h3>No groups registered yet</h3>
+        <p>You haven't registered a group for this FDF event yet.</p>
+        <a mat-raised-button color="primary" routerLink="/groups/new">Register a Group</a>
+      } @else {
+        <h3>No groups for this event</h3>
+        <p>You did not register any groups for this past event.</p>
+      }
+    </div>
+  } @else {
+    <div class="group-grid">
+      @for (group of groups(); track group.id) {
+        <a [routerLink]="['/groups', group.id]" class="group-card fdp-card">
+          @if (!group.event.isActive) {
+            <div class="read-only-tag">Read only</div>
+          }
+          <div class="group-type-badge">{{ group.groupType }}</div>
+          <h3 class="group-name">{{ group.name }}</h3>
+          <p class="group-parish">
+            <mat-icon class="inline-icon">place</mat-icon>
+            {{ group.parish?.name || 'Parish not set' }}
+            @if (group.parish?.location) { · {{ group.parish?.location }} }
+          </p>
+          <div class="group-footer">
+            <!-- Roster status -->
+            <div class="roster-status">
+              <mat-icon class="roster-icon">people</mat-icon>
+              @if (group.rosterSubmittedAt) {
+                <span class="roster-label submitted">
+                  Roster submitted
+                </span>
+              } @else if (group.rosterMemberCount > 0) {
+                <span class="roster-label in-progress">
+                  {{ group.rosterMemberCount }} participant{{ group.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
+                </span>
+              } @else {
+                <span class="roster-label not-started">
+                  Roster not started
+                </span>
+              }
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</section>

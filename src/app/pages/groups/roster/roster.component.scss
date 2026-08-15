@@ -1,0 +1,486 @@
+.roster-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 0 48px;
+}
+
+/* ── Page header ─────────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 8px 0 2px;
+  color: var(--mat-sys-on-surface);
+}
+
+.event-name {
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* ── Status banners ──────────────────────────────────────────── */
+.fdp-readonly-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--mat-sys-surface-variant);
+  border-left: 4px solid var(--mat-sys-secondary);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+
+  mat-icon { color: var(--mat-sys-secondary); margin-top: 2px; flex-shrink: 0; }
+
+  div { display: flex; flex-direction: column; gap: 4px; }
+
+  strong { font-weight: 600; }
+  span { font-size: 0.875rem; color: var(--mat-sys-on-surface-variant); }
+}
+
+.fdp-deadline-banner {
+  border-color: var(--mat-sys-error);
+  mat-icon { color: var(--mat-sys-error); }
+}
+
+/* ── Deadline card ───────────────────────────────────────────── */
+.deadline-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: var(--mat-sys-surface-container-low);
+
+  mat-icon { color: var(--mat-sys-primary); margin-top: 2px; flex-shrink: 0; }
+}
+
+.deadline-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.deadline-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--mat-sys-on-surface-variant);
+  font-weight: 500;
+}
+
+.deadline-date {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--mat-sys-on-surface);
+}
+
+.deadline-cutoff {
+  font-size: 0.8125rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* ── Submitted banner ────────────────────────────────────────── */
+.submitted-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+/* ── Roster sections ─────────────────────────────────────────── */
+.roster-section {
+  margin-bottom: 20px;
+  padding: 20px 24px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 2px;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.section-count {
+  font-size: 0.8125rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.add-btn {
+  flex-shrink: 0;
+}
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: 0.4; }
+  p { margin: 0; }
+  .empty-hint { font-size: 0.875rem; }
+}
+
+/* ── Participants table ───────────────────────────────────────── */
+.participants-table {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 140px 110px 80px;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.table-header {
+  background: var(--mat-sys-surface-container);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--mat-sys-on-surface-variant);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.table-row {
+  font-size: 0.9375rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--mat-sys-surface-container-lowest); }
+}
+
+.age-col {
+  text-align: right;
+}
+
+.age-note {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.7;
+}
+
+.age-value {
+  text-align: right;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.actions-col {
+  text-align: right;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+/* ── Chaperones ──────────────────────────────────────────────── */
+.chaperones-section {}
+
+.chaperone-requirement {
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+
+  &.satisfied {
+    background: rgba(100,200,100, 0.12);
+    border: 1px solid rgba(100,200,100, 0.30);
+  }
+
+  &.unsatisfied {
+    background: rgba(220,53,69, 0.10);
+    border: 1px solid rgba(220,53,69, 0.25);
+  }
+}
+
+.chaperone-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  strong { color: var(--mat-sys-on-surface); }
+}
+
+.no-chaperone-required {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; opacity: 0.6; }
+}
+
+.requirement-met,
+.requirement-unmet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.requirement-met {
+  color: var(--mat-sys-tertiary);
+}
+
+.requirement-unmet {
+  color: var(--mat-sys-error);
+}
+
+.chaperones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chaperone-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+
+  &.unconfirmed {
+    border-color: rgba(220,53,69, 0.30);
+    background: rgba(220,53,69, 0.05);
+  }
+}
+
+.chaperone-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.chaperone-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.chaperone-phone {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.875rem;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+.confirmation-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &.confirmed {
+    background: rgba(100,200,100, 0.15);
+    color: var(--mat-sys-tertiary);
+  }
+
+  &.unconfirmed {
+    background: rgba(220,53,69, 0.12);
+    color: var(--mat-sys-error);
+  }
+}
+
+.chaperone-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.chaperone-empty {
+  text-align: center;
+  padding: 20px;
+}
+
+/* ── Submission ──────────────────────────────────────────────── */
+.submission-section {
+  h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+}
+
+.submission-summary {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 0.9375rem;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  &:last-child { border-bottom: none; }
+
+  span { color: var(--mat-sys-on-surface-variant); }
+  strong { font-weight: 600; }
+  .satisfied { color: var(--mat-sys-tertiary); }
+  .unsatisfied { color: var(--mat-sys-error); }
+}
+
+.validation-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(220,53,69, 0.08);
+  color: var(--mat-sys-error);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+}
+
+.submit-roster-btn {
+  width: 100%;
+  height: 44px;
+}
+
+/* ── Error / loading ─────────────────────────────────────────── */
+.fdp-spinner-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-error); }
+  a { color: var(--mat-sys-primary); }
+}
+
+/* ── Responsive: mobile ──────────────────────────────────────── */
+@media (max-width: 600px) {
+  .roster-section {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+
+    .add-btn { width: 100%; }
+  }
+
+  /* Switch table to card layout on mobile */
+  .participants-table {
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 8px;
+
+    > span::before {
+      display: inline;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--mat-sys-on-surface-variant);
+      margin-right: 6px;
+      content: attr(data-label) ': ';
+    }
+
+    .row-actions {
+      justify-content: flex-start;
+      margin-top: 4px;
+    }
+  }
+
+  .age-value { text-align: left; }
+
+  .chaperone-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    .chaperone-actions {
+      align-self: flex-end;
+    }
+  }
+
+  .chaperone-stats {
+    flex-direction: column;
+    gap: 6px;
+  }
+}

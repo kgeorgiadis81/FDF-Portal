@@ -1,0 +1,142 @@
+<div class="page-header">
+  <a routerLink="/dashboard" class="back-link">
+    <mat-icon>arrow_back</mat-icon> My Groups
+  </a>
+</div>
+
+@if (loading()) {
+  <div class="fdp-spinner-overlay"><mat-spinner /></div>
+} @else if (error()) {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <a routerLink="/dashboard">Back to My Groups</a>
+  </div>
+} @else if (group()) {
+
+  @if (!group()!.event.isActive) {
+    <div class="fdp-readonly-banner">
+      <mat-icon>history</mat-icon>
+      This group belongs to a past FDF event and is read-only.
+    </div>
+  }
+
+  @if (saved()) {
+    <div class="success-banner">
+      <mat-icon>check_circle</mat-icon> Changes saved.
+    </div>
+  }
+
+  <div class="group-card fdp-card">
+    <div class="group-card-header">
+      <div>
+        <span class="type-badge">{{ group()!.groupType }}</span>
+        @if (!editMode()) {
+          <h1 class="group-name">{{ group()!.name }}</h1>
+        }
+      </div>
+      @if (!group()!.isReadOnly && !editMode()) {
+        <button mat-stroked-button (click)="startEdit()">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+      }
+    </div>
+
+    @if (!editMode()) {
+      <!-- Read view -->
+      <dl class="info-list">
+        <div class="info-row">
+          <dt>Parish</dt>
+          <dd>{{ group()!.parish?.name || '—' }}{{ group()!.parish?.location ? ' — ' + group()!.parish?.location : '' }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Group type</dt>
+          <dd>{{ group()!.groupType }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Event</dt>
+          <dd>{{ group()!.event.name }}</dd>
+        </div>
+        <div class="info-row">
+          <dt>Primary Director</dt>
+          <dd>{{ group()!.primaryDirector.name || '—' }}</dd>
+        </div>
+      </dl>
+
+      <!-- Phase 4: Roster navigation -->
+      @if (!editMode()) {
+        <div class="roster-nav">
+          <div class="roster-overview">
+            <mat-icon class="roster-icon">people</mat-icon>
+            <div class="roster-overview-info">
+              <span class="roster-heading">Roster</span>
+              @if (group()!.rosterSubmittedAt) {
+                <span class="roster-status submitted">Submitted</span>
+              } @else if (group()!.rosterMemberCount > 0) {
+                <span class="roster-status in-progress">
+                  {{ group()!.rosterMemberCount }} participant{{ group()!.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
+                </span>
+              } @else {
+                <span class="roster-status not-started">Not started</span>
+              }
+            </div>
+          </div>
+          <a [routerLink]="['/groups', group()!.id, 'roster']"
+             mat-stroked-button
+             class="roster-link"
+             aria-label="Manage this group's roster">
+            <mat-icon>people</mat-icon>
+            Manage Roster
+          </a>
+        </div>
+      }
+    } @else {
+      <!-- Edit form -->
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <mat-form-field>
+          <mat-label>Group name</mat-label>
+          <input matInput formControlName="name" maxlength="200" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <mat-error>Group name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Parish</mat-label>
+          <input matInput formControlName="parishSearch"
+                 [matAutocomplete]="parishAuto"
+                 placeholder="Search parishes…" />
+          <mat-autocomplete #parishAuto="matAutocomplete"
+                            [displayWith]="displayParish.bind(this)"
+                            (optionSelected)="onParishSelected($event.option.value)">
+            @for (p of (filteredParishes$ | async); track p.id) {
+              <mat-option [value]="p">
+                {{ p.name }}@if (p.location) { — {{ p.location }} }
+              </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Group type</mat-label>
+          <mat-select formControlName="groupType">
+            @for (t of groupTypes; track t) {
+              <mat-option [value]="t">{{ t }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (saveError()) {
+          <p class="form-error" role="alert">{{ saveError() }}</p>
+        }
+
+        <div class="edit-actions">
+          <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
+            @if (saving()) { <mat-spinner diameter="18" /> } @else { Save changes }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+}

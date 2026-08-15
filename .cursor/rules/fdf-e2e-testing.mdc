@@ -1,0 +1,115 @@
+---
+description: FDF E2E testing standards for the FDF Portal. Activates when creating or modifying any user-visible action, workflow, page, or API that a Director interacts with.
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.html"
+  - "e2e/**/*.ts"
+alwaysApply: false
+---
+
+# FDF Portal E2E Testing Standards (Playwright)
+
+## Core Rule
+
+> A feature is **not complete** when its user-visible behavior has changed but its Playwright E2E coverage has not been updated.
+
+Any implementation that creates or modifies a user-visible action or workflow **must** create or update the corresponding Playwright E2E tests.
+
+## Playwright Skills
+
+For browser interaction, test debugging, and advanced Playwright capabilities, use:
+- `.agents/skills/playwright-dev/SKILL.md` — development and test writing
+- `.agents/skills/playwright-test-results/SKILL.md` — analyzing test results
+- `.agents/skills/playwright-triage/SKILL.md` — debugging failures
+- `.agents/skills/playwright-devops/SKILL.md` — CI/CD integration
+
+## Scope: When to Write or Update Tests
+
+Tests are required for changes to:
+
+### Authentication & Authorization
+- Director Google Sign-In flow
+- Director email/password login
+- Signup and consent flows
+- Session expiry behaviour
+- IDOR and ownership enforcement
+
+### CRUD Operations
+- Group management (create, view, update)
+- Roster management (add/edit/remove members)
+- Chaperone management
+
+### Forms
+- Required field validation
+- Format validation (email, date of birth, etc.)
+- Server-side error surfacing
+- Submission success/failure
+
+### Navigation
+- Route transitions
+- Director-specific navigation
+- Role-based navigation visibility
+
+### Data Interactions
+- Roster filtering and search
+- Group roster table interactions
+- File uploads (when applicable)
+
+### Security
+- IDOR tests — Directors must not access other Directors' groups
+- Authorization boundary tests
+
+## Test Architecture
+
+```
+e2e/
+  auth/               — director login, signup, consent, session
+  groups/             — my groups, group detail, roster management
+  security/           — IDOR tests, authorization boundary tests
+  fixtures/           — authentication state files, test data
+  support/            — page objects, helpers, auth utilities
+```
+
+## Selectors
+
+Prefer in this order:
+1. `getByRole()` — semantic role + accessible name
+2. `getByLabel()` — form field labels
+3. `getByText()` — visible text content
+4. `getByTestId()` — only where above cannot uniquely identify
+
+Never use brittle CSS class selectors that encode implementation details.
+
+## Authentication Strategy
+
+- Use `storageState` fixtures to avoid re-authenticating in every test.
+- Maintain auth state files per test user under `e2e/fixtures/`.
+- Tests that validate auth itself must perform the full login flow.
+
+## Test Environment Rules
+
+- **Never run destructive tests against the production database.**
+- Tests must be deterministic — no dependency on ambient database state.
+- Use seeded test data and controlled fixtures.
+- Document the test environment prerequisites in `e2e/README.md`.
+
+## Running Tests
+
+```bash
+npm run e2e              # Portal tests on Chromium desktop
+npm run e2e:mobile       # Portal mobile tests
+npm run e2e:all          # All portal browser projects
+```
+
+## Backend Completion Gate
+
+For backend/API/database changes:
+- [ ] Authentication enforced where required
+- [ ] Authorization enforced server-side (group ownership validated)
+- [ ] IDOR tests pass (Directors cannot access other Directors' data)
+- [ ] SQL parameterized (no concatenation)
+- [ ] Input validation present
+- [ ] PII minimized in API responses
+- [ ] PII absent from logs
+- [ ] Relevant Playwright E2E tests pass
+- [ ] OWASP security review performed (see `fdf-security.mdc`)

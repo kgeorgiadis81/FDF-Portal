@@ -1,0 +1,46 @@
+@if (verifying()) {
+  <div class="verify-state">
+    <mat-spinner diameter="48" />
+    <p>Verifying your email…</p>
+  </div>
+} @else if (verified()) {
+  <div class="verify-state success">
+    <mat-icon class="state-icon">check_circle</mat-icon>
+    <h2>Email verified!</h2>
+    <p>Your email address has been confirmed. You can now sign in.</p>
+    <button mat-raised-button class="fdp-primary-btn" (click)="goToLogin()">Sign in</button>
+  </div>
+} @else if (error()) {
+  <div class="verify-state error">
+    <mat-icon class="state-icon">error</mat-icon>
+    <h2>Link expired</h2>
+    <p>{{ error() }}</p>
+    @if (email()) {
+      <button mat-stroked-button color="primary" (click)="resend()" [disabled]="resending()">
+        @if (resending()) { <mat-spinner diameter="18" /> } @else { Send a new link }
+      </button>
+    }
+  </div>
+} @else {
+  <div class="verify-state pending">
+    <mat-icon class="state-icon mail">mark_email_unread</mat-icon>
+    <h2>Check your email</h2>
+    @if (maskedEmail()) {
+      <p>We sent a verification link to<br /><strong>{{ maskedEmail() }}</strong></p>
+    } @else {
+      <p>A verification link has been sent to your email address.</p>
+    }
+
+    @if (resent()) {
+      <p class="resent-msg">A new link has been sent. Check your inbox.</p>
+    } @else {
+      <button mat-stroked-button color="primary" (click)="resend()" [disabled]="resending()">
+        @if (resending()) { <mat-spinner diameter="18" /> } @else { Resend email }
+      </button>
+    }
+
+    <div class="actions-secondary">
+      <a routerLink="/auth/login">Use a different account</a>
+    </div>
+  </div>
+}

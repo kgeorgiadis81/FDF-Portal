@@ -1,0 +1,137 @@
+import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AsyncPipe } from '@angular/common';
+import { Observable } from 'rxjs';
+import { startWith, map } from 'rxjs/operators';
+import { GroupService, PortalGroup } from '../../../services/group.service';
+import { ParishService, Parish } from '../../../services/parish.service';
+
+@Component({
+  selector: 'fdp-group-detail',
+  imports: [
+    ReactiveFormsModule, RouterLink, AsyncPipe,
+    MatButtonModule, MatIconModule, MatFormFieldModule,
+    MatInputModule, MatSelectModule, MatAutocompleteModule,
+    MatProgressSpinnerModule,
+  ],
+  templateUrl: './group-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './group-detail.component.scss',
+})
+export class GroupDetailComponent implements OnInit {
+  group      = signal<PortalGroup | null>(null);
+  loading    = signal(true);
+  saving     = signal(false);
+  error      = signal('');
+  saveError  = signal('');
+  saved      = signal(false);
+  editMode   = signal(false);
+
+  form!: FormGroup;
+  parishes   = signal<Parish[]>([]);
+  filteredParishes$!: Observable<Parish[]>;
+  readonly groupTypes = ['Dance', 'Choral'];
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private fb: FormBuilder,
+    private groupSvc: GroupService,
+    private parishSvc: ParishService,
+  ) {}
+
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (!id) { this.router.navigate(['/dashboard']); return; }
+
+    this.groupSvc.getGroup(id).subscribe({
+      next: (g) => {
+        this.group.set(g);
+        this.loading.set(false);
+        this.initForm(g);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.error.set('Group not found or access denied.');
+      },
+    });
+
+    this.parishSvc.getAll().subscribe({
+      next: (ps) => this.parishes.set(ps),
+      error: () => {},
+    });
+  }
+
+  private initForm(g: PortalGroup): void {
+    this.form = this.fb.group({
+      name:         [g.name, [Validators.required, Validators.maxLength(200)]],
+      parishId:     [g.parish?.id || null, Validators.required],
+      parishSearch: [g.parish ? this.displayParish(g.parish) : ''],
+      groupType:    [g.groupType, Validators.required],
+    });
+
+    this.filteredParishes$ = this.form.get('parishSearch')!.valueChanges.pipe(
+      startWith(g.parish ? this.displayParish(g.parish) : ''),
+      map(v => typeof v === 'string' ? v : this.displayParish(v)),
+      map(v => this.filterParishes(v)),
+    );
+  }
+
+  displayParish(p: Parish | any | null): string {
+    if (!p) return '';
+    if (typeof p === 'string') return p;
+    return p.location ? `${p.name} — ${p.location}` : p.name;
+  }
+
+  private filterParishes(query: string): Parish[] {
+    const q = (query || '').toLowerCase();
+    return this.parishes().filter(p =>
+      p.name.toLowerCase().includes(q) || (p.location || '').toLowerCase().includes(q)
+    );
+  }
+
+  onParishSelected(parish: Parish): void {
+    this.form.patchValue({ parishId: parish.id, parishSearch: this.displayParish(parish) });
+  }
+
+  startEdit(): void { this.editMode.set(true); this.saved.set(false); this.saveError.set(''); }
+  cancelEdit(): void { this.editMode.set(false); this.initForm(this.group()!); }
+
+  save(): void {
+    this.form.markAllAsTouched();
+    if (this.form.invalid || this.saving()) return;
+
+    this.saving.set(true);
+    this.saveError.set('');
+    const g = this.group()!;
+
+    this.groupSvc.updateGroup(g.id, {
+      name:      this.form.value.name.trim(),
+      parishId:  this.form.value.parishId,
+      groupType: this.form.value.groupType,
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.saved.set(true);
+        this.editMode.set(false);
+        // Refresh group data
+        this.groupSvc.getGroup(g.id).subscribe(updated => {
+          this.group.set(updated);
+          this.initForm(updated);
+        });
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.saveError.set(err.error?.error || 'Could not save changes.');
+      },
+    });
+  }
+}

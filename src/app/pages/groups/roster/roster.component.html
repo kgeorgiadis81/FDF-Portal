@@ -1,0 +1,322 @@
+<div class="roster-page">
+
+  @if (loading()) {
+    <div class="fdp-spinner-overlay" role="status" aria-label="Loading roster…">
+      <mat-spinner />
+    </div>
+  } @else if (error()) {
+    <div class="error-state" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <a [routerLink]="['/groups', groupId]">Back to Group</a>
+    </div>
+  } @else if (context()) {
+
+    <!-- ── Page header ──────────────────────────────────────────────── -->
+    <div class="page-header">
+      <a [routerLink]="['/groups', groupId]" class="back-link">
+        <mat-icon>arrow_back</mat-icon> Back to Group
+      </a>
+      <h1 class="page-title">Roster</h1>
+      <span class="event-name">{{ context()!.group.eventName }}</span>
+    </div>
+
+    <!-- ── Status banners ───────────────────────────────────────────── -->
+    @if (!isActiveEvent()) {
+      <div class="fdp-readonly-banner" role="status">
+        <mat-icon>history</mat-icon>
+        <div>
+          <strong>Past Event — Read Only</strong>
+          <span>This roster belongs to a past FDF event and can no longer be changed.</span>
+        </div>
+      </div>
+    } @else if (isReadOnly()) {
+      <div class="fdp-readonly-banner fdp-deadline-banner" role="status">
+        <mat-icon>lock_clock</mat-icon>
+        <div>
+          <strong>Roster editing is closed.</strong>
+          <span>This roster can no longer be changed because the registration deadline has passed.
+                For assistance, contact FDF Management.</span>
+        </div>
+      </div>
+    }
+
+    <!-- ── Deadline info ────────────────────────────────────────────── -->
+    @if (isActiveEvent() && context()!.deadline.deadline_date) {
+      <div class="deadline-card fdp-card">
+        <mat-icon>event</mat-icon>
+        <div class="deadline-info">
+          <span class="deadline-label">Roster Deadline</span>
+          <span class="deadline-date">{{ formatDeadlineDate(context()!.deadline.deadline_date) }}</span>
+          @if (context()!.deadline.effective_cutoff && canEdit()) {
+            <span class="deadline-cutoff">
+              You may make changes until
+              {{ formatEffectiveCutoff(context()!.deadline.effective_cutoff) }}
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ── Submission status ─────────────────────────────────────────── -->
+    @if (context()!.submission?.submitted_at) {
+      <div class="submitted-banner" role="status">
+        <mat-icon>check_circle</mat-icon>
+        <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+      </div>
+    }
+
+    <!-- ── Participants section ──────────────────────────────────────── -->
+    <section class="roster-section fdp-card" aria-labelledby="participants-heading">
+      <div class="section-header">
+        <div>
+          <h2 id="participants-heading">Participants</h2>
+          <span class="section-count" aria-live="polite">
+            @if (context()!.summary.member_count > 0) {
+              {{ context()!.summary.member_count }}
+              participant{{ context()!.summary.member_count !== 1 ? 's' : '' }}
+            }
+          </span>
+        </div>
+        @if (canEdit()) {
+          <button mat-raised-button color="primary"
+                  class="add-btn"
+                  [disabled]="saving()"
+                  (click)="openAddParticipant()"
+                  aria-label="Add a participant to this roster">
+            <mat-icon>add</mat-icon>
+            Add Participant
+          </button>
+        }
+      </div>
+
+      @if (members().length === 0) {
+        <div class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <p>No participants have been added yet.</p>
+          @if (canEdit()) {
+            <p class="empty-hint">Start by adding the participants who will perform with this group.</p>
+            <button mat-stroked-button color="primary"
+                    (click)="openAddParticipant()">
+              <mat-icon>add</mat-icon> Add Participant
+            </button>
+          }
+        </div>
+      } @else {
+        <!-- Desktop table -->
+        <div class="participants-table" role="table" aria-label="Participants">
+          <div class="table-header" role="row">
+            <span role="columnheader">First Name</span>
+            <span role="columnheader">Last Name</span>
+            <span role="columnheader">Date of Birth</span>
+            <span role="columnheader" class="age-col">
+              Age at FDF
+              <span class="age-note" aria-label="This value is calculated, not editable">(calculated)</span>
+            </span>
+            @if (canEdit()) {
+              <span role="columnheader" class="actions-col">Actions</span>
+            }
+          </div>
+
+          @for (member of members(); track member.id) {
+            <div class="table-row" role="row">
+              <span role="cell" [attr.data-label]="'First Name'">{{ member.first_name }}</span>
+              <span role="cell" [attr.data-label]="'Last Name'">{{ member.last_name }}</span>
+              <span role="cell" [attr.data-label]="'Date of Birth'">{{ member.date_of_birth }}</span>
+              <span role="cell" [attr.data-label]="'Age at FDF'"
+                    class="age-value"
+                    aria-readonly="true">
+                {{ member.age_at_fdf !== null ? member.age_at_fdf : '—' }}
+              </span>
+              @if (canEdit()) {
+                <span role="cell" class="row-actions">
+                  <button mat-icon-button
+                          [attr.aria-label]="'Edit ' + member.first_name + ' ' + member.last_name"
+                          [disabled]="saving()"
+                          (click)="openEditParticipant(member)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn"
+                          [attr.aria-label]="'Remove ' + member.first_name + ' ' + member.last_name"
+                          [disabled]="saving()"
+                          (click)="confirmDeleteParticipant(member)">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ── Chaperones section ────────────────────────────────────────── -->
+    <section class="roster-section fdp-card chaperones-section" aria-labelledby="chaperones-heading">
+      <div class="section-header">
+        <div>
+          <h2 id="chaperones-heading">Chaperones</h2>
+        </div>
+        @if (canEdit()) {
+          <button mat-raised-button color="primary"
+                  class="add-btn"
+                  [disabled]="saving()"
+                  (click)="openAddChaperone()"
+                  aria-label="Add a chaperone">
+            <mat-icon>add</mat-icon>
+            Add Chaperone
+          </button>
+        }
+      </div>
+
+      <!-- Requirement summary -->
+      @if (context()!.summary.minor_count === 0) {
+        <div class="chaperone-status no-chaperone-required" role="status">
+          <mat-icon>info_outline</mat-icon>
+          <span>No chaperone is required for this group — all participants are 18 or older.</span>
+        </div>
+      } @else {
+        <div class="chaperone-requirement" role="status"
+             [class.satisfied]="context()!.summary.chaperone_requirement_satisfied"
+             [class.unsatisfied]="!context()!.summary.chaperone_requirement_satisfied">
+          <div class="chaperone-stats">
+            <span>
+              <strong>{{ context()!.summary.minor_count }}</strong>
+              participant{{ context()!.summary.minor_count !== 1 ? 's' : '' }} under 18
+            </span>
+            <span>Required chaperones: <strong>{{ context()!.summary.required_chaperones }}</strong></span>
+            <span>Provided chaperones: <strong>{{ context()!.summary.provided_chaperones }}</strong></span>
+          </div>
+          @if (context()!.summary.chaperone_requirement_satisfied) {
+            <div class="requirement-met" aria-label="Chaperone requirement satisfied">
+              <mat-icon>check_circle</mat-icon>
+              <span>Chaperone requirement satisfied</span>
+            </div>
+          } @else {
+            <div class="requirement-unmet" aria-live="assertive">
+              <mat-icon>warning</mat-icon>
+              <span>
+                {{ context()!.summary.required_chaperones - context()!.summary.provided_chaperones }}
+                additional chaperone{{ (context()!.summary.required_chaperones - context()!.summary.provided_chaperones) !== 1 ? 's' : '' }}
+                required
+              </span>
+            </div>
+          }
+        </div>
+      }
+
+      @if (chaperones().length === 0) {
+        <div class="empty-state chaperone-empty">
+          <p>No chaperones have been added yet.</p>
+        </div>
+      } @else {
+        <div class="chaperones-list">
+          @for (chap of chaperones(); track chap.id) {
+            <div class="chaperone-card" [class.unconfirmed]="!chaperoneIsConfirmed(chap)">
+              <div class="chaperone-info">
+                <span class="chaperone-name">{{ chap.first_name }} {{ chap.last_name }}</span>
+                @if (chap.phone) {
+                  <span class="chaperone-phone">
+                    <mat-icon aria-hidden="true">phone</mat-icon>
+                    {{ chap.phone }}
+                  </span>
+                }
+                @if (chaperoneIsConfirmed(chap)) {
+                  <span class="confirmation-badge confirmed" aria-label="Age confirmation provided">
+                    <mat-icon>verified</mat-icon> 21+ confirmed
+                  </span>
+                } @else {
+                  <span class="confirmation-badge unconfirmed" aria-label="Age confirmation not provided">
+                    <mat-icon>warning</mat-icon> 21+ not confirmed
+                  </span>
+                }
+              </div>
+              @if (canEdit()) {
+                <div class="chaperone-actions">
+                  <button mat-icon-button
+                          [attr.aria-label]="'Edit chaperone ' + chap.first_name + ' ' + chap.last_name"
+                          [disabled]="saving()"
+                          (click)="openEditChaperone(chap)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn"
+                          [attr.aria-label]="'Remove chaperone ' + chap.first_name + ' ' + chap.last_name"
+                          [disabled]="saving()"
+                          (click)="confirmDeleteChaperone(chap)">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ── Submission section ────────────────────────────────────────── -->
+    @if (canEdit()) {
+      <section class="roster-section fdp-card submission-section" aria-labelledby="submit-heading">
+        <h2 id="submit-heading">Submit Roster</h2>
+
+        @if (submissionValidation; as val) {
+          <div class="submission-summary" role="region" aria-label="Roster submission summary">
+            <div class="summary-row">
+              <span>Participants</span>
+              <strong>{{ val.participantCount }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Under 18</span>
+              <strong>{{ val.minorCount }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Required Chaperones</span>
+              <strong>{{ val.requiredChaperones }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Provided Chaperones</span>
+              <strong [class.satisfied]="val.chaperonesSatisfied"
+                      [class.unsatisfied]="!val.chaperonesSatisfied">
+                {{ val.providedChaperones }}
+                @if (val.chaperonesSatisfied) { ✓ }
+              </strong>
+            </div>
+            @if (val.unconfirmedCount > 0) {
+              <div class="validation-warning" role="alert">
+                <mat-icon>warning</mat-icon>
+                {{ val.unconfirmedCount }} chaperone{{ val.unconfirmedCount !== 1 ? 's' : '' }}
+                without 21+ age confirmation — required before submitting.
+              </div>
+            }
+            @if (val.participantCount === 0) {
+              <div class="validation-warning" role="alert">
+                <mat-icon>warning</mat-icon>
+                At least one participant is required before submitting.
+              </div>
+            }
+            @if (!val.chaperonesSatisfied && val.participantCount > 0) {
+              <div class="validation-warning" role="alert">
+                <mat-icon>warning</mat-icon>
+                Chaperone requirement is not satisfied.
+              </div>
+            }
+          </div>
+
+          <button mat-raised-button color="primary"
+                  class="submit-roster-btn"
+                  [disabled]="!val.canSubmit || submitting()"
+                  (click)="confirmSubmitRoster()"
+                  aria-describedby="submit-heading">
+            @if (submitting()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              <ng-container>
+                <mat-icon>send</mat-icon>
+                Submit Roster
+              </ng-container>
+            }
+          </button>
+        }
+      </section>
+    }
+
+  }
+</div>

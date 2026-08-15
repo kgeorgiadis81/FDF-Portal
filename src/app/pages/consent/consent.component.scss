@@ -1,0 +1,57 @@
+.consent-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(160deg, #1a237e 0%, #283593 100%);
+}
+
+.consent-card {
+  max-width: 560px;
+  width: 100%;
+  margin-top: 1rem;
+
+  .consent-brand {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-navy);
+    margin-bottom: 1.25rem;
+  }
+
+  h1 { font-size: 1.5rem; margin-bottom: .5rem; }
+
+  .lead { color: var(--color-text-muted); margin-bottom: 1rem; }
+
+  .consent-text {
+    background: var(--color-bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    font-size: .875rem;
+    max-height: 200px;
+    overflow-y: auto;
+
+    ul { margin: .5rem 0 0 1.25rem; padding: 0; }
+    li { margin-bottom: .4rem; }
+  }
+
+  .consent-check { margin: .75rem 0; }
+
+  .form-error {
+    color: var(--color-error);
+    font-size: .875rem;
+    padding: .5rem .75rem;
+    background: #fdecea;
+    border-radius: 6px;
+    border-left: 3px solid var(--color-error);
+  }
+
+  .logout-btn {
+    display: block;
+    margin: .75rem auto 0;
+    color: var(--color-text-muted);
+  }
+}
+
+mat-spinner { display: inline-block; --mdc-circular-progress-active-indicator-color: #fff; }
