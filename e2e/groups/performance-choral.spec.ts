@@ -151,6 +151,15 @@ test.describe('Choral song CRUD', () => {
 
 test.describe('Choral song reorder', () => {
   test('Reorder via Move up persists after reload', async ({ page }) => {
+    const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+    const groupId = await findGroupId(E2E_PERFORMANCE_GROUPS.CHORAL);
+    const perfId = await getFinalPerformanceId(groupId, token);
+    const data = await getPerformanceData(groupId, token);
+    const perf = data.performances.find((p) => p.id === perfId);
+    for (const entry of perf?.entries ?? []) {
+      await deletePerformanceEntry(groupId, perfId, entry.id, token);
+    }
+
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await openPerformanceForGroup(page, E2E_PERFORMANCE_GROUPS.CHORAL);
     await page.getByRole('tab', { name: 'Final', exact: true }).click();
@@ -163,12 +172,15 @@ test.describe('Choral song reorder', () => {
       await expect(page.getByRole('dialog')).not.toBeVisible();
     }
 
-    const alphaCard = page.locator('.entry-card').filter({ hasText: `Song Alpha ${ts}` }).first();
+    const alphaLabel = `Song Alpha ${ts}`;
+    const alphaCard = page.locator('.entry-card').filter({ hasText: alphaLabel }).first();
     await alphaCard.locator('.entry-actions').getByRole('button', { name: 'Move down' }).click();
-    await alphaCard.locator('.entry-actions').getByRole('button', { name: 'Move down' }).click();
+    await expect(page.locator('.entry-card').filter({ hasText: alphaLabel }).first()).toContainText(alphaLabel);
+    await page.locator('.entry-card').filter({ hasText: alphaLabel }).first()
+      .locator('.entry-actions').getByRole('button', { name: 'Move down' }).click();
 
     const cards = page.locator('.entry-card').filter({ hasText: ts.toString() });
-    await expect(cards.nth(0)).toContainText(`Song Beta ${ts}`);
+    await expect(cards.nth(0)).toContainText(`Song Beta ${ts}`, { timeout: 10000 });
     await expect(cards.nth(1)).toContainText(`Song Gamma ${ts}`);
     await expect(cards.nth(2)).toContainText(`Song Alpha ${ts}`);
 

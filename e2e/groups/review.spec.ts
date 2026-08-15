@@ -21,10 +21,15 @@ import {
   uploadDocumentApi,
   rejectDocumentApi,
   clearDocumentDeadline,
+  resetGroupDocuments,
 } from '../support/document-helpers';
+import {
+  createCostumeConflict,
+  deleteCostumeConflict,
+  getCostumeConflicts,
+} from '../support/costume-helpers';
 
 test.use({ baseURL: PORTAL_BASE_URL });
-test.describe.configure({ mode: 'serial' });
 
 const DANCE_GROUP  = 'E2E Group Alpha';
 const CHORAL_GROUP = 'E2E Choral Group Alpha';
@@ -170,10 +175,80 @@ test.describe('Choral Registration Review', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Conflict summary — real backend data, not hard-coded zeros
+// ---------------------------------------------------------------------------
+test.describe('Review — conflict summary', () => {
+  test('musician conflict on Alpha reflects in summary API and review UI', async ({ page }) => {
+    const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+    const groupId = await findGroupId(DANCE_GROUP);
+
+    const summary = await (await fetch(`${PORTAL_API_URL}/portal/groups/${groupId}/registration-summary`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })).json() as {
+      conflicts: {
+        musicianConflicts: number;
+        directorConflicts: number;
+        dancerConflicts: number;
+        costumeConflicts: number;
+      };
+      actionRequired: string[];
+    };
+
+    expect(summary.conflicts.musicianConflicts).toBeGreaterThan(0);
+    expect(summary.actionRequired).toContain('Potential scheduling conflicts detected');
+
+    await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
+    await page.goto(`/groups/${groupId}/review`);
+    const conflictsCard = page.locator('.module-card').filter({ hasText: 'Conflicts' });
+    await expect(conflictsCard.getByText(/\d+ detected/)).toBeVisible({ timeout: 15_000 });
+    await expect(conflictsCard.getByText('No conflicts detected')).not.toBeVisible();
+    await expect(page.locator('.action-required-card')).toBeVisible();
+  });
+
+  test('costume conflict create and delete updates review summary', async ({ page }) => {
+    const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+    const groupId = await findGroupId('E2E Group A2');
+    const relatedId = await findGroupId(BETA_GROUP, DIRECTOR_B.email, DIRECTOR_B.password);
+
+    const created = await createCostumeConflict(groupId, {
+      round: 'Semi-Final',
+      related_group_id: relatedId,
+      costume_count: 4,
+    }, token);
+    expect(created.status).toBe(201);
+
+    const withConflict = await (await fetch(`${PORTAL_API_URL}/portal/groups/${groupId}/registration-summary`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })).json() as { conflicts: { costumeConflicts: number } };
+    expect(withConflict.conflicts.costumeConflicts).toBeGreaterThan(0);
+
+    await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
+    await page.goto(`/groups/${groupId}/review`);
+    const conflictsCard = page.locator('.module-card').filter({ hasText: 'Conflicts' });
+    await expect(conflictsCard.getByText('Costume')).toBeVisible({ timeout: 15_000 });
+
+    const conflicts = await getCostumeConflicts(groupId, token);
+    const conflict = conflicts.find((c) => c.costume_count === 4)!;
+    await deleteCostumeConflict(groupId, conflict.id, token);
+
+    const afterDelete = await (await fetch(`${PORTAL_API_URL}/portal/groups/${groupId}/registration-summary`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })).json() as { conflicts: { costumeConflicts: number } };
+    const prevCostume = withConflict.conflicts.costumeConflicts;
+    expect(afterDelete.conflicts.costumeConflicts).toBeLessThan(prevCostume);
+
+    await page.reload();
+    await expect(conflictsCard.getByText('Costume')).not.toBeVisible();
+    expect(afterDelete.conflicts.costumeConflicts).toBeLessThan(withConflict.conflicts.costumeConflicts);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Action Required: rejected document
 // ---------------------------------------------------------------------------
 test.describe('Review — Action Required for rejected document', () => {
   test('rejected Youth Safety shows Action Required on review page', async ({ page }) => {
+    await resetGroupDocuments('E2E Group A2');
     const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
     const adminToken = await adminApiLogin('e2e_reg_admin');
     // Use E2E Group A2 for this test (keep Alpha clean)

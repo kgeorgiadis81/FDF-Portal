@@ -14,13 +14,13 @@ import {
   rejectDocumentApi,
   setDocumentDeadline,
   clearDocumentDeadline,
+  resetGroupDocuments,
   DOCUMENT_DEADLINE_FUTURE,
   DOCUMENT_DEADLINE_PAST,
   createTestPdfBuffer,
 } from '../support/document-helpers';
 
 test.use({ baseURL: PORTAL_BASE_URL });
-test.describe.configure({ mode: 'serial' });
 
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
 
@@ -60,10 +60,11 @@ test.describe('Documents page', () => {
 test.describe('Signed Roster full lifecycle', () => {
   test.beforeAll(async () => {
     await setDocumentDeadline(DOCUMENT_DEADLINE_FUTURE);
+    await resetGroupDocuments(E2E_DOCUMENT_GROUPS.LIFECYCLE);
   });
 
   test('cross-portal: upload → admin pending → reject → replace → verify → lock', async ({ page }) => {
-    const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.DEADLINE_OPEN);
+    const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.LIFECYCLE);
     const directorToken = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
     const adminToken = await adminApiLogin('e2e_reg_admin');
 
@@ -101,8 +102,12 @@ test.describe('Signed Roster full lifecycle', () => {
 });
 
 test.describe('Youth Safety lifecycle', () => {
+  test.beforeAll(async () => {
+    await resetGroupDocuments(E2E_DOCUMENT_GROUPS.A2);
+  });
+
   test('independent upload and verify', async () => {
-    const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.CHORAL);
+    const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.A2);
     const directorToken = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
     const adminToken = await adminApiLogin('e2e_reg_admin');
 

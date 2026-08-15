@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-test.describe.configure({ mode: 'serial' });
 import { DIRECTOR_A, DIRECTOR_B, PORTAL_API_URL } from '../fixtures';
 import {
   E2E_DOCUMENT_GROUPS,
@@ -11,6 +10,7 @@ import {
   getDocumentsApi,
   getDocumentContentApi,
   createTestPdfBuffer,
+  resetGroupDocuments,
 } from '../support/document-helpers';
 
 test.describe('Document IDOR protection', () => {
@@ -81,6 +81,7 @@ test.describe('Document role security', () => {
   });
 
   test('Director cannot verify own document', async () => {
+    await resetGroupDocuments(E2E_DOCUMENT_GROUPS.DEADLINE_CLOSED);
     const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.DEADLINE_CLOSED);
     const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
     const upload = await uploadDocumentApi(groupId, 'SIGNED_ROSTER', token);
@@ -93,7 +94,8 @@ test.describe('Document role security', () => {
   });
 
   test('Competitions Admin cannot verify documents', async () => {
-    const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.A2);
+    await resetGroupDocuments(E2E_DOCUMENT_GROUPS.DEADLINE_CLOSED);
+    const groupId = await findGroupId(E2E_DOCUMENT_GROUPS.DEADLINE_CLOSED);
     const directorToken = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
     const compToken = await adminApiLogin('e2e_comp_admin');
     const upload = await uploadDocumentApi(groupId, 'YOUTH_SAFETY', directorToken);

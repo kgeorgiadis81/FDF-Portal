@@ -1,6 +1,8 @@
 /**
  * Phase 7 — Registration document E2E helpers.
  */
+import { execSync } from 'child_process';
+import path from 'path';
 import {
   PORTAL_API_URL,
   DIRECTOR_A,
@@ -18,6 +20,7 @@ export const E2E_DOCUMENT_GROUPS = {
   BETA_DIRECTOR: 'E2E Group Beta Director',
   DEADLINE_OPEN: 'E2E Document Deadline Open',
   DEADLINE_CLOSED: 'E2E Document Deadline Closed',
+  LIFECYCLE: 'E2E Document Lifecycle',
 } as const;
 
 export const DOCUMENT_DEADLINE_FUTURE = '2030-02-05';
@@ -136,6 +139,14 @@ export async function rejectDocumentApi(
     },
   );
   if (!resp.ok) throw new Error(`reject failed: ${resp.status}`);
+}
+
+export async function resetGroupDocuments(groupName: string): Promise<void> {
+  const backendDir = path.resolve(__dirname, '../../../FDF_Backend');
+  execSync(
+    `NODE_ENV=test DOTENV_CONFIG_PATH=.env.e2e node -r dotenv/config scripts/e2e-reset-group-documents.js "${groupName}"`,
+    { cwd: backendDir, stdio: 'pipe' },
+  );
 }
 
 export { findGroupId, portalApiLogin, adminApiLogin, DIRECTOR_A, DIRECTOR_B, PORTAL_API_URL };

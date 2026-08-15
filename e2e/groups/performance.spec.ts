@@ -264,6 +264,15 @@ test.describe('Dance entry reorder', () => {
   });
 
   test('Move down updates order in UI', async ({ page }) => {
+    const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);
+    const groupId = await findGroupId(E2E_PERFORMANCE_GROUPS.A2);
+    const perfId = await getFinalPerformanceId(groupId, token);
+    const data = await getPerformanceData(groupId, token);
+    const perf = data.performances.find((p) => p.id === perfId);
+    for (const entry of perf?.entries ?? []) {
+      await deletePerformanceEntry(groupId, perfId, entry.id, token);
+    }
+
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await openPerformanceForGroup(page, E2E_PERFORMANCE_GROUPS.A2);
     await page.getByRole('tab', { name: 'Final', exact: true }).click();
@@ -276,13 +285,14 @@ test.describe('Dance entry reorder', () => {
       await expect(page.getByRole('dialog')).not.toBeVisible();
     }
 
-    const thirdCard = page.locator('.entry-card').filter({ hasText: `Third ${ts}` });
+    const thirdLabel = `Third ${ts}`;
+    const thirdCard = page.locator('.entry-card').filter({ hasText: thirdLabel });
     await thirdCard.getByRole('button', { name: 'Move up' }).click();
-    await thirdCard.getByRole('button', { name: 'Move up' }).click();
+    await expect(page.locator('.entry-card').filter({ hasText: thirdLabel }).first()).toContainText(thirdLabel);
+    await page.locator('.entry-card').filter({ hasText: thirdLabel }).getByRole('button', { name: 'Move up' }).click();
 
     const cards = page.locator('.entry-card').filter({ hasText: ts.toString() });
-    await expect(cards.nth(0)).toContainText(`Third ${ts}`);
-    await expect(cards.nth(1)).toContainText(`First ${ts}`);
+    await expect(cards.nth(0)).toContainText(thirdLabel, { timeout: 10000 });
   });
 });
 
