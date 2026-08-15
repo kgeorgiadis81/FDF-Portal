@@ -1,0 +1,328 @@
+<div class="page-header">
+  <a [routerLink]="['/groups', groupId]" class="back-link">
+    <mat-icon>arrow_back</mat-icon> Group Details
+  </a>
+</div>
+
+@if (loading()) {
+  <div class="fdp-spinner-overlay"><mat-spinner /></div>
+} @else if (error()) {
+  <div class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ error() }}</p>
+    <a routerLink="/dashboard">Back to My Groups</a>
+  </div>
+} @else if (summary()) {
+
+  <div class="review-header">
+    <div>
+      <h1 class="review-title">Registration Review</h1>
+      <p class="review-group-name">{{ summary()!.group.name }}</p>
+    </div>
+  </div>
+
+  @if (!isActive()) {
+    <div class="fdp-readonly-banner">
+      <mat-icon>history</mat-icon>
+      Past Event — Read Only
+    </div>
+  }
+
+  <!-- Action Required -->
+  @if (hasActions()) {
+    <div class="action-required-card fdp-card">
+      <div class="action-required-header">
+        <mat-icon class="action-icon">warning</mat-icon>
+        <h2>Action Required</h2>
+      </div>
+      <ul class="action-list" role="list">
+        @for (item of summary()!.actionRequired; track item) {
+          <li class="action-item">
+            <mat-icon class="action-item-icon">chevron_right</mat-icon>
+            {{ item }}
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="modules-grid">
+
+    <!-- Group Details -->
+    <div class="module-card fdp-card">
+      <div class="module-header">
+        <mat-icon class="module-icon">group</mat-icon>
+        <h2 class="module-title">Group Details</h2>
+      </div>
+      <dl class="module-info">
+        <div class="module-row">
+          <dt>Parish</dt>
+          <dd>
+            @if (summary()!.group.parish) {
+              {{ summary()!.group.parish!.name }}
+              @if (summary()!.group.parish!.location) { · {{ summary()!.group.parish!.location }} }
+            } @else { — }
+          </dd>
+        </div>
+        <div class="module-row">
+          <dt>Group type</dt>
+          <dd>{{ summary()!.group.groupType }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Primary Director</dt>
+          <dd>{{ summary()!.directors.primaryDirector?.name || '—' }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Co-Directors</dt>
+          <dd>{{ summary()!.directors.coDirectorCount }}</dd>
+        </div>
+      </dl>
+      @if (isActive()) {
+        <a [routerLink]="['/groups', groupId]" mat-stroked-button class="module-link">
+          <mat-icon>edit</mat-icon> Edit Group Details
+        </a>
+      }
+    </div>
+
+    <!-- Roster -->
+    <div class="module-card fdp-card">
+      <div class="module-header">
+        <mat-icon class="module-icon">people</mat-icon>
+        <h2 class="module-title">Roster</h2>
+        <span class="module-status" [class]="submissionClass(summary()!.roster.submittedAt, summary()!.roster.deadline)">
+          {{ submissionLabel(summary()!.roster.submittedAt, summary()!.roster.deadline) }}
+        </span>
+      </div>
+      <dl class="module-info">
+        <div class="module-row">
+          <dt>Members</dt>
+          <dd>{{ summary()!.roster.memberCount }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Minors</dt>
+          <dd>{{ summary()!.roster.minorCount }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Chaperones</dt>
+          <dd>
+            {{ summary()!.roster.providedChaperones }} / {{ summary()!.roster.requiredChaperones }} required
+            @if (summary()!.roster.chaperoneRequirementSatisfied) {
+              <mat-icon class="inline-check">check_circle</mat-icon>
+            } @else {
+              <mat-icon class="inline-warn">warning</mat-icon>
+            }
+          </dd>
+        </div>
+        <div class="module-row">
+          <dt>Deadline</dt>
+          <dd>{{ formatDeadline(summary()!.roster.deadline.deadlineDate) }}</dd>
+        </div>
+      </dl>
+      <a [routerLink]="['/groups', groupId, 'roster']" mat-stroked-button class="module-link">
+        <mat-icon>people</mat-icon>
+        {{ actionLink(summary()!.roster.submittedAt, summary()!.roster.deadline.canEdit, 'Roster') }}
+      </a>
+    </div>
+
+    <!-- Performance -->
+    <div class="module-card fdp-card">
+      <div class="module-header">
+        <mat-icon class="module-icon">theater_comedy</mat-icon>
+        <h2 class="module-title">Performance</h2>
+        <span class="module-status" [class]="submissionClass(summary()!.performance.submittedAt, summary()!.performance.deadline)">
+          {{ submissionLabel(summary()!.performance.submittedAt, summary()!.performance.deadline) }}
+        </span>
+      </div>
+      <dl class="module-info">
+        <div class="module-row">
+          <dt>Type</dt>
+          <dd>{{ summary()!.performance.submissionType === 'DANCE_PERFORMANCE' ? 'Dance Performance' : 'Choral Performance' }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Semi-Final entries</dt>
+          <dd>{{ summary()!.performance.semiFinalCount }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Final entries</dt>
+          <dd>{{ summary()!.performance.finalCount }}</dd>
+        </div>
+        <div class="module-row">
+          <dt>Deadline</dt>
+          <dd>{{ formatDeadline(summary()!.performance.deadline.deadlineDate) }}</dd>
+        </div>
+      </dl>
+      <a [routerLink]="['/groups', groupId, 'performance']" mat-stroked-button class="module-link">
+        <mat-icon>theater_comedy</mat-icon>
+        {{ actionLink(summary()!.performance.submittedAt, summary()!.performance.deadline.canEdit, 'Performance') }}
+      </a>
+    </div>
+
+    <!-- Costumes (Dance only) -->
+    @if (isDance() && summary()!.costume) {
+      <div class="module-card fdp-card">
+        <div class="module-header">
+          <mat-icon class="module-icon">checkroom</mat-icon>
+          <h2 class="module-title">Costumes</h2>
+          <span class="module-status" [class]="submissionClass(summary()!.costume!.submittedAt, summary()!.costume!.deadline)">
+            {{ submissionLabel(summary()!.costume!.submittedAt, summary()!.costume!.deadline) }}
+          </span>
+        </div>
+        <dl class="module-info">
+          <div class="module-row">
+            <dt>Semi-Final</dt>
+            <dd>
+              @if (summary()!.costume!.semiFinalComplete) {
+                <mat-icon class="inline-check">check_circle</mat-icon> Complete
+              } @else {
+                <mat-icon class="inline-warn">pending</mat-icon> Incomplete
+              }
+            </dd>
+          </div>
+          <div class="module-row">
+            <dt>Final</dt>
+            <dd>
+              @if (summary()!.costume!.finalComplete) {
+                <mat-icon class="inline-check">check_circle</mat-icon> Complete
+              } @else {
+                <mat-icon class="inline-warn">pending</mat-icon> Incomplete
+              }
+            </dd>
+          </div>
+          <div class="module-row">
+            <dt>Deadline</dt>
+            <dd>{{ formatDeadline(summary()!.costume!.deadline.deadlineDate) }}</dd>
+          </div>
+        </dl>
+        <a [routerLink]="['/groups', groupId, 'costumes']" mat-stroked-button class="module-link">
+          <mat-icon>checkroom</mat-icon>
+          {{ actionLink(summary()!.costume!.submittedAt, summary()!.costume!.deadline.canEdit, 'Costumes') }}
+        </a>
+      </div>
+    }
+
+    <!-- Documents -->
+    <div class="module-card fdp-card">
+      <div class="module-header">
+        <mat-icon class="module-icon">folder</mat-icon>
+        <h2 class="module-title">Documents</h2>
+      </div>
+      <dl class="module-info">
+        <div class="module-row">
+          <dt>Signed Roster</dt>
+          <dd>
+            <span class="doc-status" [class]="docClass(summary()!.documents.signedRoster.status)">
+              {{ docLabel(summary()!.documents.signedRoster.status, isActive()) }}
+            </span>
+          </dd>
+        </div>
+        <div class="module-row">
+          <dt>Youth Safety</dt>
+          <dd>
+            <span class="doc-status" [class]="docClass(summary()!.documents.youthSafety.status)">
+              {{ docLabel(summary()!.documents.youthSafety.status, isActive()) }}
+            </span>
+          </dd>
+        </div>
+      </dl>
+      <a [routerLink]="['/groups', groupId, 'documents']" mat-stroked-button class="module-link">
+        <mat-icon>folder</mat-icon>
+        {{ isActive() ? 'Manage Documents' : 'View Documents' }}
+      </a>
+    </div>
+
+    <!-- Conflicts -->
+    <div class="module-card fdp-card">
+      <div class="module-header">
+        <mat-icon class="module-icon">swap_horiz</mat-icon>
+        <h2 class="module-title">Conflicts</h2>
+        @if (totalConflicts() > 0) {
+          <span class="module-status status-rejected">{{ totalConflicts() }} detected</span>
+        } @else {
+          <span class="module-status status-submitted">None</span>
+        }
+      </div>
+      @if (totalConflicts() > 0) {
+        <dl class="module-info">
+          @if (summary()!.conflicts.directorConflicts > 0) {
+            <div class="module-row">
+              <dt>Director</dt>
+              <dd>{{ summary()!.conflicts.directorConflicts }}</dd>
+            </div>
+          }
+          @if (summary()!.conflicts.dancerConflicts > 0) {
+            <div class="module-row">
+              <dt>Dancer</dt>
+              <dd>{{ summary()!.conflicts.dancerConflicts }}</dd>
+            </div>
+          }
+          @if (summary()!.conflicts.musicianConflicts > 0) {
+            <div class="module-row">
+              <dt>Musician</dt>
+              <dd>{{ summary()!.conflicts.musicianConflicts }}</dd>
+            </div>
+          }
+          @if (summary()!.conflicts.costumeConflicts > 0) {
+            <div class="module-row">
+              <dt>Costume</dt>
+              <dd>{{ summary()!.conflicts.costumeConflicts }}</dd>
+            </div>
+          }
+        </dl>
+      } @else {
+        <p class="no-conflicts">No conflicts detected.</p>
+      }
+    </div>
+
+  </div>
+
+  <!-- Submission summary -->
+  <div class="submission-summary fdp-card">
+    <h2 class="summary-heading">Submission Timeline</h2>
+    <dl class="module-info">
+      <div class="module-row">
+        <dt>Roster</dt>
+        <dd>{{ formatTimestamp(summary()!.roster.submittedAt) }}</dd>
+      </div>
+      <div class="module-row">
+        <dt>Performance</dt>
+        <dd>{{ formatTimestamp(summary()!.performance.submittedAt) }}</dd>
+      </div>
+      @if (isDance() && summary()!.costume) {
+        <div class="module-row">
+          <dt>Costumes</dt>
+          <dd>{{ formatTimestamp(summary()!.costume!.submittedAt) }}</dd>
+        </div>
+      }
+      <div class="module-row">
+        <dt>Signed Roster doc</dt>
+        <dd>{{ formatTimestamp(summary()!.documents.signedRoster.submittedAt) }}</dd>
+      </div>
+      <div class="module-row">
+        <dt>Youth Safety doc</dt>
+        <dd>{{ formatTimestamp(summary()!.documents.youthSafety.submittedAt) }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Deadlines overview -->
+  <div class="deadlines-card fdp-card">
+    <h2 class="summary-heading">Deadlines</h2>
+    <dl class="module-info">
+      <div class="module-row">
+        <dt>Roster</dt>
+        <dd>{{ formatDeadline(summary()!.roster.deadline.deadlineDate) }}</dd>
+      </div>
+      <div class="module-row">
+        <dt>Performance</dt>
+        <dd>{{ formatDeadline(summary()!.performance.deadline.deadlineDate) }}</dd>
+      </div>
+      @if (isDance() && summary()!.costume) {
+        <div class="module-row">
+          <dt>Costumes</dt>
+          <dd>{{ formatDeadline(summary()!.costume!.deadline.deadlineDate) }}</dd>
+        </div>
+      }
+    </dl>
+  </div>
+
+}

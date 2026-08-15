@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -44,7 +45,17 @@ export class DashboardComponent implements OnInit {
     private auth: AuthService,
     private events: EventService,
     private groupSvc: GroupService,
+    private router: Router,
   ) {}
+
+  navigateToGroup(id: number): void {
+    this.router.navigate(['/groups', id]);
+  }
+
+  navigateToReview(event: Event, id: number): void {
+    event.stopPropagation();
+    this.router.navigate(['/groups', id, 'review']);
+  }
 
   ngOnInit(): void {
     this.loadEvents();

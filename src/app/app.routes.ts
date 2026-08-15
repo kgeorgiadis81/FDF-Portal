@@ -92,6 +92,10 @@ export const routes: Routes = [
                 path: 'documents',
                 loadComponent: () => import('./pages/groups/documents/documents.component').then(m => m.DocumentsComponent),
               },
+              {
+                path: 'review',
+                loadComponent: () => import('./pages/groups/review/review.component').then(m => m.ReviewComponent),
+              },
             ],
           },
         ],

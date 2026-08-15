@@ -91,6 +91,7 @@
   text-decoration: none;
   color: inherit;
   position: relative;
+  cursor: pointer;
   transition: box-shadow .18s, transform .18s;
 
   &:hover {
@@ -180,6 +181,21 @@
       align-items: center;
       gap: 4px;
       font-size: 0.8rem;
+    }
+  }
+
+  .card-review-row {
+    margin-top: .75rem;
+    padding-top: .75rem;
+    border-top: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+
+    .review-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: .8125rem;
     }
   }
 }

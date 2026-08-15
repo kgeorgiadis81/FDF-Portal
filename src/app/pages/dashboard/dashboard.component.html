@@ -62,7 +62,9 @@
   } @else {
     <div class="group-grid">
       @for (group of groups(); track group.id) {
-        <a [routerLink]="['/groups', group.id]" class="group-card fdp-card">
+        <div class="group-card fdp-card" role="article" (click)="navigateToGroup(group.id)" tabindex="0"
+             (keydown.enter)="navigateToGroup(group.id)" (keydown.space)="navigateToGroup(group.id)"
+             [attr.aria-label]="group.name">
           @if (!group.event.isActive) {
             <div class="read-only-tag">Read only</div>
           }
@@ -110,7 +112,17 @@
             </div>
             <mat-icon class="arrow">chevron_right</mat-icon>
           </div>
-        </a>
+          @if (group.event.isActive) {
+            <div class="card-review-row">
+              <button mat-stroked-button class="review-btn"
+                      (click)="navigateToReview($event, group.id)"
+                      aria-label="Review registration for {{ group.name }}">
+                <mat-icon>assignment_turned_in</mat-icon>
+                Review Registration
+              </button>
+            </div>
+          }
+        </div>
       }
     </div>
   }

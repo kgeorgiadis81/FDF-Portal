@@ -115,6 +115,164 @@
   }
 }
 
+.review-nav {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+  display: flex;
+  justify-content: flex-end;
+
+  .review-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-navy, #1a237e) !important;
+    color: #fff !important;
+  }
+}
+
+// Directors card
+.directors-card {
+  max-width: 640px;
+  margin-top: 1.25rem;
+}
+
+.directors-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: var(--color-navy);
+}
+
+.director-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &.primary { background: var(--color-surface-alt, #f5f5f5); padding: .75rem; border-radius: 6px; border-bottom: none; margin-bottom: .75rem; }
+}
+
+.director-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.director-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.director-icon {
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.director-name {
+  font-weight: 600;
+  font-size: .9375rem;
+}
+
+.account-owner-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  background: var(--color-navy, #1a237e);
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.primary-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.director-email,
+.director-phone {
+  font-size: .8125rem;
+  color: var(--color-text-muted);
+  margin-left: 1.7rem;
+}
+
+// Co-directors
+.codirectors-section { }
+
+.codirectors-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: .5rem;
+}
+
+.codirectors-label {
+  font-size: .8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-text-muted);
+}
+
+.add-codir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .8125rem;
+}
+
+.codir-loading {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.codir-empty {
+  font-size: .875rem;
+  color: var(--color-text-muted);
+  padding: .5rem 0;
+  margin: 0;
+}
+
+.codir-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.codir-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: .6rem 0;
+  border-bottom: 1px solid var(--color-border);
+  &:last-child { border-bottom: none; }
+}
+
+.codir-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+
+  .remove-btn { color: var(--color-error, #c62828); }
+}
+
 .edit-actions {
   display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1rem;
   button[mat-raised-button] { background: var(--color-navy) !important; color: #fff !important; }

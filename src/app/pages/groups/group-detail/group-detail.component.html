@@ -57,111 +57,116 @@
           <dt>Event</dt>
           <dd>{{ group()!.event.name }}</dd>
         </div>
-        <div class="info-row">
-          <dt>Primary Director</dt>
-          <dd>{{ group()!.primaryDirector.name || '—' }}</dd>
-        </div>
       </dl>
 
       <!-- Phase 4: Roster navigation -->
-      @if (!editMode()) {
-        <div class="roster-nav">
-          <div class="roster-overview">
-            <mat-icon class="roster-icon">people</mat-icon>
-            <div class="roster-overview-info">
-              <span class="roster-heading">Roster</span>
-              @if (group()!.rosterSubmittedAt) {
-                <span class="roster-status submitted">Submitted</span>
-              } @else if (group()!.rosterMemberCount > 0) {
-                <span class="roster-status in-progress">
-                  {{ group()!.rosterMemberCount }} participant{{ group()!.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
-                </span>
-              } @else {
-                <span class="roster-status not-started">Not started</span>
-              }
-            </div>
+      <div class="roster-nav">
+        <div class="roster-overview">
+          <mat-icon class="roster-icon">people</mat-icon>
+          <div class="roster-overview-info">
+            <span class="roster-heading">Roster</span>
+            @if (group()!.rosterSubmittedAt) {
+              <span class="roster-status submitted">Submitted</span>
+            } @else if (group()!.rosterMemberCount > 0) {
+              <span class="roster-status in-progress">
+                {{ group()!.rosterMemberCount }} participant{{ group()!.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
+              </span>
+            } @else {
+              <span class="roster-status not-started">Not started</span>
+            }
           </div>
-          <a [routerLink]="['/groups', group()!.id, 'roster']"
-             mat-stroked-button
-             class="roster-link"
-             aria-label="Manage this group's roster">
-            <mat-icon>people</mat-icon>
-            Manage Roster
-          </a>
         </div>
+        <a [routerLink]="['/groups', group()!.id, 'roster']"
+           mat-stroked-button
+           class="roster-link"
+           aria-label="Manage this group's roster">
+          <mat-icon>people</mat-icon>
+          Manage Roster
+        </a>
+      </div>
 
-        <div class="performance-nav">
+      <div class="performance-nav">
+        <div class="roster-overview">
+          <mat-icon class="roster-icon">theater_comedy</mat-icon>
+          <div class="roster-overview-info">
+            <span class="roster-heading">Performance</span>
+            @if (group()!.performanceSubmittedAt) {
+              <span class="roster-status submitted">Submitted</span>
+            } @else {
+              <span class="roster-status not-started">Not submitted</span>
+            }
+          </div>
+        </div>
+        <a [routerLink]="['/groups', group()!.id, 'performance']"
+           mat-stroked-button
+           class="performance-link"
+           aria-label="Manage this group's performance registration">
+          <mat-icon>theater_comedy</mat-icon>
+          Manage Performance
+        </a>
+      </div>
+
+      @if (isDanceGroup()) {
+        <div class="costumes-nav">
           <div class="roster-overview">
-            <mat-icon class="roster-icon">theater_comedy</mat-icon>
+            <mat-icon class="roster-icon">checkroom</mat-icon>
             <div class="roster-overview-info">
-              <span class="roster-heading">Performance</span>
-              @if (group()!.performanceSubmittedAt) {
+              <span class="roster-heading">Costumes</span>
+              @if (group()!.costumeSubmittedAt) {
                 <span class="roster-status submitted">Submitted</span>
               } @else {
                 <span class="roster-status not-started">Not submitted</span>
               }
             </div>
           </div>
-          <a [routerLink]="['/groups', group()!.id, 'performance']"
+          <a [routerLink]="['/groups', group()!.id, 'costumes']"
              mat-stroked-button
-             class="performance-link"
-             aria-label="Manage this group's performance registration">
-            <mat-icon>theater_comedy</mat-icon>
-            Manage Performance
+             class="costumes-link"
+             aria-label="Manage this group's costume registration">
+            <mat-icon>checkroom</mat-icon>
+            Manage Costumes
           </a>
         </div>
+      }
 
-        @if (isDanceGroup()) {
-          <div class="costumes-nav">
-            <div class="roster-overview">
-              <mat-icon class="roster-icon">checkroom</mat-icon>
-              <div class="roster-overview-info">
-                <span class="roster-heading">Costumes</span>
-                @if (group()!.costumeSubmittedAt) {
-                  <span class="roster-status submitted">Submitted</span>
-                } @else {
-                  <span class="roster-status not-started">Not submitted</span>
-                }
-              </div>
-            </div>
-            <a [routerLink]="['/groups', group()!.id, 'costumes']"
-               mat-stroked-button
-               class="costumes-link"
-               aria-label="Manage this group's costume registration">
-              <mat-icon>checkroom</mat-icon>
-              Manage Costumes
-            </a>
-          </div>
-        }
-
-        <div class="documents-nav">
-          <div class="roster-overview">
-            <mat-icon class="roster-icon">folder</mat-icon>
-            <div class="roster-overview-info">
-              <span class="roster-heading">Documents</span>
-              <div class="doc-status-row">
-                <span class="doc-status-item">
-                  Signed Roster:
-                  <span class="roster-status" [class]="docStatusClass(group()!.documents?.signedRoster)">
-                    {{ docStatusLabel(group()!.documents?.signedRoster) }}
-                  </span>
+      <div class="documents-nav">
+        <div class="roster-overview">
+          <mat-icon class="roster-icon">folder</mat-icon>
+          <div class="roster-overview-info">
+            <span class="roster-heading">Documents</span>
+            <div class="doc-status-row">
+              <span class="doc-status-item">
+                Signed Roster:
+                <span class="roster-status" [class]="docStatusClass(group()!.documents?.signedRoster)">
+                  {{ docStatusLabel(group()!.documents?.signedRoster) }}
                 </span>
-                <span class="doc-status-item">
-                  Youth Safety:
-                  <span class="roster-status" [class]="docStatusClass(group()!.documents?.youthSafety)">
-                    {{ docStatusLabel(group()!.documents?.youthSafety) }}
-                  </span>
+              </span>
+              <span class="doc-status-item">
+                Youth Safety:
+                <span class="roster-status" [class]="docStatusClass(group()!.documents?.youthSafety)">
+                  {{ docStatusLabel(group()!.documents?.youthSafety) }}
                 </span>
-              </div>
+              </span>
             </div>
           </div>
-          <a [routerLink]="['/groups', group()!.id, 'documents']"
-             mat-stroked-button
-             class="documents-link"
-             aria-label="Manage this group's registration documents">
-            <mat-icon>folder</mat-icon>
-            Manage Documents
-          </a>
+        </div>
+        <a [routerLink]="['/groups', group()!.id, 'documents']"
+           mat-stroked-button
+           class="documents-link"
+           aria-label="Manage this group's registration documents">
+          <mat-icon>folder</mat-icon>
+          Manage Documents
+        </a>
+      </div>
+
+      @if (group()!.event.isActive) {
+        <div class="review-nav">
+        <a [routerLink]="['/groups', group()!.id, 'review']"
+           mat-raised-button
+           class="review-link">
+          <mat-icon>assignment_turned_in</mat-icon>
+          Review Registration
+        </a>
         </div>
       }
     } @else {
@@ -213,4 +218,79 @@
       </form>
     }
   </div>
+
+  <!-- Directors section (outside edit form, always visible in read mode) -->
+  @if (!editMode()) {
+    <div class="directors-card fdp-card">
+      <h2 class="directors-heading">Directors</h2>
+
+      <!-- Primary Director -->
+      <div class="director-item primary">
+        <div class="director-info">
+          <div class="director-name-row">
+            <mat-icon class="director-icon">person</mat-icon>
+            <span class="director-name">{{ group()!.primaryDirector.name || '—' }}</span>
+            <span class="account-owner-badge">Account Owner</span>
+          </div>
+          @if (group()!.primaryDirector.email) {
+            <span class="director-email">{{ group()!.primaryDirector.email }}</span>
+          }
+        </div>
+        <span class="primary-label">Primary Director</span>
+      </div>
+
+      <!-- Co-Directors -->
+      <div class="codirectors-section">
+        <div class="codirectors-header">
+          <span class="codirectors-label">Co-Directors</span>
+          @if (!group()!.isReadOnly) {
+            <button mat-stroked-button class="add-codir-btn" (click)="openAddDialog()"
+                    aria-label="Add Co-Director">
+              <mat-icon>person_add</mat-icon> Add Co-Director
+            </button>
+          }
+        </div>
+
+        @if (directorsLoading()) {
+          <div class="codir-loading"><mat-spinner diameter="20" /></div>
+        } @else if (coDirectors().length === 0) {
+          <p class="codir-empty">No co-directors added.</p>
+        } @else {
+          <ul class="codir-list" role="list">
+            @for (dir of coDirectors(); track dir.id) {
+              <li class="codir-item" role="listitem">
+                <div class="director-info">
+                  <div class="director-name-row">
+                    <mat-icon class="director-icon">person_outline</mat-icon>
+                    <span class="director-name">
+                      {{ dir.first_name || '' }} {{ dir.last_name || '' }}
+                    </span>
+                  </div>
+                  @if (dir.email) {
+                    <span class="director-email">{{ dir.email }}</span>
+                  }
+                  @if (dir.cell_phone) {
+                    <span class="director-phone">{{ dir.cell_phone }}</span>
+                  }
+                </div>
+                @if (!group()!.isReadOnly) {
+                  <div class="codir-actions">
+                    <button mat-icon-button [attr.aria-label]="'Edit ' + (dir.first_name || 'co-director')"
+                            (click)="openEditDialog(dir)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button [attr.aria-label]="'Remove ' + (dir.first_name || 'co-director')"
+                            class="remove-btn"
+                            (click)="confirmRemove(dir)">
+                      <mat-icon>person_remove</mat-icon>
+                    </button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
 }

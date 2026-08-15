@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,11 +8,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AsyncPipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 import { GroupService, PortalGroup } from '../../../services/group.service';
 import { ParishService, Parish } from '../../../services/parish.service';
+import { DirectorService, GroupDirector, CoDirectorPayload } from '../../../services/director.service';
+import { CoDirectorDialogComponent } from './co-director-dialog.component';
 
 @Component({
   selector: 'fdp-group-detail',
@@ -20,7 +24,7 @@ import { ParishService, Parish } from '../../../services/parish.service';
     ReactiveFormsModule, RouterLink, AsyncPipe,
     MatButtonModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatAutocompleteModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule, MatDialogModule, MatSnackBarModule,
   ],
   templateUrl: './group-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -34,6 +38,12 @@ export class GroupDetailComponent implements OnInit {
   saveError  = signal('');
   saved      = signal(false);
   editMode   = signal(false);
+
+  directors        = signal<GroupDirector[]>([]);
+  directorsLoading = signal(false);
+
+  readonly coDirectors = computed(() => this.directors().filter(d => !d.is_primary));
+  readonly primaryDirectorRecord = computed(() => this.directors().find(d => !!d.is_primary) ?? null);
 
   form!: FormGroup;
   parishes   = signal<Parish[]>([]);
@@ -69,6 +79,9 @@ export class GroupDetailComponent implements OnInit {
     private fb: FormBuilder,
     private groupSvc: GroupService,
     private parishSvc: ParishService,
+    private directorSvc: DirectorService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -80,6 +93,7 @@ export class GroupDetailComponent implements OnInit {
         this.group.set(g);
         this.loading.set(false);
         this.initForm(g);
+        this.loadDirectors(id);
       },
       error: () => {
         this.loading.set(false);
@@ -90,6 +104,14 @@ export class GroupDetailComponent implements OnInit {
     this.parishSvc.getAll().subscribe({
       next: (ps) => this.parishes.set(ps),
       error: () => {},
+    });
+  }
+
+  private loadDirectors(groupId: number): void {
+    this.directorsLoading.set(true);
+    this.directorSvc.getDirectors(groupId).subscribe({
+      next: (dirs) => { this.directors.set(dirs); this.directorsLoading.set(false); },
+      error: () => { this.directorsLoading.set(false); },
     });
   }
 
@@ -145,7 +167,6 @@ export class GroupDetailComponent implements OnInit {
         this.saving.set(false);
         this.saved.set(true);
         this.editMode.set(false);
-        // Refresh group data
         this.groupSvc.getGroup(g.id).subscribe(updated => {
           this.group.set(updated);
           this.initForm(updated);
@@ -155,6 +176,46 @@ export class GroupDetailComponent implements OnInit {
         this.saving.set(false);
         this.saveError.set(err.error?.error || 'Could not save changes.');
       },
+    });
+  }
+
+  openAddDialog(): void {
+    const ref = this.dialog.open(CoDirectorDialogComponent, {
+      data: {},
+      width: '400px',
+    });
+    ref.afterClosed().subscribe((result: CoDirectorPayload | undefined) => {
+      if (!result) return;
+      const groupId = this.group()!.id;
+      this.directorSvc.addCoDirector(groupId, result).subscribe({
+        next: () => this.loadDirectors(groupId),
+        error: (err) => this.snackBar.open(err?.error?.error || 'Could not add co-director.', 'Close', { duration: 5000 }),
+      });
+    });
+  }
+
+  openEditDialog(director: GroupDirector): void {
+    const ref = this.dialog.open(CoDirectorDialogComponent, {
+      data: { director },
+      width: '400px',
+    });
+    ref.afterClosed().subscribe((result: CoDirectorPayload | undefined) => {
+      if (!result) return;
+      const groupId = this.group()!.id;
+      this.directorSvc.updateCoDirector(groupId, director.id, result).subscribe({
+        next: () => this.loadDirectors(groupId),
+        error: (err) => this.snackBar.open(err?.error?.error || 'Could not update co-director.', 'Close', { duration: 5000 }),
+      });
+    });
+  }
+
+  confirmRemove(director: GroupDirector): void {
+    const name = [director.first_name, director.last_name].filter(Boolean).join(' ') || 'this co-director';
+    if (!confirm(`Remove ${name} as a co-director?`)) return;
+    const groupId = this.group()!.id;
+    this.directorSvc.removeCoDirector(groupId, director.id).subscribe({
+      next: () => this.loadDirectors(groupId),
+      error: (err) => this.snackBar.open(err?.error?.error || 'Could not remove co-director.', 'Close', { duration: 5000 }),
     });
   }
 }

@@ -1,0 +1,189 @@
+.page-header { margin-bottom: 1rem; }
+.back-link {
+  display: inline-flex; align-items: center; gap: .25rem;
+  font-size: .875rem; color: var(--color-text-muted);
+  mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+  &:hover { color: var(--color-navy); text-decoration: none; }
+}
+
+.error-state {
+  text-align: center; padding: 3rem 1rem;
+  mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; color: var(--color-error); }
+  p { color: var(--color-text-muted); }
+  a { font-weight: 600; }
+}
+
+.review-header {
+  margin-bottom: 1.25rem;
+  .review-title { font-size: 1.5rem; margin: 0 0 .25rem; }
+  .review-group-name { font-size: 1rem; color: var(--color-text-muted); margin: 0; }
+}
+
+// Action required
+.action-required-card {
+  margin-bottom: 1.25rem;
+  border-left: 4px solid var(--color-warning, #f57c00);
+  background: #fff8e1;
+}
+
+.action-required-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: .75rem;
+
+  h2 { margin: 0; font-size: 1rem; }
+
+  .action-icon {
+    color: var(--color-warning, #f57c00);
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: .875rem;
+
+  .action-item-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+  }
+}
+
+// Module grid
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.module-card { display: flex; flex-direction: column; }
+
+.module-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+
+  .module-icon {
+    color: var(--color-text-muted);
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .module-title {
+    font-size: .9375rem;
+    font-weight: 700;
+    margin: 0;
+    flex: 1;
+  }
+}
+
+.module-status {
+  font-size: .75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+
+  &.status-submitted  { background: #e8f5e9; color: var(--color-success, #2e7d32); }
+  &.status-not-started { background: #f5f5f5; color: var(--color-text-muted); }
+  &.status-closed     { background: #fafafa; color: var(--color-text-muted); }
+  &.status-rejected   { background: #fdecea; color: var(--color-error, #c62828); }
+  &.status-pending    { background: #fff8e1; color: #e65100; }
+}
+
+.doc-status {
+  font-size: .8125rem;
+  font-weight: 500;
+
+  &.status-submitted  { color: var(--color-success, #2e7d32); }
+  &.status-not-started { color: var(--color-text-muted); }
+  &.status-rejected   { color: var(--color-error, #c62828); }
+  &.status-pending    { color: #e65100; }
+}
+
+.module-info {
+  margin: 0 0 .75rem;
+  padding: 0;
+  flex: 1;
+}
+
+.module-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  padding: .4rem 0;
+  border-bottom: 1px solid var(--color-border);
+  &:last-child { border-bottom: none; }
+
+  dt { font-weight: 600; color: var(--color-text-muted); font-size: .8125rem; }
+  dd { margin: 0; font-size: .875rem; display: flex; align-items: center; gap: 4px; }
+
+  @media (max-width: 360px) { grid-template-columns: 1fr; gap: .1rem; }
+}
+
+.inline-check {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-success, #2e7d32);
+}
+
+.inline-warn {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-warning, #f57c00);
+}
+
+.module-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.no-conflicts {
+  font-size: .875rem;
+  color: var(--color-text-muted);
+  margin: 0 0 .75rem;
+}
+
+// Bottom summary cards
+.submission-summary,
+.deadlines-card {
+  max-width: 480px;
+  margin-bottom: 1.25rem;
+}
+
+.summary-heading {
+  font-size: .875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--color-text-muted);
+  margin: 0 0 .75rem;
+}
