@@ -223,17 +223,13 @@
               @if (addingConflict() || editingConflictId() !== null) {
                 <form [formGroup]="conflictForm" class="conflict-form" (ngSubmit)="saveConflict()">
                   <mat-form-field appearance="outline" class="full-field">
-                    <mat-label>
-                      <span class="fdp-label-with-help">
-                        <span>Related Group</span>
-                        <app-context-help helpKey="costume.relatedGroup" label="Related Group" />
-                      </span>
-                    </mat-label>
+                    <mat-label>Related Group</mat-label>
                     <input matInput
                            [value]="relatedGroupSearch()"
                            (input)="relatedGroupSearch.set($any($event.target).value)"
                            [matAutocomplete]="relatedGroupAuto"
                            placeholder="Search by group or parish name…" />
+                    <app-context-help matSuffix helpKey="costume.relatedGroup" label="Related Group" [compact]="true" />
                     <mat-autocomplete #relatedGroupAuto="matAutocomplete"
                                       (optionSelected)="onRelatedGroupSelected($event.option.value)">
                       @if (loadingRelatedGroups()) {
@@ -249,13 +245,9 @@
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="count-field">
-                    <mat-label>
-                      <span class="fdp-label-with-help">
-                        <span>Number of Costumes Shared</span>
-                        <app-context-help helpKey="costume.sharedCount" label="Number of Costumes Shared" />
-                      </span>
-                    </mat-label>
+                    <mat-label>Number of Costumes Shared</mat-label>
                     <input matInput type="number" formControlName="costume_count" min="1" step="1" />
+                    <app-context-help matSuffix helpKey="costume.sharedCount" label="Number of Costumes Shared" [compact]="true" />
                     @if (conflictForm.get('costume_count')?.invalid && conflictForm.get('costume_count')?.touched) {
                       <mat-error>Enter a positive whole number.</mat-error>
                     }

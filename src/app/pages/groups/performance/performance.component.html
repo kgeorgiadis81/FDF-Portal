@@ -264,33 +264,21 @@
                         <app-context-help helpKey="performance.tablesChairs" label="Tables / Chairs" />
                       </span>
                     </mat-checkbox>
-                    <mat-form-field>
-                      <mat-label>
-                        <span class="fdp-label-with-help">
-                          <span>Additional Props</span>
-                          <app-context-help helpKey="performance.additionalProps" label="Additional Props" />
-                        </span>
-                      </mat-label>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                      <mat-label>Additional Props</mat-label>
                       <textarea matInput formControlName="additional_props" rows="3"></textarea>
+                      <app-context-help matSuffix helpKey="performance.additionalProps" label="Additional Props" [compact]="true" />
                     </mat-form-field>
                   }
-                  <mat-form-field>
-                    <mat-label>
-                      <span class="fdp-label-with-help">
-                        <span>Music / Audio Needs</span>
-                        <app-context-help helpKey="performance.musicAudioNeeds" label="Music / Audio Needs" />
-                      </span>
-                    </mat-label>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>Music / Audio Needs</mat-label>
                     <textarea matInput formControlName="music_audio_needs" rows="3"></textarea>
+                    <app-context-help matSuffix helpKey="performance.musicAudioNeeds" label="Music / Audio Needs" [compact]="true" />
                   </mat-form-field>
-                  <mat-form-field>
-                    <mat-label>
-                      <span class="fdp-label-with-help">
-                        <span>{{ isDance() ? 'Special / Out-of-Ordinary Information' : 'Other AV / Performance Information' }}</span>
-                        <app-context-help helpKey="performance.specialRequirements" label="Special Requirements" />
-                      </span>
-                    </mat-label>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ isDance() ? 'Special / Out-of-Ordinary Information' : 'Other AV / Performance Information' }}</mat-label>
                     <textarea matInput formControlName="special_requirements" rows="3"></textarea>
+                    <app-context-help matSuffix helpKey="performance.specialRequirements" label="Special Requirements" [compact]="true" />
                   </mat-form-field>
                   <button mat-stroked-button type="submit" [disabled]="saving()">
                     @if (saving()) { Saving AV information… } @else { Save AV Information }

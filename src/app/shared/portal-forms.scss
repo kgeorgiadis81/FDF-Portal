@@ -80,7 +80,14 @@ input[type='date'] {
 .fdp-label-with-help {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.fdp-section-label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex-wrap: wrap;
 }
 

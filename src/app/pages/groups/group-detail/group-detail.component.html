@@ -198,18 +198,14 @@
           </mat-autocomplete>
         </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>
-            <span class="fdp-label-with-help">
-              <span>Group type</span>
-              <app-context-help helpKey="group.groupType" label="Group type" />
-            </span>
-          </mat-label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Group type</mat-label>
           <mat-select formControlName="groupType">
             @for (t of groupTypes; track t) {
               <mat-option [value]="t">{{ t }}</mat-option>
             }
           </mat-select>
+          <app-context-help matSuffix helpKey="group.groupType" label="Group type" [compact]="true" />
         </mat-form-field>
 
         @if (saveError()) {
