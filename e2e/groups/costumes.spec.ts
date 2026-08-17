@@ -219,8 +219,11 @@ test.describe('Costume submission', () => {
       has: page.getByRole('heading', { name: "Men's Costume", exact: true }),
     });
     await mensSection.getByRole('button', { name: 'Edit' }).click();
+    const savePromise = page.waitForResponse(
+      (r) => r.url().includes('/costumes') && ['POST', 'PUT'].includes(r.request().method()) && r.ok(),
+    );
     await mensSection.getByLabel('Region').fill('Post Submit Edit');
-    await mensSection.getByRole('button', { name: 'Save' }).click();
+    await savePromise;
     await page.reload();
     await expect(page.getByText('Post Submit Edit')).toBeVisible();
     await expect(page.getByText(/Submitted:/)).toBeVisible();

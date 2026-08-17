@@ -3,6 +3,7 @@ import { authGuard } from './guards/auth.guard';
 import { directorRoleGuard } from './guards/director-role.guard';
 import { emailVerifiedGuard } from './guards/email-verified.guard';
 import { consentGuard } from './guards/consent.guard';
+import { unsavedChangesGuard } from './shared/unsaved-changes';
 
 export const routes: Routes = [
   // Default redirect
@@ -74,6 +75,7 @@ export const routes: Routes = [
             children: [
               {
                 path: '',
+                canDeactivate: [unsavedChangesGuard],
                 loadComponent: () => import('./pages/groups/group-detail/group-detail.component').then(m => m.GroupDetailComponent),
               },
               {
@@ -82,10 +84,12 @@ export const routes: Routes = [
               },
               {
                 path: 'performance',
+                canDeactivate: [unsavedChangesGuard],
                 loadComponent: () => import('./pages/groups/performance/performance.component').then(m => m.PerformanceComponent),
               },
               {
                 path: 'costumes',
+                canDeactivate: [unsavedChangesGuard],
                 loadComponent: () => import('./pages/groups/costumes/costumes.component').then(m => m.CostumesComponent),
               },
               {
@@ -102,6 +106,7 @@ export const routes: Routes = [
       },
       {
         path: 'profile',
+        canDeactivate: [unsavedChangesGuard],
         loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
       },
     ],

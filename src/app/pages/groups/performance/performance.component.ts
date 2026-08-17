@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, signal, computed, ChangeDetectionStrategy,
+  Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +24,11 @@ import {
 import { EntryDialogComponent, EntryDialogData } from './entry-dialog/entry-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
+import {
+  FormAutosaveCoordinator,
+  HasUnsavedChanges,
+  UnsavedChangesService,
+} from '../../../shared/unsaved-changes';
 
 @Component({
   selector: 'fdp-performance',
@@ -39,7 +44,7 @@ import { ContextHelpComponent } from '../../../shared/context-help/context-help.
   styleUrl: './performance.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class PerformanceComponent implements OnInit {
+export class PerformanceComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   groupId = 0;
   selectedRoundIndex = signal(0);
 
@@ -69,6 +74,8 @@ export class PerformanceComponent implements OnInit {
   });
 
   logisticsForm;
+  private logisticsAutosave!: FormAutosaveCoordinator<Record<string, unknown>>;
+  private unbindBeforeUnload?: () => void;
 
   musicianSearch = '';
 
@@ -79,6 +86,7 @@ export class PerformanceComponent implements OnInit {
     private dialog: MatDialog,
     private snack: MatSnackBar,
     private fb: FormBuilder,
+    private unsavedSvc: UnsavedChangesService,
   ) {
     this.logisticsForm = this.fb.group({
       uses_fdf_tables_chairs: [false],
@@ -86,6 +94,27 @@ export class PerformanceComponent implements OnInit {
       special_requirements: [''],
       music_audio_needs: [''],
     });
+
+    this.logisticsAutosave = new FormAutosaveCoordinator(this.logisticsForm, {
+      enabled: () => this.canEdit(),
+      save: (value) => {
+        const perf = this.selectedPerformance();
+        if (!perf) throw new Error('No performance selected');
+        return this.perfSvc.updateLogistics(this.groupId, perf.id, this.buildLogisticsPayload(value));
+      },
+      onSaving: () => this.saving.set(true),
+      onSuccess: () => {
+        this.saving.set(false);
+        this.reloadPerformance();
+      },
+      onError: (err: unknown) => {
+        this.saving.set(false);
+        const message = (err as { error?: { error?: string } })?.error?.error
+          ?? 'Could not save AV information.';
+        this.snack.open(message, 'Close', { duration: 5000 });
+      },
+    });
+    this.logisticsAutosave.connect();
   }
 
   ngOnInit(): void {
@@ -95,6 +124,20 @@ export class PerformanceComponent implements OnInit {
       return;
     }
     this.loadAll();
+    this.unbindBeforeUnload = this.unsavedSvc.bindBeforeUnload(() => this.hasUnsavedChanges());
+  }
+
+  ngOnDestroy(): void {
+    this.logisticsAutosave?.disconnect();
+    this.unbindBeforeUnload?.();
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.logisticsAutosave.hasUnsavedChanges();
+  }
+
+  discardUnsavedChanges(): void {
+    this.logisticsAutosave.discardChanges();
   }
 
   private loadAll(): void {
@@ -126,18 +169,44 @@ export class PerformanceComponent implements OnInit {
   private syncLogisticsForm(): void {
     const perf = this.selectedPerformance();
     if (!perf) return;
-    this.logisticsForm.patchValue({
+    this.logisticsAutosave.setBaseline({
       uses_fdf_tables_chairs: !!perf.uses_fdf_tables_chairs,
       additional_props: perf.additional_props ?? '',
       special_requirements: perf.special_requirements ?? '',
       music_audio_needs: perf.music_audio_needs ?? '',
-    }, { emitEvent: false });
+    });
   }
 
-  onRoundChange(index: number): void {
+  async onRoundChange(index: number): Promise<void> {
+    const previous = this.selectedRoundIndex();
+    if (index === previous) return;
+
+    const canLeave = await this.unsavedSvc.confirmLeave(
+      () => this.hasUnsavedChanges(),
+      () => this.discardUnsavedChanges(),
+    );
+    if (!canLeave) {
+      this.selectedRoundIndex.set(previous);
+      return;
+    }
+
     this.selectedRoundIndex.set(index);
     this.syncLogisticsForm();
     this.refreshConflicts();
+  }
+
+  private buildLogisticsPayload(value: Record<string, unknown>) {
+    return this.isDance()
+      ? {
+          uses_fdf_tables_chairs: !!value['uses_fdf_tables_chairs'],
+          additional_props: (value['additional_props'] as string) || null,
+          special_requirements: (value['special_requirements'] as string) || null,
+          music_audio_needs: (value['music_audio_needs'] as string) || null,
+        }
+      : {
+          music_audio_needs: (value['music_audio_needs'] as string) || null,
+          special_requirements: (value['special_requirements'] as string) || null,
+        };
   }
 
   refreshConflicts(): void {
@@ -263,37 +332,6 @@ export class PerformanceComponent implements OnInit {
     });
   }
 
-  saveLogistics(): void {
-    const perf = this.selectedPerformance();
-    if (!perf || !this.canEdit()) return;
-
-    this.saving.set(true);
-    const v = this.logisticsForm.value;
-    const payload = this.isDance()
-      ? {
-          uses_fdf_tables_chairs: !!v.uses_fdf_tables_chairs,
-          additional_props: v.additional_props || null,
-          special_requirements: v.special_requirements || null,
-          music_audio_needs: v.music_audio_needs || null,
-        }
-      : {
-          music_audio_needs: v.music_audio_needs || null,
-          special_requirements: v.special_requirements || null,
-        };
-
-    this.perfSvc.updateLogistics(this.groupId, perf.id, payload).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.snack.open('AV information saved.', 'Close', { duration: 3000 });
-        this.reloadPerformance();
-      },
-      error: (err) => {
-        this.saving.set(false);
-        this.snack.open(err.error?.error ?? 'Could not save AV information.', 'Close', { duration: 5000 });
-      },
-    });
-  }
-
   searchMusicians(query: string): void {
     this.musicianSearch = query;
     if (!query.trim()) {
@@ -342,14 +380,14 @@ export class PerformanceComponent implements OnInit {
     });
   }
 
-  toggleInstrument(instr: InstrumentOption): void {
-    const perf = this.selectedPerformance();
-    if (!perf || !this.canEdit()) return;
+  toggleInstrument(perf: PortalPerformance, instr: InstrumentOption): void {
+    if (!this.canEdit()) return;
 
     const existing = perf.instruments.find((i) => i.instrument_id === instr.id);
     if (existing) {
       this.perfSvc.removeInstrument(this.groupId, perf.id, existing.id).subscribe({
         next: () => this.reloadPerformance(),
+        error: (err) => this.snack.open(err.error?.error ?? 'Could not remove instrument.', 'Close', { duration: 5000 }),
       });
       return;
     }
@@ -369,9 +407,8 @@ export class PerformanceComponent implements OnInit {
     }
   }
 
-  isInstrumentSelected(instr: InstrumentOption): boolean {
-    const perf = this.selectedPerformance();
-    return !!perf?.instruments.some((i) => i.instrument_id === instr.id);
+  isInstrumentSelected(perf: PortalPerformance, instr: InstrumentOption): boolean {
+    return perf.instruments.some((i) => i.instrument_id === instr.id);
   }
 
   submitPerformance(): void {

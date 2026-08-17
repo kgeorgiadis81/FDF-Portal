@@ -231,13 +231,17 @@
                     <app-context-help helpKey="performance.instruments" label="Instruments" />
                   </span>
                 </h3>
+                <p class="instrument-count" aria-live="polite">
+                  {{ perf.instruments.length }} instrument{{ perf.instruments.length === 1 ? '' : 's' }} selected
+                </p>
                 <div class="instrument-grid" role="group" aria-label="Instruments">
                   @for (instr of instruments(); track instr.id) {
                     <button type="button"
                             class="instrument-btn"
-                            [class.selected]="isInstrumentSelected(instr)"
+                            [class.selected]="isInstrumentSelected(perf, instr)"
                             [disabled]="!canEdit()"
-                            (click)="toggleInstrument(instr)">
+                            [attr.aria-pressed]="isInstrumentSelected(perf, instr)"
+                            (click)="toggleInstrument(perf, instr)">
                       {{ instr.name_en }}
                     </button>
                   }
@@ -256,7 +260,7 @@
               </h2>
 
               @if (canEdit()) {
-                <form [formGroup]="logisticsForm" (ngSubmit)="saveLogistics()" class="logistics-form">
+                <form [formGroup]="logisticsForm" class="logistics-form">
                   @if (isDance()) {
                     <mat-checkbox formControlName="uses_fdf_tables_chairs">
                       <span class="fdp-label-with-help">
@@ -280,9 +284,9 @@
                     <textarea matInput formControlName="special_requirements" rows="3"></textarea>
                     <app-context-help matSuffix helpKey="performance.specialRequirements" label="Special Requirements" [compact]="true" />
                   </mat-form-field>
-                  <button mat-stroked-button type="submit" [disabled]="saving()">
-                    @if (saving()) { Saving AV information… } @else { Save AV Information }
-                  </button>
+                  @if (saving()) {
+                    <p class="autosave-status" aria-live="polite">Saving AV information…</p>
+                  }
                 </form>
               } @else {
                 <dl class="read-only-av">

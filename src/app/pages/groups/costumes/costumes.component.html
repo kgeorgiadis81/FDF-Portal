@@ -91,7 +91,7 @@
                   </div>
 
                   @if (section.editing) {
-                    <form [formGroup]="costumeForm" class="costume-form" (ngSubmit)="saveCostume(section.gender)">
+                    <form [formGroup]="costumeForm" class="costume-form">
                       <mat-form-field appearance="outline" class="full-field">
                         <mat-label>Region</mat-label>
                         <input matInput formControlName="region" maxlength="500" />
@@ -157,15 +157,10 @@
                       </fieldset>
 
                       <div class="form-actions">
-                        <button mat-stroked-button type="button" (click)="cancelCostumeEdit()">Cancel</button>
-                        <button mat-raised-button color="primary" type="submit"
-                                [disabled]="savingGender() === section.gender">
-                          @if (savingGender() === section.gender) {
-                            <mat-spinner diameter="18" />
-                          } @else {
-                            Save
-                          }
-                        </button>
+                        <button mat-stroked-button type="button" (click)="cancelCostumeEdit()">Done</button>
+                        @if (savingGender() === section.gender) {
+                          <span class="autosave-status" aria-live="polite">Saving…</span>
+                        }
                       </div>
                     </form>
                   } @else if (section.costume) {
@@ -221,7 +216,7 @@
               </div>
 
               @if (addingConflict() || editingConflictId() !== null) {
-                <form [formGroup]="conflictForm" class="conflict-form" (ngSubmit)="saveConflict()">
+                <form [formGroup]="conflictForm" class="conflict-form">
                   <mat-form-field appearance="outline" class="full-field">
                     <mat-label>Related Group</mat-label>
                     <input matInput
@@ -254,10 +249,10 @@
                   </mat-form-field>
 
                   <div class="form-actions">
-                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Cancel</button>
-                    <button mat-raised-button color="primary" type="submit" [disabled]="savingConflict()">
-                      @if (savingConflict()) { <mat-spinner diameter="18" /> } @else { Save }
-                    </button>
+                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Done</button>
+                    @if (savingConflict()) {
+                      <span class="autosave-status" aria-live="polite">Saving…</span>
+                    }
                   </div>
                 </form>
               }

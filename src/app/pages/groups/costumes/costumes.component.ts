@@ -1,5 +1,5 @@
 import {
-  Component, OnInit, signal, computed, ChangeDetectionStrategy,
+  Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -24,6 +24,11 @@ import {
 } from '../../../services/costume.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
+import {
+  FormAutosaveCoordinator,
+  HasUnsavedChanges,
+  UnsavedChangesService,
+} from '../../../shared/unsaved-changes';
 
 type GenderSection = {
   gender: CostumeGender;
@@ -45,7 +50,7 @@ type GenderSection = {
   styleUrl: './costumes.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,
 })
-export class CostumesComponent implements OnInit {
+export class CostumesComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   groupId = 0;
   selectedRoundIndex = signal(0);
 
@@ -83,6 +88,10 @@ export class CostumesComponent implements OnInit {
 
   costumeForm;
   conflictForm;
+  private costumeAutosave!: FormAutosaveCoordinator<Record<string, unknown>>;
+  private conflictAutosave!: FormAutosaveCoordinator<Record<string, unknown>>;
+  private editingCostumeGender: CostumeGender | null = null;
+  private unbindBeforeUnload?: () => void;
   relatedGroupSearch = signal('');
 
   constructor(
@@ -92,6 +101,7 @@ export class CostumesComponent implements OnInit {
     private dialog: MatDialog,
     private snack: MatSnackBar,
     private fb: FormBuilder,
+    private unsavedSvc: UnsavedChangesService,
   ) {
     this.costumeForm = this.fb.group({
       region: ['', Validators.maxLength(500)],
@@ -106,6 +116,57 @@ export class CostumesComponent implements OnInit {
       related_group_id: [null as number | null, Validators.required],
       costume_count: [1, [Validators.required, Validators.min(1)]],
     });
+
+    this.costumeAutosave = new FormAutosaveCoordinator(this.costumeForm, {
+      enabled: () => this.editingGender() !== null,
+      isValid: () => this.costumeForm.valid,
+      save: (value) => this.persistCostume(this.editingCostumeGender!, value as unknown as CostumeFormPayload),
+      onSaving: () => this.savingGender.set(this.editingCostumeGender),
+      onSuccess: () => {
+        const gender = this.editingCostumeGender;
+        this.savingGender.set(null);
+        if (!gender) return;
+        const perf = this.selectedPerformance();
+        if (!perf) return;
+        this.costumeSvc.getCostumes(this.groupId, perf.id).subscribe({
+          next: (list) => {
+            const map = new Map(this.costumes());
+            list.forEach((c) => map.set(`${perf.id}_${c.gender}`, c));
+            this.costumes.set(map);
+            this.editingGender.set(null);
+            this.editingCostumeGender = null;
+          },
+        });
+      },
+      onError: (err: unknown) => {
+        this.savingGender.set(null);
+        this.snack.open((err as { error?: { error?: string } })?.error?.error
+          || 'Could not save costume information.', 'Close', { duration: 5000 });
+      },
+    });
+    this.costumeAutosave.connect();
+
+    this.conflictAutosave = new FormAutosaveCoordinator(this.conflictForm, {
+      enabled: () => this.addingConflict() || this.editingConflictId() !== null,
+      isValid: () => this.conflictForm.valid,
+      save: (value) => this.persistConflict(value),
+      onSaving: () => this.savingConflict.set(true),
+      onSuccess: () => {
+        this.costumeSvc.getCostumeConflicts(this.groupId).subscribe({
+          next: (list) => {
+            this.conflicts.set(list);
+            this.savingConflict.set(false);
+            this.cancelConflictEdit(false);
+          },
+        });
+      },
+      onError: (err: unknown) => {
+        this.savingConflict.set(false);
+        this.snack.open((err as { error?: { error?: string } })?.error?.error
+          || 'Could not save costume conflict.', 'Close', { duration: 5000 });
+      },
+    });
+    this.conflictAutosave.connect();
 
     toObservable(this.relatedGroupSearch).pipe(
       debounceTime(250),
@@ -131,6 +192,29 @@ export class CostumesComponent implements OnInit {
       return;
     }
     this.loadAll();
+    this.unbindBeforeUnload = this.unsavedSvc.bindBeforeUnload(() => this.hasUnsavedChanges());
+  }
+
+  ngOnDestroy(): void {
+    this.costumeAutosave?.disconnect();
+    this.conflictAutosave?.disconnect();
+    this.unbindBeforeUnload?.();
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.costumeAutosave.hasUnsavedChanges() || this.conflictAutosave.hasUnsavedChanges();
+  }
+
+  discardUnsavedChanges(): void {
+    if (this.costumeAutosave.hasUnsavedChanges()) {
+      this.costumeAutosave.discardChanges();
+      this.editingGender.set(null);
+      this.editingCostumeGender = null;
+    }
+    if (this.conflictAutosave.hasUnsavedChanges()) {
+      this.conflictAutosave.discardChanges();
+      this.cancelConflictEdit(false);
+    }
   }
 
   private loadAll(): void {
@@ -184,10 +268,22 @@ export class CostumesComponent implements OnInit {
     return this.costumes().get(`${performanceId}_${gender}`) ?? null;
   }
 
-  onRoundChange(index: number): void {
+  async onRoundChange(index: number): Promise<void> {
+    const previous = this.selectedRoundIndex();
+    if (index === previous) return;
+
+    const canLeave = await this.unsavedSvc.confirmLeave(
+      () => this.hasUnsavedChanges(),
+      () => this.discardUnsavedChanges(),
+    );
+    if (!canLeave) {
+      this.selectedRoundIndex.set(previous);
+      return;
+    }
+
     this.selectedRoundIndex.set(index);
-    this.cancelCostumeEdit();
-    this.cancelConflictEdit();
+    this.cancelCostumeEdit(false);
+    this.cancelConflictEdit(false);
   }
 
   startCostumeEdit(gender: CostumeGender): void {
@@ -195,7 +291,8 @@ export class CostumesComponent implements OnInit {
     if (!perf) return;
     const existing = this.getCostume(perf.id, gender);
     this.editingGender.set(gender);
-    this.costumeForm.reset({
+    this.editingCostumeGender = gender;
+    this.costumeAutosave.setBaseline({
       region: existing?.region ?? '',
       village: existing?.village ?? '',
       resource_type_id: existing?.resource_type_id ?? null,
@@ -205,52 +302,30 @@ export class CostumesComponent implements OnInit {
     });
   }
 
-  cancelCostumeEdit(): void {
+  async cancelCostumeEdit(prompt = true): Promise<void> {
+    if (prompt) {
+      const canLeave = await this.unsavedSvc.confirmLeave(
+        () => this.costumeAutosave.hasUnsavedChanges(),
+        () => {
+          this.costumeAutosave.discardChanges();
+          this.editingGender.set(null);
+          this.editingCostumeGender = null;
+        },
+      );
+      if (!canLeave) return;
+    }
     this.editingGender.set(null);
+    this.editingCostumeGender = null;
     this.costumeForm.reset();
   }
 
-  saveCostume(gender: CostumeGender): void {
-    if (this.costumeForm.invalid) {
-      this.costumeForm.markAllAsTouched();
-      return;
-    }
+  private persistCostume(gender: CostumeGender, payload: CostumeFormPayload) {
     const perf = this.selectedPerformance();
-    if (!perf) return;
-
-    const payload = this.costumeForm.value as CostumeFormPayload;
+    if (!perf) throw new Error('No performance selected');
     const existing = this.getCostume(perf.id, gender);
-    this.savingGender.set(gender);
-
-    const onSuccess = () => {
-      this.costumeSvc.getCostumes(this.groupId, perf.id).subscribe({
-        next: (list) => {
-          const map = new Map(this.costumes());
-          list.forEach((c) => map.set(`${perf.id}_${c.gender}`, c));
-          this.costumes.set(map);
-          this.savingGender.set(null);
-          this.editingGender.set(null);
-          this.snack.open('Costume information saved.', 'Close', { duration: 3000 });
-        },
-      });
-    };
-
-    const onError = (err: { error?: { error?: string } }) => {
-      this.savingGender.set(null);
-      this.snack.open(err?.error?.error || 'Could not save costume information.', 'Close', { duration: 5000 });
-    };
-
-    if (existing) {
-      this.costumeSvc.updateCostume(this.groupId, perf.id, existing.id, payload).subscribe({
-        next: onSuccess,
-        error: onError,
-      });
-    } else {
-      this.costumeSvc.createCostume(this.groupId, perf.id, gender, payload).subscribe({
-        next: onSuccess,
-        error: onError,
-      });
-    }
+    return existing
+      ? this.costumeSvc.updateCostume(this.groupId, perf.id, existing.id, payload)
+      : this.costumeSvc.createCostume(this.groupId, perf.id, gender, payload);
   }
 
   getResourceLabel(id: number | null | undefined): string {
@@ -265,32 +340,56 @@ export class CostumesComponent implements OnInit {
   startAddConflict(): void {
     this.addingConflict.set(true);
     this.editingConflictId.set(null);
-    this.conflictForm.reset({ related_group_id: null, costume_count: 1 });
     this.relatedGroupSearch.set('');
     this.costumeSvc.searchRelatedGroups(this.groupId, '').subscribe({
       next: (opts) => this.relatedGroupOptions.set(opts),
+    });
+    this.conflictAutosave.setBaseline({
+      related_group_id: null,
+      costume_count: 1,
     });
   }
 
   startEditConflict(conflict: ManualCostumeConflict): void {
     this.addingConflict.set(false);
     this.editingConflictId.set(conflict.id);
-    this.conflictForm.reset({
-      related_group_id: conflict.related_group_id,
-      costume_count: conflict.costume_count,
-    });
     this.relatedGroupSearch.set(
       conflict.related_group_name
         ? `${conflict.related_group_name} — ${conflict.related_parish_name ?? ''}`
         : ''
     );
+    this.conflictAutosave.setBaseline({
+      related_group_id: conflict.related_group_id,
+      costume_count: conflict.costume_count,
+    });
   }
 
-  cancelConflictEdit(): void {
+  async cancelConflictEdit(prompt = true): Promise<void> {
+    if (prompt) {
+      const canLeave = await this.unsavedSvc.confirmLeave(
+        () => this.conflictAutosave.hasUnsavedChanges(),
+        () => this.conflictAutosave.discardChanges(),
+      );
+      if (!canLeave) return;
+    }
     this.addingConflict.set(false);
     this.editingConflictId.set(null);
     this.conflictForm.reset();
     this.relatedGroupSearch.set('');
+  }
+
+  private persistConflict(value: Record<string, unknown>) {
+    const perf = this.selectedPerformance();
+    if (!perf) throw new Error('No performance selected');
+    const payload = {
+      round: perf.round,
+      related_group_id: value['related_group_id'] as number,
+      costume_count: Number(value['costume_count']),
+    };
+    const editId = this.editingConflictId();
+    return editId
+      ? this.costumeSvc.updateCostumeConflict(this.groupId, editId, payload)
+      : this.costumeSvc.addCostumeConflict(this.groupId, payload);
   }
 
   onRelatedGroupSelected(option: RelatedGroupOption): void {
@@ -303,53 +402,6 @@ export class CostumesComponent implements OnInit {
     const opt = this.relatedGroupOptions().find((o) => o.id === id);
     return opt?.display_label ?? '';
   };
-
-  saveConflict(): void {
-    if (this.conflictForm.invalid) {
-      this.conflictForm.markAllAsTouched();
-      return;
-    }
-    const perf = this.selectedPerformance();
-    if (!perf) return;
-
-    const { related_group_id, costume_count } = this.conflictForm.value;
-    const payload = {
-      round: perf.round,
-      related_group_id: related_group_id!,
-      costume_count: Number(costume_count),
-    };
-
-    this.savingConflict.set(true);
-    const editId = this.editingConflictId();
-
-    const onSuccess = () => {
-      this.costumeSvc.getCostumeConflicts(this.groupId).subscribe({
-        next: (list) => {
-          this.conflicts.set(list);
-          this.savingConflict.set(false);
-          this.cancelConflictEdit();
-          this.snack.open('Costume conflict saved.', 'Close', { duration: 3000 });
-        },
-      });
-    };
-
-    const onError = (err: { error?: { error?: string } }) => {
-      this.savingConflict.set(false);
-      this.snack.open(err?.error?.error || 'Could not save costume conflict.', 'Close', { duration: 5000 });
-    };
-
-    if (editId) {
-      this.costumeSvc.updateCostumeConflict(this.groupId, editId, payload).subscribe({
-        next: onSuccess,
-        error: onError,
-      });
-    } else {
-      this.costumeSvc.addCostumeConflict(this.groupId, payload).subscribe({
-        next: onSuccess,
-        error: onError,
-      });
-    }
-  }
 
   confirmDeleteConflict(conflict: ManualCostumeConflict): void {
     const data: ConfirmDialogData = {

@@ -171,7 +171,7 @@
       }
     } @else {
       <!-- Edit form -->
-      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <form [formGroup]="form" novalidate>
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Group name</mat-label>
           <input matInput formControlName="name" maxlength="200" />
@@ -213,10 +213,10 @@
         }
 
         <div class="edit-actions">
-          <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="saving()">
-            @if (saving()) { <mat-spinner diameter="18" /> } @else { Save changes }
-          </button>
+          <button mat-stroked-button type="button" (click)="cancelEdit()">Done</button>
+          @if (saving()) {
+            <span class="autosave-status" aria-live="polite">Saving…</span>
+          }
         </div>
       </form>
     }

@@ -248,9 +248,11 @@ test.describe('Choral submission', () => {
     await page.getByLabel('Song Name').fill(finalName);
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
 
+    const avSavePromise = page.waitForResponse(
+      (r) => r.url().includes('/logistics') && r.request().method() === 'PATCH' && r.ok(),
+    );
     await page.getByLabel('Music / Audio Needs').fill('Choral wireless mics');
-    await page.getByRole('button', { name: 'Save AV Information' }).click();
-    await expect(page.getByText('AV information saved')).toBeVisible();
+    await avSavePromise;
 
     await page.getByRole('button', { name: 'Submit Performance Information' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Submit Performance Information' }).click();

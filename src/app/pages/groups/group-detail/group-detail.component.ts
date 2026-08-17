@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,11 @@ import { ParishService, Parish } from '../../../services/parish.service';
 import { DirectorService, GroupDirector, CoDirectorPayload } from '../../../services/director.service';
 import { CoDirectorDialogComponent } from './co-director-dialog.component';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
+import {
+  FormAutosaveCoordinator,
+  HasUnsavedChanges,
+  UnsavedChangesService,
+} from '../../../shared/unsaved-changes';
 
 @Component({
   selector: 'fdp-group-detail',
@@ -32,7 +37,7 @@ import { ContextHelpComponent } from '../../../shared/context-help/context-help.
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './group-detail.component.scss',
 })
-export class GroupDetailComponent implements OnInit {
+export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChanges {
   group      = signal<PortalGroup | null>(null);
   loading    = signal(true);
   saving     = signal(false);
@@ -48,6 +53,8 @@ export class GroupDetailComponent implements OnInit {
   readonly primaryDirectorRecord = computed(() => this.directors().find(d => !!d.is_primary) ?? null);
 
   form!: FormGroup;
+  private groupAutosave!: FormAutosaveCoordinator<Record<string, unknown>>;
+  private unbindBeforeUnload?: () => void;
   parishes   = signal<Parish[]>([]);
   filteredParishes$!: Observable<Parish[]>;
   readonly groupTypes = ['Dance', 'Choral'];
@@ -84,6 +91,7 @@ export class GroupDetailComponent implements OnInit {
     private directorSvc: DirectorService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
+    private unsavedSvc: UnsavedChangesService,
   ) {}
 
   ngOnInit(): void {
@@ -107,6 +115,20 @@ export class GroupDetailComponent implements OnInit {
       next: (ps) => this.parishes.set(ps),
       error: () => {},
     });
+    this.unbindBeforeUnload = this.unsavedSvc.bindBeforeUnload(() => this.hasUnsavedChanges());
+  }
+
+  ngOnDestroy(): void {
+    this.groupAutosave?.disconnect();
+    this.unbindBeforeUnload?.();
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.editMode() && this.groupAutosave.hasUnsavedChanges();
+  }
+
+  discardUnsavedChanges(): void {
+    this.groupAutosave.discardChanges();
   }
 
   private loadDirectors(groupId: number): void {
@@ -118,13 +140,63 @@ export class GroupDetailComponent implements OnInit {
   }
 
   private initForm(g: PortalGroup): void {
-    this.form = this.fb.group({
-      name:         [g.name, [Validators.required, Validators.maxLength(200)]],
-      parishId:     [g.parish?.id || null, Validators.required],
-      parishSearch: [g.parish ? this.displayParish(g.parish) : ''],
-      groupType:    [g.groupType, Validators.required],
-    });
+    if (!this.form) {
+      this.form = this.fb.group({
+        name:         ['', [Validators.required, Validators.maxLength(200)]],
+        parishId:     [null as number | null, Validators.required],
+        parishSearch: [''],
+        groupType:    ['', Validators.required],
+      });
 
+      this.groupAutosave = new FormAutosaveCoordinator(this.form, {
+        enabled: () => this.editMode(),
+        isValid: () => this.form.valid,
+        save: (value) => {
+          const group = this.group()!;
+          return this.groupSvc.updateGroup(group.id, {
+            name: String(value['name']).trim(),
+            parishId: value['parishId'] as number,
+            groupType: String(value['groupType']),
+          });
+        },
+        onSaving: () => {
+          this.saving.set(true);
+          this.saveError.set('');
+        },
+        onSuccess: () => {
+          this.saving.set(false);
+          this.saved.set(true);
+          const group = this.group()!;
+          this.groupSvc.getGroup(group.id).subscribe((updated) => {
+            this.group.set(updated);
+            this.setFormBaseline(updated);
+          });
+        },
+        onError: (err: unknown) => {
+          this.saving.set(false);
+          this.saveError.set((err as { error?: { error?: string } })?.error?.error
+            || 'Could not save changes.');
+        },
+      });
+      this.groupAutosave.connect();
+
+      this.filteredParishes$ = this.form.get('parishSearch')!.valueChanges.pipe(
+        startWith(''),
+        map(v => typeof v === 'string' ? v : this.displayParish(v)),
+        map(v => this.filterParishes(v)),
+      );
+    }
+
+    this.setFormBaseline(g);
+  }
+
+  private setFormBaseline(g: PortalGroup): void {
+    this.groupAutosave.setBaseline({
+      name: g.name,
+      parishId: g.parish?.id || null,
+      parishSearch: g.parish ? this.displayParish(g.parish) : '',
+      groupType: g.groupType,
+    });
     this.filteredParishes$ = this.form.get('parishSearch')!.valueChanges.pipe(
       startWith(g.parish ? this.displayParish(g.parish) : ''),
       map(v => typeof v === 'string' ? v : this.displayParish(v)),
@@ -149,36 +221,15 @@ export class GroupDetailComponent implements OnInit {
     this.form.patchValue({ parishId: parish.id, parishSearch: this.displayParish(parish) });
   }
 
-  startEdit(): void { this.editMode.set(true); this.saved.set(false); this.saveError.set(''); }
-  cancelEdit(): void { this.editMode.set(false); this.initForm(this.group()!); }
-
-  save(): void {
-    this.form.markAllAsTouched();
-    if (this.form.invalid || this.saving()) return;
-
-    this.saving.set(true);
-    this.saveError.set('');
-    const g = this.group()!;
-
-    this.groupSvc.updateGroup(g.id, {
-      name:      this.form.value.name.trim(),
-      parishId:  this.form.value.parishId,
-      groupType: this.form.value.groupType,
-    }).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.saved.set(true);
-        this.editMode.set(false);
-        this.groupSvc.getGroup(g.id).subscribe(updated => {
-          this.group.set(updated);
-          this.initForm(updated);
-        });
-      },
-      error: (err) => {
-        this.saving.set(false);
-        this.saveError.set(err.error?.error || 'Could not save changes.');
-      },
-    });
+  startEdit(): void { this.editMode.set(true); this.saved.set(false); this.saveError.set(''); this.setFormBaseline(this.group()!); }
+  async cancelEdit(): Promise<void> {
+    const canLeave = await this.unsavedSvc.confirmLeave(
+      () => this.hasUnsavedChanges(),
+      () => this.discardUnsavedChanges(),
+    );
+    if (!canLeave) return;
+    this.editMode.set(false);
+    this.setFormBaseline(this.group()!);
   }
 
   openAddDialog(): void {

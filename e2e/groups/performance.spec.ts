@@ -336,19 +336,33 @@ test.describe('Scored entry protection', () => {
 });
 
 test.describe('AV logistics', () => {
-  test('Saves and reloads dance AV fields', async ({ page }) => {
+  test('Auto-saves and reloads dance AV fields', async ({ page }) => {
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await openPerformanceForGroup(page, E2E_PERFORMANCE_GROUPS.A2);
 
     const props = `E2E Props ${Date.now()}`;
+    const savePromise = page.waitForResponse(
+      (r) => r.url().includes('/logistics') && r.request().method() === 'PATCH' && r.ok(),
+    );
     await page.getByLabel('Additional Props').fill(props);
     await page.getByLabel('Music / Audio Needs').fill('Wireless mics');
-    await page.getByRole('button', { name: 'Save AV Information' }).click();
-    await expect(page.getByText('AV information saved')).toBeVisible();
+    await savePromise;
 
     await page.reload();
     await expect(page.getByLabel('Additional Props')).toHaveValue(props);
     await expect(page.getByLabel('Music / Audio Needs')).toHaveValue('Wireless mics');
+  });
+
+  test('Prompts before leaving with unsaved AV changes', async ({ page }) => {
+    await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
+    await openPerformanceForGroup(page, E2E_PERFORMANCE_GROUPS.A2);
+
+    await page.getByLabel('Additional Props').fill(`Unsaved ${Date.now()}`);
+    await page.getByRole('link', { name: 'Back to Group' }).click();
+
+    await expect(page.getByRole('dialog', { name: 'Unsaved changes' })).toBeVisible();
+    await page.getByRole('button', { name: 'Keep editing' }).click();
+    await expect(page).toHaveURL(/\/performance/);
   });
 });
 
