@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../services/auth.service';
+import { PortalConfigService } from '../../../services/portal-config.service';
 
 @Component({
   selector: 'fdp-google-complete',
@@ -27,6 +28,7 @@ export class GoogleCompleteComponent implements OnInit {
   private credential = '';
   googleProfile: any = {};
 
+  readonly portalConfig = inject(PortalConfigService);
   readonly today = new Date().toISOString().slice(0, 10);
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {

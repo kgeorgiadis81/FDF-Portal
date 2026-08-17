@@ -13,7 +13,14 @@ export interface DirectorProfile {
   phoneNumber: string | null;
   googleLinked: boolean;
   createdAt: string;
-  consent: { version: string; accepted: boolean; required?: boolean };
+  consent: {
+    version: string;
+    accepted: boolean;
+    acceptedAt?: string | null;
+    declined?: boolean;
+    declinedAt?: string | null;
+    required?: boolean;
+  };
 }
 
 export interface AuthState {
@@ -143,8 +150,19 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${this.api}/consent`, {});
   }
 
+  declineConsent() {
+    return this.http.post<{ message: string }>(`${this.api}/consent/decline`, {});
+  }
+
   getConsentStatus() {
-    return this.http.get<{ required: string; accepted: boolean; requiresConsent: boolean }>(`${this.api}/consent-status`);
+    return this.http.get<{
+      required: string;
+      accepted: boolean;
+      acceptedAt: string | null;
+      requiresConsent: boolean;
+      declined: boolean;
+      declinedAt: string | null;
+    }>(`${this.api}/consent-status`);
   }
 
   getProfile() {

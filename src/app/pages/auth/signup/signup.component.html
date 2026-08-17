@@ -82,7 +82,12 @@
     <mat-checkbox formControlName="consentAccepted" color="primary">
       <span class="consent-text">
         I have read and accept the FDF Portal
-        <a href="#" target="_blank" rel="noopener">Privacy &amp; Data Responsibility</a> terms
+        @if (portalConfig.privacyPolicyUrl()) {
+          <a [href]="portalConfig.privacyPolicyUrl()" target="_blank" rel="noopener noreferrer">Privacy &amp; Data Responsibility</a>
+        } @else {
+          Privacy &amp; Data Responsibility
+        }
+        terms
         <app-context-help
           helpKey="signup.consent"
           label="Privacy and data responsibility"

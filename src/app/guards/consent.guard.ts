@@ -7,7 +7,7 @@ import { map, catchError, of } from 'rxjs';
  * Checks that the authenticated Director has accepted the current consent version.
  * Redirects to /consent if not.
  *
- * NOTE: UX guard only. Backend enforces on group creation.
+ * NOTE: UX guard only. Backend enforces consent on all protected portal APIs.
  */
 export const consentGuard: CanActivateFn = (_route, _state) => {
   const auth   = inject(AuthService);
@@ -18,6 +18,6 @@ export const consentGuard: CanActivateFn = (_route, _state) => {
       if (!status.requiresConsent) return true;
       return router.createUrlTree(['/consent']);
     }),
-    catchError(() => of(true)) // Allow through on error — backend will enforce
+    catchError(() => of(router.createUrlTree(['/consent'])))
   );
 };

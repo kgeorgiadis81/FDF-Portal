@@ -55,6 +55,8 @@
           <dd>
             @if (profile()!.consent.accepted) {
               <span class="verified-badge"><mat-icon class="tiny">check_circle</mat-icon> Accepted (v{{ profile()!.consent.version }})</span>
+            } @else if (profile()!.consent.declined) {
+              <span class="text-error">Declined</span>
             } @else {
               <span class="text-error">Pending</span>
             }

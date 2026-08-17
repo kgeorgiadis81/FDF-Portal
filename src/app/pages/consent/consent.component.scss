@@ -44,6 +44,17 @@
 
   .consent-check { margin: .75rem 0; }
 
+  .consent-actions {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-top: 1rem;
+  }
+
+  .decline-btn {
+    color: var(--color-text-muted);
+  }
+
   .form-error {
     color: var(--color-error);
     font-size: .875rem;

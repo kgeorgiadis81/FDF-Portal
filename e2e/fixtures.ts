@@ -44,6 +44,16 @@ export const DIRECTOR_UNVERIFIED = {
 };
 
 /**
+ * Director — verified email but has not accepted current consent version.
+ * Use for: consent gate and decline flow tests.
+ */
+export const DIRECTOR_PENDING_CONSENT = {
+  email:    'director.pending-consent@e2e.test',
+  password: E2E_PASSWORD,
+  name:     'E2E Director Pending Consent',
+};
+
+/**
  * Portal API helper: login via API and return token.
  * Uses Node 24 native fetch. Never call from browser context.
  */

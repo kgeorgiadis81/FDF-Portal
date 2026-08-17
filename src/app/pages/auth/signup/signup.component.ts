@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../services/auth.service';
+import { PortalConfigService } from '../../../services/portal-config.service';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 function passwordsMatchValidator(group: AbstractControl) {
@@ -35,6 +36,8 @@ export class SignupComponent implements OnInit {
   showPassword = signal(false);
   showConfirm  = signal(false);
   readonly today = new Date().toISOString().slice(0, 10);
+
+  readonly portalConfig = inject(PortalConfigService);
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {}
 
