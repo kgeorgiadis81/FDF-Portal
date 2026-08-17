@@ -89,6 +89,12 @@ input[type='date'] {
   flex-wrap: wrap;
 }
 
+// Extra inset for help icons projected into mat-form-field suffix slots.
+.mat-mdc-form-field-icon-suffix > app-context-help.context-help-host--suffix,
+.mat-mdc-form-field-text-suffix > app-context-help.context-help-host--suffix {
+  padding-inline-end: 0.125rem;
+}
+
 .fdp-section-label-with-help {
   display: inline-flex;
   align-items: center;

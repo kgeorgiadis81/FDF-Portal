@@ -60,6 +60,26 @@ test.describe('Contextual help', () => {
     await page.keyboard.press('Escape');
   });
 
+  test('help on mat-select does not open the dropdown', async ({ page }) => {
+    await loginAsDirector(page);
+    await page.goto('/groups/new');
+
+    await openHelp(page, 'Group type');
+
+    await expect(page.getByRole('listbox', { name: 'Group type' })).toBeHidden();
+    await expect(page.getByRole('dialog', { name: 'Group Type' })).toBeVisible();
+  });
+
+  test('help on parish autocomplete does not open the suggestion panel', async ({ page }) => {
+    await loginAsDirector(page);
+    await page.goto('/groups/new');
+
+    await openHelp(page, 'Parish');
+
+    await expect(page.getByRole('listbox')).toBeHidden();
+    await expect(page.getByRole('dialog', { name: 'Parish' })).toBeVisible();
+  });
+
   test('mobile touch opens help on Create Group — Group Type', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await loginAsDirector(page);

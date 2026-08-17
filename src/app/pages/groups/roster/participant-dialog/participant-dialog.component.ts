@@ -82,7 +82,7 @@ function notFutureDateValidator(control: AbstractControl) {
           } @else if (form.get('date_of_birth')?.errors?.['futureDate'] && form.get('date_of_birth')?.touched) {
             <mat-error>Date of birth cannot be in the future.</mat-error>
           }
-          <mat-hint>Enter as YYYY-MM-DD or use the date picker</mat-hint>
+          <mat-hint>Enter a date or use the calendar picker</mat-hint>
         </mat-form-field>
 
         @if (serverError) {

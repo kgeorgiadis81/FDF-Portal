@@ -9,6 +9,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatSuffix } from '@angular/material/form-field';
 import { getPortalHelp, PortalHelpKey } from '../portal-help-content';
 import { ContextHelpService } from './context-help.service';
 
@@ -16,16 +17,22 @@ import { ContextHelpService } from './context-help.service';
   selector: 'app-context-help',
   standalone: true,
   imports: [MatIconModule, MatButtonModule, MatMenuModule],
+  host: {
+    class: 'context-help-host',
+    '[class.context-help-host--suffix]': 'isFormFieldSuffix',
+  },
   template: `
     <button
       mat-icon-button
       type="button"
       tabindex="-1"
       class="context-help-btn"
-      [class.context-help-btn--suffix]="formFieldSuffix()"
       [class.context-help-btn--compact]="compact()"
       [matMenuTriggerFor]="helpMenu"
       #menuTrigger="matMenuTrigger"
+      (pointerdown)="onTriggerPointerDown($event)"
+      (mousedown)="onTriggerPointerDown($event)"
+      (click)="onTriggerClick($event)"
       (menuOpened)="onMenuOpened(menuTrigger)"
       (menuClosed)="onMenuClosed(menuTrigger)"
       [attr.aria-label]="ariaLabel()"
@@ -58,8 +65,16 @@ import { ContextHelpService } from './context-help.service';
         vertical-align: middle;
       }
 
-      :host([matsuffix]) {
+      :host(.context-help-host--suffix) {
         align-self: center;
+        margin-inline-end: 0.5rem;
+      }
+
+      :host(.context-help-host--suffix) .context-help-btn {
+        width: 2rem;
+        height: 2rem;
+        min-width: 2rem;
+        padding: 2px;
       }
 
       .context-help-btn {
@@ -75,14 +90,6 @@ import { ContextHelpService } from './context-help.service';
 
       .context-help-btn:hover {
         background-color: rgba(96, 125, 139, 0.08);
-      }
-
-      .context-help-btn--suffix {
-        width: 2rem;
-        height: 2rem;
-        min-width: 2rem;
-        padding: 2px;
-        margin-right: -0.25rem;
       }
 
       .context-help-btn--compact {
@@ -129,11 +136,10 @@ import { ContextHelpService } from './context-help.service';
 })
 export class ContextHelpComponent {
   private readonly helpService = inject(ContextHelpService);
+  protected readonly isFormFieldSuffix = !!inject(MatSuffix, { optional: true, self: true });
 
   readonly helpKey = input.required<PortalHelpKey>();
   readonly label = input.required<string>();
-  /** When true, renders as a mat-form-field suffix (e.g. beside a date input). */
-  readonly formFieldSuffix = input(false);
   /** Smaller icon for inline use beside labels. */
   readonly compact = input(false);
 
@@ -141,6 +147,16 @@ export class ContextHelpComponent {
 
   readonly content = computed(() => getPortalHelp(this.helpKey()));
   readonly ariaLabel = computed(() => `Help for ${this.label()}`);
+
+  /** Block mat-select/autocomplete from opening when help is activated inside a form field. */
+  onTriggerPointerDown(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onTriggerClick(event: Event): void {
+    event.stopPropagation();
+  }
 
   onMenuOpened(trigger: MatMenuTrigger): void {
     this.helpService.registerOpen(trigger);
