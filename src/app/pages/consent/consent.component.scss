@@ -13,10 +13,16 @@
   margin-top: 1rem;
 
   .consent-brand {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-navy);
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
     margin-bottom: 1.25rem;
+
+    &__name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-navy);
+    }
   }
 
   h1 { font-size: 1.5rem; margin-bottom: .5rem; }

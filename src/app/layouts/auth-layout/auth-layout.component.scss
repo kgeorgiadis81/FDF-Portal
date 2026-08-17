@@ -22,20 +22,6 @@
   margin-bottom: 1.5rem;
   color: #fff;
 
-  &__logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    font-size: 1.75rem;
-    line-height: 1;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(4px);
-  }
-
   &__text {
     display: flex;
     flex-direction: column;
