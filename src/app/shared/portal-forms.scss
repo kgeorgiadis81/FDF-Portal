@@ -91,6 +91,32 @@ input[type='date'] {
   flex-wrap: wrap;
 }
 
+// ─── Icon + text rows (cards, status lists) ────────────────────────────────
+.fdp-icon-text-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.45;
+
+  > mat-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    line-height: 1;
+    margin-top: 0.1rem;
+  }
+
+  > span,
+  > .fdp-icon-text-row__content {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 // ─── Error Messages ────────────────────────────────────────────────────────
 .form-error,
 .server-error {

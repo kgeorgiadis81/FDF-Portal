@@ -71,15 +71,17 @@
           <div class="group-type-badge">{{ group.groupType }}</div>
           <h3 class="group-name">{{ group.name }}</h3>
           <p class="group-parish">
-            <mat-icon class="inline-icon">place</mat-icon>
-            {{ group.parish?.name || 'Parish not set' }}
-            @if (group.parish?.location) { · {{ group.parish?.location }} }
+            <mat-icon class="inline-icon" aria-hidden="true">place</mat-icon>
+            <span class="group-parish-text">
+              {{ group.parish?.name || 'Parish not set' }}
+              @if (group.parish?.location) { · {{ group.parish?.location }} }
+            </span>
           </p>
           <div class="group-footer">
             <div class="registration-status">
               <!-- Roster status -->
               <div class="status-row roster-status">
-                <mat-icon class="status-icon">people</mat-icon>
+                <mat-icon class="status-icon" aria-hidden="true">people</mat-icon>
                 @if (group.rosterSubmittedAt) {
                   <span class="status-label submitted">Roster submitted</span>
                 } @else if (group.rosterMemberCount > 0) {
@@ -92,7 +94,7 @@
               </div>
               <!-- Performance status -->
               <div class="status-row performance-status">
-                <mat-icon class="status-icon">theater_comedy</mat-icon>
+                <mat-icon class="status-icon" aria-hidden="true">theater_comedy</mat-icon>
                 @if (group.performanceSubmittedAt) {
                   <span class="status-label submitted">Performance submitted</span>
                 } @else {
@@ -101,7 +103,7 @@
               </div>
               @if (group.groupType.toUpperCase() === 'DANCE') {
                 <div class="status-row costumes-status">
-                  <mat-icon class="status-icon">checkroom</mat-icon>
+                  <mat-icon class="status-icon" aria-hidden="true">checkroom</mat-icon>
                   @if (group.costumeSubmittedAt) {
                     <span class="status-label submitted">Costumes submitted</span>
                   } @else {
