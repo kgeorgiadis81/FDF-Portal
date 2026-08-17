@@ -3,6 +3,8 @@
 // Palette: deep navy primary, warm gold accent, clean white/off-white surfaces.
 
 @use '@angular/material' as mat;
+@use './app/pages/auth/auth-shared';
+@use './app/shared/portal-forms';
 
 // ─── Custom Palette ──────────────────────────────────────────────────────────
 // Navy blue for authority and trust; gold for warmth and Greek heritage.
@@ -194,7 +196,3 @@ a {
     box-shadow: none;
   }
 }
-
-@import './app/pages/auth/auth-shared';
-@import './app/shared/portal-forms';
-
