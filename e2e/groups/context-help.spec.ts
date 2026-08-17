@@ -23,6 +23,22 @@ async function openHelp(page: Page, label: string) {
 }
 
 test.describe('Contextual help', () => {
+  test('Tab skips help icons between form fields on Create Group', async ({ page }) => {
+    await loginAsDirector(page);
+    await page.goto('/groups/new');
+
+    const helpButtons = page.locator('app-context-help button.context-help-btn');
+    await expect(helpButtons).not.toHaveCount(0);
+    const count = await helpButtons.count();
+    for (let i = 0; i < count; i++) {
+      await expect(helpButtons.nth(i)).toHaveAttribute('tabindex', '-1');
+    }
+
+    await page.getByLabel('Group name').focus();
+    await page.keyboard.press('Tab');
+    await expect(page.getByLabel('Parish')).toBeFocused();
+  });
+
   test('keyboard Enter opens help on Create Group — Group Type', async ({ page }) => {
     await loginAsDirector(page);
     await page.goto('/groups/new');

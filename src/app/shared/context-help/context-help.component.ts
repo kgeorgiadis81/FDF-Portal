@@ -20,6 +20,7 @@ import { ContextHelpService } from './context-help.service';
     <button
       mat-icon-button
       type="button"
+      tabindex="-1"
       class="context-help-btn"
       [class.context-help-btn--suffix]="formFieldSuffix()"
       [class.context-help-btn--compact]="compact()"
