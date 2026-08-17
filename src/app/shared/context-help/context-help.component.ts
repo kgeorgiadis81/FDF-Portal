@@ -48,14 +48,6 @@ import { ContextHelpService } from './context-help.service';
         @if (content().example) {
           <p class="context-help-example"><em>Example: {{ content().example }}</em></p>
         }
-        <button
-          mat-button
-          type="button"
-          class="context-help-close"
-          (click)="menuTrigger.closeMenu()"
-        >
-          Close
-        </button>
       </div>
     </mat-menu>
   `,
@@ -127,14 +119,9 @@ import { ContextHelpService } from './context-help.service';
       }
 
       .context-help-example {
-        margin: 0 0 8px;
+        margin: 0;
         font-size: 0.85rem;
         color: #607d8b;
-      }
-
-      .context-help-close {
-        margin-top: 4px;
-        min-height: 36px;
       }
     `,
   ],
