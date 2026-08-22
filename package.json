@@ -6,6 +6,7 @@
     "start": "ng serve",
     "start:e2e": "ng serve --configuration=e2e --port=4201",
     "build": "ng build",
+    "build:prod": "node scripts/inject-google-client-id.js && ng build --configuration=production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "e2e": "playwright test --project=portal-chromium",
