@@ -1,0 +1,21 @@
+{
+  "name": "FDF Portal",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "bash -lc 'npm start'",
+      "description": "Angular dev server for the Directors Portal on http://localhost:4201 (dev API expected at :3500)."
+    }
+  ],
+  "ports": [
+    {
+      "name": "portal",
+      "port": 4201
+    }
+  ],
+  "repositoryDependencies": [
+    "github.com/kgeorgiadis81/FDF_Backend",
+    "github.com/kgeorgiadis81/FDF-Admin-Portal"
+  ]
+}
