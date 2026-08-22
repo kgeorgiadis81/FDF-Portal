@@ -147,3 +147,21 @@ Any change touching authentication, authorization, PII, SQL, APIs, uploads, or s
 | Phase 3 | ✅ Complete | FDF Portal — Director auth, groups, Google Sign-In |
 | Phase 3.5 | ✅ Complete | Framework & dependency modernization (Angular 22, Express 5, JWT hardening) |
 | Phase 4 | ✅ Complete | Director Roster & Chaperones |
+
+---
+
+## Cursor Cloud specific instructions
+
+Repo-managed environment: `.cursor/environment.json` (install via `.cursor/install.sh`, Angular dev server terminal on port `4201`).
+
+### Node version
+
+The Angular 22 CLI hard-blocks Node `< v22.22.3` / `< v24.15`. The VM default `node` (`/exec-daemon/node`) can be older and shadows nvm. `.cursor/install.sh` installs Node 24 via nvm and prepends it in `~/.bashrc`. If `ng` fails on Node version, use a login shell: `bash -lc '…'`.
+
+### Running the Portal
+
+- Dev server: `npm start` → `http://localhost:4201` (dev API `:3500`).
+- E2E serve: `npm run start:e2e` → `:4201` against backend `:3501`.
+- Unit tests (headless): `CHROME_BIN=$(which google-chrome-stable) npx ng test --watch=false --browsers=ChromeHeadless`.
+
+Playwright e2e needs `FDF_Backend` as a sibling, Docker MariaDB, and `npm run e2e:setup` in that repo. Seeded director accounts are in `e2e/.env.test.example`. Never run e2e against production.

@@ -40,3 +40,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# E2E local config (copy from e2e/.env.test.example)
+e2e/.env.test
