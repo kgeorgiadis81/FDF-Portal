@@ -24,6 +24,14 @@ fi
 
 node -v
 
+# Angular CLI prompts for analytics consent on first interactive run, which would
+# block the `dev-server` terminal (a TTY) on a fresh Cloud Agent boot. Opt out
+# non-interactively so `ng serve`/`ng build` never wait on stdin.
+export NG_CLI_ANALYTICS=false
+if ! grep -qF 'NG_CLI_ANALYTICS' "$HOME/.bashrc" 2>/dev/null; then
+  printf '\n# Opt out of the Angular CLI analytics prompt (non-interactive Cloud Agent shells)\nexport NG_CLI_ANALYTICS=false\n' >> "$HOME/.bashrc"
+fi
+
 if [ -f e2e/.env.test.example ] && [ ! -f e2e/.env.test ]; then
   cp e2e/.env.test.example e2e/.env.test
 fi
