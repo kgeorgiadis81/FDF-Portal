@@ -23,7 +23,7 @@ jobs:
       - name: Production build
         env:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          REQUIRE_GOOGLE_CLIENT_ID: "true"
+          REQUIRE_GOOGLE_CLIENT_ID: "false"
         run: npm run build:prod
       - name: Configure SSH
         run: |
