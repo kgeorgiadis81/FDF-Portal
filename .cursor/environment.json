@@ -4,7 +4,7 @@
   "terminals": [
     {
       "name": "dev-server",
-      "command": "bash -lc 'npm start'",
+      "command": "bash -lc 'NG_CLI_ANALYTICS=false npm start'",
       "description": "Angular dev server for the Directors Portal on http://localhost:4201 (dev API expected at :3500)."
     }
   ],
