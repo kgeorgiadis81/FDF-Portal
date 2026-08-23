@@ -16,7 +16,7 @@
       <div class="profile-header">
         <div class="avatar">{{ (profile()!.firstName || '')[0] }}{{ (profile()!.lastName || '')[0] }}</div>
         <div>
-          <h2>{{ profile()!.name }}</h2>
+          <h2>{{ profile()!.firstName }} {{ profile()!.lastName }}</h2>
           <p class="text-muted">{{ profile()!.email }}</p>
         </div>
         <button mat-stroked-button class="edit-btn" (click)="startEdit()">

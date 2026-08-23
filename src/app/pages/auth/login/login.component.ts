@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { environment } from '../../../../environments/environment';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, formatDisplayName } from '../../../services/auth.service';
 
 declare const google: any;
 
@@ -78,8 +78,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
           this.router.navigate(['/auth/google-complete'], {
             state: { googleProfile: result.googleProfile, credential }
           });
-        } else if (result.token && result.role && result.name) {
-          this.auth.saveAuth(0, result.token, result.role, result.name, result.roles ?? []);
+        } else if (result.token && result.role) {
+          const displayName = formatDisplayName(result);
+          this.auth.saveAuth(0, result.token, result.role, displayName, result.roles ?? []);
           this.router.navigateByUrl(result.requiresConsent ? '/consent' : this.returnUrl);
         }
       },
@@ -99,7 +100,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.auth.login(email, password).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.auth.saveAuth(res.id, res.token, res.role, res.name, res.roles ?? []);
+        this.auth.saveAuth(res.id, res.token, res.role, formatDisplayName(res), res.roles ?? []);
         this.router.navigateByUrl(res.requiresConsent ? '/consent' : this.returnUrl);
       },
       error: (err) => {

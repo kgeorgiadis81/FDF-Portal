@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService, DirectorProfile } from '../../services/auth.service';
+import { AuthService, DirectorProfile, formatDisplayName } from '../../services/auth.service';
 import {
   FormAutosaveCoordinator,
   HasUnsavedChanges,
@@ -90,6 +90,7 @@ export class ProfileComponent implements OnInit, OnDestroy, HasUnsavedChanges {
           this.saved.set(true);
           this.auth.getProfile().subscribe((profile) => {
             this.profile.set(profile);
+            this.auth.updateSessionName(formatDisplayName(profile));
             this.profileAutosave.setBaseline({
               firstName: profile.firstName,
               lastName: profile.lastName,

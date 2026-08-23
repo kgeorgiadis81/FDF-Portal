@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, formatDisplayName } from '../../../services/auth.service';
 import { PortalConfigService } from '../../../services/portal-config.service';
 
 @Component({
@@ -65,7 +65,7 @@ export class GoogleCompleteComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.auth.saveAuth(0, res.token, res.role, res.name, res.roles ?? []);
+        this.auth.saveAuth(0, res.token, res.role, formatDisplayName(res), res.roles ?? []);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

@@ -23,11 +23,13 @@ export interface DirectorProfile {
   };
 }
 
-export interface AuthState {
-  token: string | null;
-  role: string | null;
-  name: string | null;
-  id: number | null;
+export function formatDisplayName(person: {
+  firstName?: string | null;
+  lastName?: string | null;
+  name?: string | null;
+}): string {
+  const combined = `${person.firstName ?? ''} ${person.lastName ?? ''}`.trim();
+  return combined || (person.name ?? '');
 }
 
 /**
@@ -76,6 +78,11 @@ export class AuthService {
     this._roles.set(resolvedRoles);
     this._name.set(name);
     this._id.set(id);
+  }
+
+  updateSessionName(name: string): void {
+    sessionStorage.setItem('fdp_name', name);
+    this._name.set(name);
   }
 
   updateToken(newToken: string): void {
@@ -131,7 +138,16 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.http.post<{ id: number; token: string; role: string; roles?: string[]; name: string; requiresConsent: boolean }>(
+    return this.http.post<{
+      id: number;
+      token: string;
+      role: string;
+      roles?: string[];
+      firstName?: string;
+      lastName?: string;
+      name?: string;
+      requiresConsent: boolean;
+    }>(
       `${this.api}/login`, { email, password }
     );
   }
@@ -154,7 +170,7 @@ export class AuthService {
 
   googleAuth(credential: string) {
     return this.http.post<{
-      token?: string; role?: string; roles?: string[]; name?: string; requiresConsent?: boolean;
+      token?: string; role?: string; roles?: string[]; firstName?: string; lastName?: string; name?: string; requiresConsent?: boolean;
       requiresProfileCompletion?: boolean;
       googleProfile?: { providerSubject: string; providerEmail: string; suggestedFirstName: string; suggestedLastName: string };
     }>(`${this.api}/google`, { credential });
@@ -164,7 +180,7 @@ export class AuthService {
     credential: string; firstName: string; lastName: string;
     dateOfBirth: string; consentAccepted: boolean;
   }) {
-    return this.http.post<{ token: string; role: string; roles?: string[]; name: string; requiresConsent: boolean }>(
+    return this.http.post<{ token: string; role: string; roles?: string[]; firstName?: string; lastName?: string; name?: string; requiresConsent: boolean }>(
       `${this.api}/google/complete-profile`, data
     );
   }
