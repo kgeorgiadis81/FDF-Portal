@@ -54,7 +54,9 @@ export class AuthService {
     sessionStorage.getItem('fdp_id') ? Number(sessionStorage.getItem('fdp_id')) : null
   );
 
-  readonly isAuthenticated = computed(() => !!this._token() && this._role() === 'Director');
+  private readonly _roles = signal<string[]>(this.readStoredRoles());
+
+  readonly isAuthenticated = computed(() => !!this._token() && this._roles().includes('Director'));
   readonly currentName     = computed(() => this._name());
   readonly currentId       = computed(() => this._id());
 
@@ -62,13 +64,16 @@ export class AuthService {
 
   getToken(): string | null { return this._token(); }
 
-  saveAuth(id: number, token: string, role: string, name: string): void {
+  saveAuth(id: number, token: string, role: string, name: string, roles: string[] = []): void {
+    const resolvedRoles = roles.length > 0 ? roles : [role];
     sessionStorage.setItem('fdp_token', token);
     sessionStorage.setItem('fdp_role', role);
+    sessionStorage.setItem('fdp_roles', JSON.stringify(resolvedRoles));
     sessionStorage.setItem('fdp_name', name);
     sessionStorage.setItem('fdp_id',   String(id));
     this._token.set(token);
     this._role.set(role);
+    this._roles.set(resolvedRoles);
     this._name.set(name);
     this._id.set(id);
   }
@@ -90,12 +95,30 @@ export class AuthService {
   clearSession(): void {
     sessionStorage.removeItem('fdp_token');
     sessionStorage.removeItem('fdp_role');
+    sessionStorage.removeItem('fdp_roles');
     sessionStorage.removeItem('fdp_name');
     sessionStorage.removeItem('fdp_id');
     this._token.set(null);
     this._role.set(null);
+    this._roles.set([]);
     this._name.set(null);
     this._id.set(null);
+  }
+
+  private readStoredRoles(): string[] {
+    const raw = sessionStorage.getItem('fdp_roles');
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(String);
+        }
+      } catch {
+        // Fall through to primary role.
+      }
+    }
+    const role = sessionStorage.getItem('fdp_role');
+    return role ? [role] : [];
   }
 
   // ─── API methods ───────────────────────────────────────────────────────────
@@ -108,7 +131,7 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.http.post<{ id: number; token: string; role: string; name: string; requiresConsent: boolean }>(
+    return this.http.post<{ id: number; token: string; role: string; roles?: string[]; name: string; requiresConsent: boolean }>(
       `${this.api}/login`, { email, password }
     );
   }
@@ -131,7 +154,7 @@ export class AuthService {
 
   googleAuth(credential: string) {
     return this.http.post<{
-      token?: string; role?: string; name?: string; requiresConsent?: boolean;
+      token?: string; role?: string; roles?: string[]; name?: string; requiresConsent?: boolean;
       requiresProfileCompletion?: boolean;
       googleProfile?: { providerSubject: string; providerEmail: string; suggestedFirstName: string; suggestedLastName: string };
     }>(`${this.api}/google`, { credential });
@@ -141,7 +164,7 @@ export class AuthService {
     credential: string; firstName: string; lastName: string;
     dateOfBirth: string; consentAccepted: boolean;
   }) {
-    return this.http.post<{ token: string; role: string; name: string; requiresConsent: boolean }>(
+    return this.http.post<{ token: string; role: string; roles?: string[]; name: string; requiresConsent: boolean }>(
       `${this.api}/google/complete-profile`, data
     );
   }

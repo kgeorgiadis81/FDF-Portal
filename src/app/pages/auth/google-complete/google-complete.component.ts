@@ -65,7 +65,7 @@ export class GoogleCompleteComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.auth.saveAuth(0, res.token, res.role, res.name);
+        this.auth.saveAuth(0, res.token, res.role, res.name, res.roles ?? []);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

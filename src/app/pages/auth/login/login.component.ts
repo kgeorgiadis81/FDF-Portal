@@ -79,7 +79,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
             state: { googleProfile: result.googleProfile, credential }
           });
         } else if (result.token && result.role && result.name) {
-          this.auth.saveAuth(0, result.token, result.role, result.name);
+          this.auth.saveAuth(0, result.token, result.role, result.name, result.roles ?? []);
           this.router.navigateByUrl(result.requiresConsent ? '/consent' : this.returnUrl);
         }
       },
@@ -99,7 +99,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.auth.login(email, password).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.auth.saveAuth(res.id, res.token, res.role, res.name);
+        this.auth.saveAuth(res.id, res.token, res.role, res.name, res.roles ?? []);
         this.router.navigateByUrl(res.requiresConsent ? '/consent' : this.returnUrl);
       },
       error: (err) => {
