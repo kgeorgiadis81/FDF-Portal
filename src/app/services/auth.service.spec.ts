@@ -50,4 +50,18 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeFalse();
     expect(service.getToken()).toBeTruthy();
   });
+
+  it('isAuthenticated is true when JWT roles include Director even if primary role differs', () => {
+    const encode = (value: object) =>
+      btoa(JSON.stringify(value)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const exp = Math.floor(Date.now() / 1000) + 3600;
+    const token = `${encode({ alg: 'none', typ: 'JWT' })}.${encode({
+      exp,
+      role: 'Competitions Admin',
+      roles: ['Competitions Admin', 'Director'],
+    })}.sig`;
+
+    service.saveAuth(1, token, 'Competitions Admin', 'Dual User');
+    expect(service.isAuthenticated()).toBeTrue();
+  });
 });

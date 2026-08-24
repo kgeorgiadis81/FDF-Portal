@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PORTAL_BASE_URL, DIRECTOR_A } from '../fixtures';
+import { PORTAL_BASE_URL, DIRECTOR_A, DIRECTOR_PENDING_CONSENT } from '../fixtures';
 
 test.use({ baseURL: PORTAL_BASE_URL });
 
@@ -35,6 +35,16 @@ test.describe('Director login', () => {
     await page.locator('input[autocomplete="current-password"]').fill('SomePassword123!');
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page.locator('.form-error')).toContainText(/invalid email or password/i, { timeout: 8_000 });
+  });
+
+  test('verified director pending consent can login and lands on consent page', async ({ page }) => {
+    await page.goto('/auth/login');
+    await page.getByLabel(/email/i).fill(DIRECTOR_PENDING_CONSENT.email);
+    await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_PENDING_CONSENT.password);
+    await page.getByRole('button', { name: /sign in/i }).click();
+    await expect(page).toHaveURL(/\/consent(?:\?|$)/, { timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /updated terms/i })).toBeVisible();
+    await expect(page.getByText(/session has expired/i)).toHaveCount(0);
   });
 
   test('verified director can login and lands on dashboard', async ({ page }) => {

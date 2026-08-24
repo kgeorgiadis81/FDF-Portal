@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
-import { isJwtExpired } from '../utils/jwt-payload';
+import { getJwtRoles, isJwtExpired } from '../utils/jwt-payload';
 import { SESSION_EXPIRED_MESSAGE } from '../utils/session-expiry';
 
 export { SESSION_EXPIRED_MESSAGE };
@@ -80,14 +80,16 @@ export class AuthService {
 
   saveAuth(id: number, token: string, role: string, name: string, roles: string[] = []): void {
     this.loginRedirectInFlight = false;
-    const resolvedRoles = roles.length > 0 ? roles : [role];
+    const jwtRoles = getJwtRoles(token);
+    const resolvedRoles = roles.length > 0 ? roles : jwtRoles.length > 0 ? jwtRoles : role ? [role] : [];
+    const resolvedRole = role || jwtRoles[0] || resolvedRoles[0] || '';
     sessionStorage.setItem('fdp_token', token);
-    sessionStorage.setItem('fdp_role', role);
+    sessionStorage.setItem('fdp_role', resolvedRole);
     sessionStorage.setItem('fdp_roles', JSON.stringify(resolvedRoles));
     sessionStorage.setItem('fdp_name', name);
     sessionStorage.setItem('fdp_id',   String(id));
     this._token.set(token);
-    this._role.set(role);
+    this._role.set(resolvedRole);
     this._roles.set(resolvedRoles);
     this._name.set(name);
     this._id.set(id);

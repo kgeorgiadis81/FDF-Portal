@@ -28,6 +28,28 @@ export function decodeJwtPayload(token: string): Record<string, unknown> | null 
 }
 
 /**
+ * Role claims from a JWT payload for client-side session UX only.
+ */
+export function getJwtRoles(token: string): string[] {
+  const payload = decodeJwtPayload(token);
+  if (!payload) {
+    return [];
+  }
+
+  const roles = payload['roles'];
+  if (Array.isArray(roles) && roles.length > 0) {
+    return roles.map(String);
+  }
+
+  const role = payload['role'];
+  if (typeof role === 'string' && role) {
+    return [role];
+  }
+
+  return [];
+}
+
+/**
  * True when the token cannot be decoded, has no numeric `exp`, or is at/past expiry.
  */
 export function isJwtExpired(token: string, nowMs: number = Date.now()): boolean {

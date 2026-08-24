@@ -1,4 +1,4 @@
-import { decodeJwtPayload, isJwtExpired } from './jwt-payload';
+import { decodeJwtPayload, getJwtRoles, isJwtExpired } from './jwt-payload';
 
 function makeJwt(payload: object): string {
   const encode = (value: object) =>
@@ -29,5 +29,15 @@ describe('jwt-payload', () => {
   it('treats future exp as current', () => {
     const now = 1_700_000_000_000;
     expect(isJwtExpired(makeJwt({ exp: now / 1000 + 60 }), now)).toBeFalse();
+  });
+
+  it('reads roles from JWT payload', () => {
+    const token = makeJwt({ roles: ['Competitions Admin', 'Director'] });
+    expect(getJwtRoles(token)).toEqual(['Competitions Admin', 'Director']);
+  });
+
+  it('falls back to single role claim when roles array is absent', () => {
+    const token = makeJwt({ role: 'Director' });
+    expect(getJwtRoles(token)).toEqual(['Director']);
   });
 });
