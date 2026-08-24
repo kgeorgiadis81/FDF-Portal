@@ -6,6 +6,9 @@ test.use({ baseURL: PORTAL_BASE_URL });
 test.describe('Director login', () => {
   test('shows login form', async ({ page }) => {
     await page.goto('/auth/login');
+    const logo = page.getByRole('img', { name: /fdf logo/i });
+    await expect(logo).toBeVisible();
+    await expect.poll(async () => logo.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
     await expect(page.getByLabel(/email/i)).toBeVisible();
     // Use exact label to avoid matching the "Show password" toggle button aria-label
     await expect(page.getByLabel('Password', { exact: true })).toBeVisible();

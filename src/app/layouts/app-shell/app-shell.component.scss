@@ -40,6 +40,10 @@
 
   &__brand-name {
     letter-spacing: .04em;
+
+    @media (max-width: 480px) {
+      display: none;
+    }
   }
 
   &__links {

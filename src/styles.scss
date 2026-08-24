@@ -173,20 +173,20 @@ a {
   color: var(--color-text-primary);
 }
 
-// Logo badge — FDFLogo.png ships with a black background; frame it on dark/light surfaces.
+// Logo badge — SVG marks are transparent; frame them so gold/burgundy reads on dark nav.
 .fdf-logo-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  padding: 0.35rem 0.5rem;
+  padding: 0.25rem 0.4rem;
   border-radius: var(--radius-sm);
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
 
   img {
     display: block;
-    height: 40px;
+    height: 48px;
     width: auto;
   }
 
@@ -194,5 +194,11 @@ a {
     background: var(--color-bg);
     border: 1px solid var(--color-border);
     box-shadow: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .fdf-logo-mark img {
+    height: 36px;
   }
 }
