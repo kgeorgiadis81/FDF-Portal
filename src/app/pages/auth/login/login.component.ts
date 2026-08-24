@@ -26,6 +26,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   form!: FormGroup;
   loading = signal(false);
   error   = signal('');
+  infoMessage = signal('');
   showPassword = signal(false);
   googleAvailable = signal(!!environment.googleClientId);
 
@@ -47,6 +48,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     // Validate returnUrl — must be a same-origin path (starts with /)
     const raw = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard';
     this.returnUrl = raw.startsWith('/') ? raw : '/dashboard';
+    this.infoMessage.set(this.route.snapshot.queryParamMap.get('message') ?? '');
   }
 
   ngAfterViewInit(): void {

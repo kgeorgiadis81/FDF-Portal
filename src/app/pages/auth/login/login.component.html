@@ -1,6 +1,10 @@
 <h1 class="page-title">Sign in</h1>
 <p class="page-desc">Access your Director dashboard to manage groups and registrations.</p>
 
+@if (infoMessage()) {
+  <p class="form-info" role="status">{{ infoMessage() }}</p>
+}
+
 <form class="auth-form auth-form--login" [formGroup]="form" (ngSubmit)="submit()" novalidate>
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Email address</mat-label>

@@ -2,6 +2,10 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { isJwtExpired } from '../utils/jwt-payload';
+import { SESSION_EXPIRED_MESSAGE } from '../utils/session-expiry';
+
+export { SESSION_EXPIRED_MESSAGE };
 
 export interface DirectorProfile {
   id: number;
@@ -58,15 +62,24 @@ export class AuthService {
 
   private readonly _roles = signal<string[]>(this.readStoredRoles());
 
-  readonly isAuthenticated = computed(() => !!this._token() && this._roles().includes('Director'));
+  readonly isAuthenticated = computed(() => {
+    const token = this._token();
+    if (!token || isJwtExpired(token)) {
+      return false;
+    }
+    return this._roles().includes('Director');
+  });
   readonly currentName     = computed(() => this._name());
   readonly currentId       = computed(() => this._id());
+
+  private loginRedirectInFlight = false;
 
   constructor(private http: HttpClient, private router: Router) {}
 
   getToken(): string | null { return this._token(); }
 
   saveAuth(id: number, token: string, role: string, name: string, roles: string[] = []): void {
+    this.loginRedirectInFlight = false;
     const resolvedRoles = roles.length > 0 ? roles : [role];
     sessionStorage.setItem('fdp_token', token);
     sessionStorage.setItem('fdp_role', role);
@@ -96,7 +109,28 @@ export class AuthService {
       this.http.post(`${this.api}/logout`, {}).subscribe({ error: () => {} });
     }
     this.clearSession();
-    this.router.navigate(['/auth/login'], returnUrl ? { queryParams: { returnUrl } } : {});
+    this.redirectToLogin(returnUrl ? { returnUrl } : {}, false);
+  }
+
+  /**
+   * Clear an expired/invalid session and send the user to login.
+   * Does not call the logout API (the token is already unusable).
+   */
+  expireSession(): void {
+    const currentUrl = this.router.url;
+    const safeReturn =
+      currentUrl.startsWith('/') && !currentUrl.startsWith('/auth/')
+        ? currentUrl
+        : '/dashboard';
+    this.clearSession();
+    this.redirectToLogin(
+      { message: SESSION_EXPIRED_MESSAGE, returnUrl: safeReturn },
+      true
+    );
+  }
+
+  isLoginRedirectInFlight(): boolean {
+    return this.loginRedirectInFlight;
   }
 
   clearSession(): void {
@@ -110,6 +144,21 @@ export class AuthService {
     this._roles.set([]);
     this._name.set(null);
     this._id.set(null);
+  }
+
+  private redirectToLogin(
+    queryParams: Record<string, string>,
+    replaceUrl: boolean
+  ): void {
+    if (this.loginRedirectInFlight) {
+      return;
+    }
+    this.loginRedirectInFlight = true;
+    const hasParams = Object.keys(queryParams).length > 0;
+    this.router.navigate(['/auth/login'], {
+      queryParams: hasParams ? queryParams : undefined,
+      replaceUrl,
+    });
   }
 
   private readStoredRoles(): string[] {

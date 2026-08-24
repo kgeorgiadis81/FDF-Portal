@@ -105,6 +105,16 @@
     border-left: 3px solid var(--color-error);
   }
 
+  .form-info {
+    color: #1565c0;
+    font-size: 0.875rem;
+    margin: 0 0 1rem;
+    padding: 0.625rem 0.75rem;
+    background: #e8f1fb;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid #1565c0;
+  }
+
   .form-links {
     display: flex;
     justify-content: flex-end;

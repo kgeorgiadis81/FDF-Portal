@@ -53,6 +53,7 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authGuard, directorRoleGuard, emailVerifiedGuard, consentGuard],
+    canActivateChild: [authGuard, directorRoleGuard],
     loadComponent: () => import('./layouts/app-shell/app-shell.component').then(m => m.AppShellComponent),
     children: [
       {

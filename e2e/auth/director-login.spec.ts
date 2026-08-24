@@ -110,3 +110,52 @@ test.describe('Security: Role enforcement', () => {
     await expect(page).toHaveURL(/auth\/login/, { timeout: 8_000 });
   });
 });
+
+function makeUnsignedJwt(expOffsetSeconds: number): string {
+  const encode = (value: object) => Buffer.from(JSON.stringify(value)).toString('base64url');
+  const exp = Math.floor(Date.now() / 1000) + expOffsetSeconds;
+  return `${encode({ alg: 'none', typ: 'JWT' })}.${encode({ exp })}.sig`;
+}
+
+async function seedDirectorSession(
+  page: import('@playwright/test').Page,
+  token: string
+) {
+  await page.addInitScript((value) => {
+    sessionStorage.setItem('fdp_token', value);
+    sessionStorage.setItem('fdp_role', 'Director');
+    sessionStorage.setItem('fdp_roles', JSON.stringify(['Director']));
+    sessionStorage.setItem('fdp_name', 'Director Alpha');
+    sessionStorage.setItem('fdp_id', '1');
+  }, token);
+}
+
+test.describe('Director session expiry', () => {
+  test('expired JWT redirects to login instead of an empty dashboard', async ({ page }) => {
+    await seedDirectorSession(page, makeUnsignedJwt(-120));
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/auth\/login/);
+    await expect(page.getByText(/session has expired/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /my groups/i })).toHaveCount(0);
+  });
+
+  test('401 from API redirects to login with a session expired message', async ({ page }) => {
+    await seedDirectorSession(page, makeUnsignedJwt(3600));
+    await page.route('**/portal/**', async (route) => {
+      if (route.request().url().includes('/portal/auth/login')) {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      });
+    });
+
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/auth\/login/, { timeout: 10_000 });
+    await expect(page.getByText(/session has expired/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /my groups/i })).toHaveCount(0);
+  });
+});
