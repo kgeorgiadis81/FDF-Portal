@@ -64,4 +64,18 @@ describe('AuthService', () => {
     service.saveAuth(1, token, 'Competitions Admin', 'Dual User');
     expect(service.isAuthenticated()).toBeTrue();
   });
+
+  it('isAuthenticated is true for Global Admin + Judge + Director JWT', () => {
+    const encode = (value: object) =>
+      btoa(JSON.stringify(value)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const exp = Math.floor(Date.now() / 1000) + 3600;
+    const token = `${encode({ alg: 'none', typ: 'JWT' })}.${encode({
+      exp,
+      role: 'Global Admin',
+      roles: ['Global Admin', 'Judge', 'Director'],
+    })}.sig`;
+
+    service.saveAuth(9, token, 'Global Admin', 'Triple User');
+    expect(service.isAuthenticated()).toBeTrue();
+  });
 });
