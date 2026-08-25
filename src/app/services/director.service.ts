@@ -7,7 +7,6 @@ export interface GroupDirector {
   id: number;
   first_name: string | null;
   last_name: string | null;
-  display_name: string | null;
   email: string | null;
   cell_phone: string | null;
   is_primary: boolean | number;
