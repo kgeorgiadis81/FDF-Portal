@@ -117,12 +117,60 @@
 
   .form-links {
     display: flex;
-    justify-content: flex-end;
-    margin-top: 0.75rem;
+    justify-content: center;
+    margin-top: 2rem;
+  }
 
-    a {
-      font-size: 0.875rem;
-      font-weight: 500;
+  .forgot-password-link,
+  .back-link a,
+  .error-box a,
+  .sent-state a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    color: var(--color-navy);
+    text-decoration: none;
+    background: color-mix(in srgb, var(--color-navy) 8%, transparent);
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    mat-icon {
+      font-size: 1.125rem;
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-navy) 16%, transparent);
+      color: var(--color-navy-dark);
+      text-decoration: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-navy);
+      outline-offset: 2px;
+    }
+  }
+
+  .back-link {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .forgot-password-link,
+    .back-link a,
+    .error-box a,
+    .sent-state a {
+      transition: none;
     }
   }
 
@@ -160,12 +208,6 @@
     a {
       font-weight: 600;
     }
-  }
-
-  .back-link {
-    text-align: center;
-    margin-top: 1.25rem;
-    font-size: 0.875rem;
   }
 
   .auth-submit-btn {
