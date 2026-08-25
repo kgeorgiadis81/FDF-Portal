@@ -6,7 +6,7 @@
  *   - E2E Group Alpha: 3 minors + 1 chaperone (reset helper restores after mutations)
  *   - E2E Chaperone Validation Group: 8 minors + 1 chaperone
  *   - Director B owns E2E Group Beta Director (IDOR)
- *   - Age reference date (active): 2027-02-11
+ *   - Age at FDF is calculated from the event start date (active: 2026-06-01)
  */
 
 import { test, expect, Page } from '@playwright/test';
@@ -164,15 +164,12 @@ test.describe('Participant CRUD', () => {
   });
 
   test('Age at FDF is displayed and not editable', async ({ page }) => {
-    // Anna DOB 2012-05-15 → age relative to 2027-02-11 ≈ 14.7
-    // Wait for participants to load
+    // Anna DOB 2012-05-15 → age relative to event start 2026-06-01 ≈ 14.04
     await expect(page.locator('[role="row"]').filter({ hasText: /Anna/ })).toBeVisible({ timeout: 10_000 });
     const annaRow = page.locator('[role="row"]').filter({ hasText: /Anna/ });
-    await expect(annaRow).toBeVisible({ timeout: 8_000 });
-    // Age cell should contain a numeric value
-    const ageCell = annaRow.locator('.age-col, [data-col="age"], span').last();
+    const ageCell = annaRow.locator('[data-label="Age at FDF"]');
     await expect(ageCell).toBeVisible();
-    // The age should be a read-only display — no input within it
+    await expect(ageCell).toHaveText(/\d/);
     await expect(ageCell.locator('input')).toHaveCount(0);
   });
 
@@ -214,7 +211,7 @@ test.describe('Age validation', () => {
   });
 
   test('Rejects participant younger than 4 at FDF (DOB too recent)', async ({ page }) => {
-    // Age reference 2027-02-11; DOB 2024-01-01 → age < 4 at FDF
+    // Event start 2026-06-01; DOB 2024-01-01 → age < 4 at FDF
     await page.getByRole('button', { name: /add.*participant/i }).last().click();
     await page.getByLabel(/first name/i).fill('TooYoung');
     await page.getByLabel(/last name/i).fill('Child');
@@ -240,8 +237,8 @@ test.describe('Age validation', () => {
   });
 
   test('Valid participant near minimum age boundary is accepted', async ({ page }) => {
-    // Age 4 at FDF: DOB = 2027-02-11 - 4 years = 2023-02-11
-    await addParticipant(page, 'MinAge', 'Boundary', '2023-02-11');
+    // Age 4 at FDF: DOB = event start 2026-06-01 minus 4 years
+    await addParticipant(page, 'MinAge', 'Boundary', '2022-06-01');
     await expect(page.getByText(/MinAge/)).toBeVisible({ timeout: 10_000 });
   });
 });

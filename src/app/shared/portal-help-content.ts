@@ -124,7 +124,7 @@ export const PORTAL_HELP: Record<PortalHelpKey, PortalHelpItem> = {
   'roster.ageAtFdf': {
     title: 'Age at FDF',
     body:
-      "FDF calculates this automatically from the date of birth and the event's official age-reference date. You do not need to enter it.",
+      "FDF calculates this automatically from the date of birth and the event start date. You do not need to enter it.",
   },
   'roster.chaperoneName': {
     title: 'Chaperone Name',

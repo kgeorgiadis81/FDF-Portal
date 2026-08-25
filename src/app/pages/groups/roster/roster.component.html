@@ -132,12 +132,12 @@
               <span role="cell" [attr.data-label]="'Last Name'">{{ member.last_name }}</span>
               <span role="cell" [attr.data-label]="'Date of Birth'">{{ member.date_of_birth }}</span>
               <span role="cell" [attr.data-label]="'Age at FDF'"
-                    class="age-value"
+                    class="age-value age-col"
                     aria-readonly="true">
                 {{ member.age_at_fdf !== null ? member.age_at_fdf : '—' }}
               </span>
               @if (canEdit()) {
-                <span role="cell" class="row-actions">
+                <span role="cell" class="row-actions" [attr.data-label]="'Actions'">
                   <button mat-icon-button
                           [attr.aria-label]="'Edit ' + member.first_name + ' ' + member.last_name"
                           [disabled]="saving()"
