@@ -25,7 +25,7 @@
 }
 
 .type-badge {
-  font-size: .72rem; font-weight: 700; color: var(--color-navy);
+  font-size: .72rem; font-weight: 700; color: var(--color-primary);
   text-transform: uppercase; letter-spacing: .08em;
   display: block; margin-bottom: .25rem;
 }
@@ -124,7 +124,7 @@
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: var(--color-navy, #1a237e) !important;
+    background: var(--color-primary) !important;
     color: #fff !important;
   }
 }
@@ -139,7 +139,7 @@
   font-size: 1rem;
   font-weight: 700;
   margin: 0 0 1rem;
-  color: var(--color-navy);
+  color: var(--color-primary);
 }
 
 .director-item {
@@ -185,7 +185,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
-  background: var(--color-navy, #1a237e);
+  background: var(--color-primary);
   color: #fff;
   border-radius: 4px;
   padding: 1px 6px;
@@ -273,7 +273,7 @@
 
 .edit-actions {
   display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1rem;
-  button[mat-raised-button] { background: var(--color-navy) !important; color: #fff !important; }
+  button[mat-raised-button] { background: var(--color-primary) !important; color: #fff !important; }
 }
 
 .form-error {

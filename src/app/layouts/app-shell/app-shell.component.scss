@@ -7,13 +7,14 @@
   background: var(--color-bg);
 
   &__nav {
-    background: var(--color-navy) !important;
+    background: var(--color-primary) !important;
     color: #fff !important;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: 0 2px 8px rgba(0,0,0,.2);
     height: 60px !important;
+    border-bottom: 3px solid var(--color-gold);
   }
 
   &__nav-inner {

@@ -5,7 +5,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0 0 0.35rem;
-    color: var(--color-navy-dark);
+    color: var(--color-primary-dark);
     letter-spacing: -0.02em;
   }
 
@@ -136,9 +136,9 @@
     font-weight: 600;
     letter-spacing: 0.01em;
     line-height: 1.2;
-    color: var(--color-navy);
+    color: var(--color-primary);
     text-decoration: none;
-    background: color-mix(in srgb, var(--color-navy) 8%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 8%, transparent);
     transition: background-color 0.15s ease, color 0.15s ease;
 
     mat-icon {
@@ -148,13 +148,13 @@
     }
 
     &:hover {
-      background: color-mix(in srgb, var(--color-navy) 16%, transparent);
-      color: var(--color-navy-dark);
+      background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+      color: var(--color-primary-dark);
       text-decoration: none;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-navy);
+      outline: 2px solid var(--color-primary);
       outline-offset: 2px;
     }
   }

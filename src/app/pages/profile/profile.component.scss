@@ -16,7 +16,7 @@
 
   .avatar {
     width: 56px; height: 56px; border-radius: 50%;
-    background: var(--color-navy); color: #fff;
+    background: var(--color-primary); color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.3rem; font-weight: 700; flex-shrink: 0;
     text-transform: uppercase;
@@ -64,7 +64,7 @@
 
 .edit-actions {
   display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1rem;
-  button[mat-raised-button] { background: var(--color-navy) !important; color: #fff !important; }
+  button[mat-raised-button] { background: var(--color-primary) !important; color: #fff !important; }
 }
 
 .form-error {

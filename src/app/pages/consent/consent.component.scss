@@ -4,7 +4,7 @@
   align-items: flex-start;
   justify-content: center;
   padding: 2rem 1rem;
-  background: linear-gradient(160deg, #1a237e 0%, #283593 100%);
+  background: linear-gradient(160deg, #5c3205 0%, #7a4207 100%);
 }
 
 .consent-card {
@@ -21,7 +21,7 @@
     &__name {
       font-size: 1.1rem;
       font-weight: 700;
-      color: var(--color-navy);
+      color: var(--color-primary);
     }
   }
 

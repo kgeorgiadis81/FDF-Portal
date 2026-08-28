@@ -11,7 +11,7 @@
 
   &.success .state-icon { color: var(--color-success); }
   &.error   .state-icon { color: var(--color-error); }
-  &.pending .state-icon { color: var(--color-navy); }
+  &.pending .state-icon { color: var(--color-primary); }
 
   .state-icon { font-size: 3rem; width: 3rem; height: 3rem; }
 
@@ -31,5 +31,5 @@
 
 mat-spinner {
   display: inline-block;
-  --mdc-circular-progress-active-indicator-color: var(--color-navy);
+  --mdc-circular-progress-active-indicator-color: var(--color-primary);
 }
