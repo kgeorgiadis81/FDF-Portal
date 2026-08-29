@@ -4,7 +4,9 @@
   align-items: flex-start;
   justify-content: center;
   padding: 2rem 1rem;
-  background: linear-gradient(160deg, #5c3205 0%, #7a4207 100%);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(223, 150, 31, 0.24), transparent 55%),
+    linear-gradient(160deg, #66130d 0%, #87180f 100%);
 }
 
 .consent-card {

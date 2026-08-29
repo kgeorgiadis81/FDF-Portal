@@ -71,7 +71,7 @@
     padding: 1rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
-    background: #f8f9fd;
+    background: var(--color-bg);
 
     .mat-mdc-checkbox {
       align-items: flex-start;
@@ -106,13 +106,13 @@
   }
 
   .form-info {
-    color: #1565c0;
+    color: var(--color-primary-dark);
     font-size: 0.875rem;
     margin: 0 0 1rem;
     padding: 0.625rem 0.75rem;
-    background: #e8f1fb;
+    background: color-mix(in srgb, var(--color-gold) 14%, #fff);
     border-radius: var(--radius-sm);
-    border-left: 3px solid #1565c0;
+    border-left: 3px solid var(--color-gold);
   }
 
   .form-links {

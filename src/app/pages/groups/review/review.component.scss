@@ -106,7 +106,7 @@
   &.status-not-started { background: #f5f5f5; color: var(--color-text-muted); }
   &.status-closed     { background: #fafafa; color: var(--color-text-muted); }
   &.status-rejected   { background: #fdecea; color: var(--color-error, #c62828); }
-  &.status-pending    { background: #fff8e1; color: #e65100; }
+  &.status-pending    { background: color-mix(in srgb, var(--color-gold) 16%, #fff); color: var(--color-primary-dark); }
 }
 
 .doc-status {
@@ -116,7 +116,7 @@
   &.status-submitted  { color: var(--color-success, #2e7d32); }
   &.status-not-started { color: var(--color-text-muted); }
   &.status-rejected   { color: var(--color-error, #c62828); }
-  &.status-pending    { color: #e65100; }
+  &.status-pending    { color: var(--color-primary-dark); }
 }
 
 .module-info {

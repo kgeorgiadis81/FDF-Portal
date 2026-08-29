@@ -33,7 +33,7 @@
     text-transform: uppercase;
 
     &.active { background: #e8f5e9; color: var(--color-success); }
-    &.past   { background: #fff3e0; color: #e65100; }
+    &.past   { background: color-mix(in srgb, var(--color-gold) 16%, #fff); color: var(--color-primary-dark); }
   }
 }
 
@@ -120,8 +120,8 @@
     font-size: .7rem;
     font-weight: 600;
     padding: .15rem .45rem;
-    background: #fff3e0;
-    color: #e65100;
+    background: color-mix(in srgb, var(--color-gold) 16%, #fff);
+    color: var(--color-primary-dark);
     border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: .04em;

@@ -3,7 +3,7 @@
   "short_name": "FDF Portal",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#7a4207",
+  "theme_color": "#87180f",
   "background_color": "#ffffff",
   "icons": [
     {

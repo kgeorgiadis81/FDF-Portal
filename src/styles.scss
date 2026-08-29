@@ -1,84 +1,18 @@
 // FDF Portal — Global Styles
 // Design: simple, clear, trustworthy, mobile-first.
-// Palette: gold-brown chrome from the Directors shield, bright gold accent, cream surfaces.
+// Palette: seal burgundy chrome from the Directors logo, gold as accent only.
 
 @use '@angular/material' as mat;
 @use './app/pages/auth/auth-shared';
 @use './app/shared/portal-forms';
 
 // ─── Custom Palette ──────────────────────────────────────────────────────────
-// Directors logo field is bright gold (#df961f) which fails WCAG as text.
-// Chrome uses darkened gold-brown; bright gold is accent only.
+// Logo seal burgundy (~#87180f) is chrome; bright gold (#df961f) fails WCAG as
+// small text on white, so it stays decorative (nav rule, washes, accents).
 $dark-text: rgba(black, 0.87);
 $light-text: white;
 
 $directors-primary-palette: (
-  50: #faf3e8,
-  100: #f0ddc0,
-  200: #e4c393,
-  300: #d4a05a,
-  400: #c07a28,
-  500: #7a4207,
-  600: #6b3a06,
-  700: #5c3205,
-  800: #4a2804,
-  900: #331c03,
-  A100: #e4c393,
-  A200: #d4a05a,
-  A400: #7a4207,
-  A700: #5c3205,
-  contrast: (
-    50: $dark-text,
-    100: $dark-text,
-    200: $dark-text,
-    300: $dark-text,
-    400: $light-text,
-    500: $light-text,
-    600: $light-text,
-    700: $light-text,
-    800: $light-text,
-    900: $light-text,
-    A100: $dark-text,
-    A200: $dark-text,
-    A400: $light-text,
-    A700: $light-text,
-  )
-);
-
-$directors-accent-palette: (
-  50: #faf3e8,
-  100: #f0ddc0,
-  200: #e4c393,
-  300: #d4a05a,
-  400: #c4873a,
-  500: #8a551d,
-  600: #7a4b19,
-  700: #6a4016,
-  800: #4e2f10,
-  900: #351f0a,
-  A100: #e4c393,
-  A200: #d4a05a,
-  A400: #8a551d,
-  A700: #6a4016,
-  contrast: (
-    50: $dark-text,
-    100: $dark-text,
-    200: $dark-text,
-    300: $dark-text,
-    400: $light-text,
-    500: $light-text,
-    600: $light-text,
-    700: $light-text,
-    800: $light-text,
-    900: $light-text,
-    A100: $dark-text,
-    A200: $dark-text,
-    A400: $light-text,
-    A700: $light-text,
-  )
-);
-
-$directors-warn-palette: (
   50: #f8e8e6,
   100: #ecc5c0,
   200: #dc9b94,
@@ -93,6 +27,72 @@ $directors-warn-palette: (
   A200: #c96d64,
   A400: #87180f,
   A700: #66130d,
+  contrast: (
+    50: $dark-text,
+    100: $dark-text,
+    200: $dark-text,
+    300: $light-text,
+    400: $light-text,
+    500: $light-text,
+    600: $light-text,
+    700: $light-text,
+    800: $light-text,
+    900: $light-text,
+    A100: $dark-text,
+    A200: $dark-text,
+    A400: $light-text,
+    A700: $light-text,
+  )
+);
+
+$directors-accent-palette: (
+  50: #fbf6e8,
+  100: #f5e6c0,
+  200: #edd48f,
+  300: #e4be5a,
+  400: #e7b04a,
+  500: #df961f,
+  600: #c4871a,
+  700: #a06c14,
+  800: #7a5210,
+  900: #52360a,
+  A100: #edd48f,
+  A200: #e4be5a,
+  A400: #df961f,
+  A700: #a06c14,
+  contrast: (
+    50: $dark-text,
+    100: $dark-text,
+    200: $dark-text,
+    300: $dark-text,
+    400: $dark-text,
+    500: $dark-text,
+    600: $dark-text,
+    700: $light-text,
+    800: $light-text,
+    900: $light-text,
+    A100: $dark-text,
+    A200: $dark-text,
+    A400: $dark-text,
+    A700: $light-text,
+  )
+);
+
+$directors-warn-palette: (
+  50: #fce8e6,
+  100: #f5c4bf,
+  200: #ec9b93,
+  300: #e06d62,
+  400: #d04438,
+  500: #b3261e,
+  600: #9e211a,
+  700: #841c16,
+  800: #681610,
+  900: #4a100c,
+  A100: #ec9b93,
+  A200: #e06d62,
+  A400: #b3261e,
+  A700: #841c16,
   contrast: (
     50: $dark-text,
     100: $dark-text,
@@ -131,17 +131,17 @@ $portal-theme: mat.m2-define-light-theme((
 
 // ─── CSS Custom Properties ───────────────────────────────────────────────────
 :root {
-  --color-primary:      #7a4207;
-  --color-primary-dark: #5c3205;
+  --color-primary:      #87180f;
+  --color-primary-dark: #66130d;
   --color-gold:         #df961f;
   --color-gold-light:   #e7b04a;
   --color-surface:      #ffffff;
-  --color-bg:           #faf6f0;
-  --color-text-primary: #1c140c;
+  --color-bg:           #faf7f4;
+  --color-text-primary: #1c1414;
   --color-text-muted:   #4b5563;
-  --color-error:        #87180f;
+  --color-error:        #b3261e;
   --color-success:      #2e7d32;
-  --color-border:       #eadfce;
+  --color-border:       #ead9d4;
 
   --radius-sm:  6px;
   --radius-md:  12px;
@@ -223,7 +223,7 @@ a {
   font-weight: 600;
   letter-spacing: 0.02em;
   border-radius: var(--radius-sm) !important;
-  box-shadow: 0 2px 8px rgba(122, 66, 7, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(135, 24, 15, 0.28) !important;
 
   &:not([disabled]):hover {
     background-color: var(--color-primary-dark) !important;
@@ -240,13 +240,13 @@ a {
 
 // ─── Read-only banner ─────────────────────────────────────────────────────────
 .fdp-readonly-banner {
-  background: #fff3e0;
+  background: color-mix(in srgb, var(--color-gold) 14%, #fff);
   border-left: 4px solid var(--color-gold);
   border-radius: var(--radius-sm);
   padding: .75rem 1rem;
   margin-bottom: 1rem;
   font-size: .9rem;
-  color: #5c3205;
+  color: var(--color-primary-dark);
   display: flex;
   align-items: center;
   gap: .5rem;

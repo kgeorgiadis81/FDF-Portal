@@ -11,8 +11,8 @@
   justify-content: center;
   padding: 1.5rem 1rem 2rem;
   background:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(223, 150, 31, 0.22), transparent 55%),
-    linear-gradient(165deg, #5c3205 0%, #7a4207 42%, #8a551d 100%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(223, 150, 31, 0.36), transparent 55%),
+    linear-gradient(165deg, #66130d 0%, #87180f 45%, #9b2418 100%);
 }
 
 .auth-brand {
@@ -61,7 +61,7 @@
   background: #fff;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(223, 150, 31, 0.55);
   padding: 1.75rem 1.5rem;
 
   &:has(.auth-form--signup),

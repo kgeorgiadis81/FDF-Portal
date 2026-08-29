@@ -98,7 +98,7 @@
 
   &:hover:not(:disabled) {
     border-color: var(--color-primary);
-    background: var(--color-bg, #faf6f0);
+    background: var(--color-bg);
   }
 
   &.selected,
