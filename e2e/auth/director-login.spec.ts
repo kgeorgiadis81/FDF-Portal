@@ -4,6 +4,16 @@ import { PORTAL_BASE_URL, DIRECTOR_A, DIRECTOR_PENDING_CONSENT } from '../fixtur
 test.use({ baseURL: PORTAL_BASE_URL });
 
 test.describe('Director login', () => {
+  test('share metadata includes portal logo image', async ({ request }) => {
+    const html = await (await request.get('/auth/login')).text();
+    expect(html).toContain('<title>FDF Portal</title>');
+    expect(html).toContain('property="og:title" content="FDF Portal"');
+    expect(html).toContain('property="og:image" content="https://portal.yourfdf.com/og-image.png"');
+    const image = await request.get('/og-image.png');
+    expect(image.ok()).toBe(true);
+    expect(image.headers()['content-type']).toMatch(/image\/png/i);
+  });
+
   test('shows login form', async ({ page }) => {
     await page.goto('/auth/login');
     const logo = page.getByRole('img', { name: /fdf logo/i });
