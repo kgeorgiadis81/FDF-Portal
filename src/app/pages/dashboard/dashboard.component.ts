@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,14 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { EventService, PortalEvent } from '../../services/event.service';
 import { GroupService, PortalGroup } from '../../services/group.service';
+import { RegistrationSummaryService } from '../../services/registration-summary.service';
+import {
+  buildRegistrationCompleteness,
+  buildRegistrationCompletenessFromPortalGroup,
+  RegistrationCompleteness,
+} from '../../utils/registration-completeness';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
   selector: 'fdp-dashboard',
@@ -23,12 +31,15 @@ import { GroupService, PortalGroup } from '../../services/group.service';
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
+  private readonly summarySvc = inject(RegistrationSummaryService);
+
   readonly directorName = computed(() => this.auth.currentName() || 'Director');
 
   activeEvent  = signal<PortalEvent | null>(null);
   allEvents    = signal<PortalEvent[]>([]);
   selectedEventId = signal<number | null>(null);
   groups       = signal<PortalGroup[]>([]);
+  completenessByGroupId = signal<Map<number, RegistrationCompleteness>>(new Map());
   loadingEvents= signal(true);
   loadingGroups= signal(true);
   error        = signal('');
@@ -88,11 +99,44 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  completenessFor(groupId: number): RegistrationCompleteness | undefined {
+    return this.completenessByGroupId().get(groupId);
+  }
+
   private loadGroups(eventId: number): void {
     this.loadingGroups.set(true);
     this.groupSvc.getGroups(eventId).subscribe({
-      next: (grps) => { this.groups.set(grps); this.loadingGroups.set(false); },
-      error: () => { this.groups.set([]); this.loadingGroups.set(false); },
+      next: (grps) => {
+        this.groups.set(grps);
+        this.loadCompletenessForGroups(grps);
+        this.loadingGroups.set(false);
+      },
+      error: () => {
+        this.groups.set([]);
+        this.completenessByGroupId.set(new Map());
+        this.loadingGroups.set(false);
+      },
+    });
+  }
+
+  private loadCompletenessForGroups(groups: PortalGroup[]): void {
+    if (groups.length === 0) {
+      this.completenessByGroupId.set(new Map());
+      return;
+    }
+    forkJoin(
+      groups.map((g) =>
+        this.summarySvc.getSummary(g.id).pipe(
+          map((summary) => ({ id: g.id, completeness: buildRegistrationCompleteness(summary) })),
+          catchError(() => of({ id: g.id, completeness: buildRegistrationCompletenessFromPortalGroup(g) })),
+        ),
+      ),
+    ).subscribe((rows) => {
+      const mapById = new Map<number, RegistrationCompleteness>();
+      for (const row of rows) {
+        mapById.set(row.id, row.completeness);
+      }
+      this.completenessByGroupId.set(mapById);
     });
   }
 

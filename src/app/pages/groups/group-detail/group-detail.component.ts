@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +23,12 @@ import {
   HasUnsavedChanges,
   UnsavedChangesService,
 } from '../../../shared/unsaved-changes';
+import { RegistrationSummaryService } from '../../../services/registration-summary.service';
+import {
+  buildRegistrationCompleteness,
+  buildRegistrationCompletenessFromPortalGroup,
+  RegistrationCompleteness,
+} from '../../../utils/registration-completeness';
 
 @Component({
   selector: 'fdp-group-detail',
@@ -38,7 +44,10 @@ import {
   styleUrl: './group-detail.component.scss',
 })
 export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChanges {
+  private readonly summarySvc = inject(RegistrationSummaryService);
+
   group      = signal<PortalGroup | null>(null);
+  completeness = signal<RegistrationCompleteness | null>(null);
   loading    = signal(true);
   saving     = signal(false);
   error      = signal('');
@@ -59,27 +68,19 @@ export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChange
   filteredParishes$!: Observable<Parish[]>;
   readonly groupTypes = ['Dance', 'Choral'];
 
-  isDanceGroup(): boolean {
-    const t = (this.group()?.groupType ?? '').toUpperCase();
-    return t === 'DANCE';
-  }
-
-  docStatusLabel(status?: string | null): string {
-    switch (status) {
-      case 'VERIFIED': return 'Verified';
-      case 'REJECTED': return 'Rejected';
-      case 'PENDING': return 'Pending';
-      default: return 'Missing';
+  readonly moduleByKey = computed(() => {
+    const map = new Map<string, RegistrationCompleteness['modules'][number]>();
+    for (const row of this.completeness()?.modules ?? []) {
+      map.set(row.key, row);
     }
-  }
+    return map;
+  });
 
-  docStatusClass(status?: string | null): string {
-    switch (status) {
-      case 'VERIFIED': return 'submitted';
-      case 'REJECTED': return 'rejected';
-      case 'PENDING': return 'in-progress';
-      default: return 'not-started';
-    }
+  primaryCtaRoute(): (string | number)[] {
+    const g = this.group();
+    const cta = this.completeness()?.primaryCta;
+    if (!g || !cta) return [];
+    return ['/groups', g.id, ...cta.routeSuffix];
   }
 
   constructor(
@@ -104,6 +105,7 @@ export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChange
         this.loading.set(false);
         this.initForm(g);
         this.loadDirectors(id);
+        this.loadCompleteness(id, g);
       },
       error: () => {
         this.loading.set(false);
@@ -129,6 +131,13 @@ export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChange
 
   discardUnsavedChanges(): void {
     this.groupAutosave.discardChanges();
+  }
+
+  private loadCompleteness(groupId: number, group: PortalGroup): void {
+    this.summarySvc.getSummary(groupId).subscribe({
+      next: (summary) => this.completeness.set(buildRegistrationCompleteness(summary)),
+      error: () => this.completeness.set(buildRegistrationCompletenessFromPortalGroup(group)),
+    });
   }
 
   private loadDirectors(groupId: number): void {
