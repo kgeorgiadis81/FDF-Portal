@@ -59,114 +59,83 @@
         </div>
       </dl>
 
-      <!-- Phase 4: Roster navigation -->
-      <div class="roster-nav">
-        <div class="roster-overview">
-          <mat-icon class="roster-icon">people</mat-icon>
-          <div class="roster-overview-info">
-            <span class="roster-heading">Roster</span>
-            @if (group()!.rosterSubmittedAt) {
-              <span class="roster-status submitted">Submitted</span>
-            } @else if (group()!.rosterMemberCount > 0) {
-              <span class="roster-status in-progress">
-                {{ group()!.rosterMemberCount }} participant{{ group()!.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
-              </span>
-            } @else {
-              <span class="roster-status not-started">Not started</span>
+      @if (completeness()) {
+        <section class="registration-completeness" data-testid="registration-completeness" aria-label="Registration status">
+          <div class="completeness-header">
+            <span class="overall-status-chip"
+                  [class]="completeness()!.overallClass"
+                  data-testid="overall-registration-status">
+              {{ completeness()!.overallLabel }}
+            </span>
+            @if (completeness()!.lockedExplanation) {
+              <p class="locked-explanation">{{ completeness()!.lockedExplanation }}</p>
             }
           </div>
-        </div>
-        <a [routerLink]="['/groups', group()!.id, 'roster']"
-           mat-stroked-button
-           class="roster-link"
-           aria-label="Manage this group's roster">
-          <mat-icon>people</mat-icon>
-          Manage Roster
-        </a>
-      </div>
 
-      <div class="performance-nav">
-        <div class="roster-overview">
-          <mat-icon class="roster-icon">theater_comedy</mat-icon>
-          <div class="roster-overview-info">
-            <span class="roster-heading">Performance</span>
-            @if (group()!.performanceSubmittedAt) {
-              <span class="roster-status submitted">Submitted</span>
-            } @else {
-              <span class="roster-status not-started">Not submitted</span>
+          <ul class="module-checklist" role="list">
+            @for (module of completeness()!.modules; track module.key) {
+              <li class="module-checklist-item" role="listitem">
+                <span class="module-checklist-title">{{ module.title }}</span>
+                <span class="roster-status" [class]="module.statusClass">{{ module.statusLabel }}</span>
+              </li>
             }
-          </div>
-        </div>
-        <a [routerLink]="['/groups', group()!.id, 'performance']"
-           mat-stroked-button
-           class="performance-link"
-           aria-label="Manage this group's performance registration">
-          <mat-icon>theater_comedy</mat-icon>
-          Manage Performance
-        </a>
-      </div>
+          </ul>
 
-      @if (isDanceGroup()) {
-        <div class="costumes-nav">
-          <div class="roster-overview">
-            <mat-icon class="roster-icon">checkroom</mat-icon>
-            <div class="roster-overview-info">
-              <span class="roster-heading">Costumes</span>
-              @if (group()!.costumeSubmittedAt) {
-                <span class="roster-status submitted">Submitted</span>
+          @if (completeness()!.primaryCta; as cta) {
+            <div class="primary-cta-row">
+              @if (cta.emphasize) {
+                <a [routerLink]="primaryCtaRoute()"
+                   mat-raised-button
+                   class="primary-registration-cta"
+                   [class.review-link]="cta.routeSuffix[0] === 'review'"
+                   data-testid="primary-registration-cta">
+                  {{ cta.label }}
+                </a>
               } @else {
-                <span class="roster-status not-started">Not submitted</span>
+                <a [routerLink]="primaryCtaRoute()"
+                   mat-stroked-button
+                   class="primary-registration-cta"
+                   data-testid="primary-registration-cta">
+                  {{ cta.label }}
+                </a>
               }
             </div>
-          </div>
-          <a [routerLink]="['/groups', group()!.id, 'costumes']"
-             mat-stroked-button
-             class="costumes-link"
-             aria-label="Manage this group's costume registration">
-            <mat-icon>checkroom</mat-icon>
-            Manage Costumes
-          </a>
-        </div>
+          }
+          @if (group()!.event.isActive && completeness()!.primaryCta?.routeSuffix[0] !== 'review') {
+            <a [routerLink]="['/groups', group()!.id, 'review']"
+               mat-button
+               class="secondary-review-link review-link">
+              View Registration Review
+            </a>
+          }
+        </section>
       }
 
-      <div class="documents-nav">
-        <div class="roster-overview">
-          <mat-icon class="roster-icon">folder</mat-icon>
-          <div class="roster-overview-info">
-            <span class="roster-heading">Documents</span>
-            <div class="doc-status-row">
-              <span class="doc-status-item">
-                Signed Roster:
-                <span class="roster-status" [class]="docStatusClass(group()!.documents?.signedRoster)">
-                  {{ docStatusLabel(group()!.documents?.signedRoster) }}
-                </span>
-              </span>
-              <span class="doc-status-item">
-                Youth Safety:
-                <span class="roster-status" [class]="docStatusClass(group()!.documents?.youthSafety)">
-                  {{ docStatusLabel(group()!.documents?.youthSafety) }}
-                </span>
-              </span>
+      @for (module of completeness()?.modules ?? []; track module.key) {
+        <div class="module-nav">
+          <div class="roster-overview">
+            <mat-icon class="roster-icon">{{ module.key === 'roster' ? 'people' : module.key === 'performance' ? 'theater_comedy' : module.key === 'costumes' ? 'checkroom' : 'folder' }}</mat-icon>
+            <div class="roster-overview-info">
+              <span class="roster-heading">{{ module.title }}</span>
+              <span class="roster-status" [class]="module.statusClass">{{ module.statusLabel }}</span>
             </div>
           </div>
-        </div>
-        <a [routerLink]="['/groups', group()!.id, 'documents']"
-           mat-stroked-button
-           class="documents-link"
-           aria-label="Manage this group's registration documents">
-          <mat-icon>folder</mat-icon>
-          Manage Documents
-        </a>
-      </div>
-
-      @if (group()!.event.isActive) {
-        <div class="review-nav">
-        <a [routerLink]="['/groups', group()!.id, 'review']"
-           mat-raised-button
-           class="review-link">
-          <mat-icon>assignment_turned_in</mat-icon>
-          Review Registration
-        </a>
+          @if (!group()!.isReadOnly && group()!.event.isActive && module.statusLabel !== 'Locked') {
+            <a [routerLink]="['/groups', group()!.id, ...module.routeSuffix]"
+               mat-stroked-button
+               class="module-link"
+               [attr.aria-label]="'Manage ' + module.title">
+              <mat-icon>{{ module.key === 'roster' ? 'people' : module.key === 'performance' ? 'theater_comedy' : module.key === 'costumes' ? 'checkroom' : 'folder' }}</mat-icon>
+              Manage {{ module.title }}
+            </a>
+          } @else {
+            <a [routerLink]="['/groups', group()!.id, ...module.routeSuffix]"
+               mat-stroked-button
+               class="module-link"
+               [attr.aria-label]="'View ' + module.title">
+              View {{ module.title }}
+            </a>
+          }
         </div>
       }
     } @else {

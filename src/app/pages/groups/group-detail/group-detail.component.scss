@@ -47,6 +47,88 @@
   @media (max-width: 400px) { grid-template-columns: 1fr; gap: .15rem; }
 }
 
+.registration-completeness {
+  margin: 0 0 1.25rem;
+  padding: 1rem;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt, #fafafa);
+
+  .completeness-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .overall-status-chip {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 99px;
+
+    &.ready { background: #e8f5e9; color: var(--color-success, #2e7d32); }
+    &.in-progress { background: #e3f2fd; color: var(--color-primary); }
+    &.action-required { background: #fdecea; color: var(--color-error, #c62828); }
+    &.locked { background: color-mix(in srgb, var(--color-gold) 16%, #fff); color: var(--color-primary-dark); }
+  }
+
+  .locked-explanation {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    line-height: 1.45;
+  }
+
+  .module-checklist {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .module-checklist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .module-checklist-title {
+    font-weight: 600;
+  }
+
+  .primary-cta-row {
+    display: flex;
+    justify-content: flex-start;
+
+    .primary-registration-cta.review-link {
+      background: var(--color-primary) !important;
+      color: #fff !important;
+    }
+  }
+
+  .secondary-review-link {
+    margin-top: 0.5rem;
+    padding-left: 0;
+    font-size: 0.875rem;
+  }
+}
+
+.roster-status {
+  &.action-required { color: #c62828; font-weight: 600; }
+  &.locked { color: var(--color-text-muted); }
+}
+
+.module-nav,
 .roster-nav,
 .performance-nav,
 .costumes-nav,

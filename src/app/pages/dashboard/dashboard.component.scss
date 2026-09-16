@@ -136,6 +136,23 @@
     margin-bottom: .4rem;
   }
 
+  .overall-status-chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 99px;
+    margin-bottom: 0.45rem;
+
+    &.ready { background: #e8f5e9; color: var(--color-success, #2e7d32); }
+    &.in-progress { background: #e3f2fd; color: var(--color-primary); }
+    &.action-required { background: #fdecea; color: var(--color-error, #c62828); }
+    &.locked { background: color-mix(in srgb, var(--color-gold) 16%, #fff); color: var(--color-primary-dark); }
+  }
+
   .group-name {
     font-size: 1.05rem;
     font-weight: 600;
@@ -206,6 +223,8 @@
         &.submitted  { color: var(--color-success, #2e7d32); font-weight: 500; }
         &.in-progress { color: var(--color-primary); }
         &.not-started { color: var(--color-text-muted); }
+        &.action-required { color: var(--color-error, #c62828); font-weight: 600; }
+        &.locked { color: var(--color-text-muted); }
       }
     }
 

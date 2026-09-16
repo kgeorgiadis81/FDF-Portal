@@ -69,6 +69,13 @@
             <div class="read-only-tag">Read only</div>
           }
           <div class="group-type-badge">{{ group.groupType }}</div>
+          @if (completenessFor(group.id); as completeness) {
+            <span class="overall-status-chip"
+                  [class]="completeness.overallClass"
+                  data-testid="group-card-overall-status">
+              {{ completeness.overallLabel }}
+            </span>
+          }
           <h3 class="group-name">{{ group.name }}</h3>
           <p class="group-parish">
             <mat-icon class="inline-icon" aria-hidden="true">place</mat-icon>
@@ -78,40 +85,24 @@
             </span>
           </p>
           <div class="group-footer">
-            <div class="registration-status">
-              <!-- Roster status -->
-              <div class="status-row roster-status">
-                <mat-icon class="status-icon" aria-hidden="true">people</mat-icon>
-                @if (group.rosterSubmittedAt) {
-                  <span class="status-label submitted">Roster submitted</span>
-                } @else if (group.rosterMemberCount > 0) {
-                  <span class="status-label in-progress">
-                    Roster · {{ group.rosterMemberCount }} participant{{ group.rosterMemberCount !== 1 ? 's' : '' }} · Not submitted
-                  </span>
-                } @else {
-                  <span class="status-label not-started">Roster not started</span>
+            @if (completenessFor(group.id); as completeness) {
+              <div class="registration-status" data-testid="group-card-module-status">
+                @for (module of completeness.modules; track module.key) {
+                  <div class="status-row">
+                    <mat-icon class="status-icon" aria-hidden="true">
+                      {{ module.key === 'roster' ? 'people' : module.key === 'performance' ? 'theater_comedy' : module.key === 'costumes' ? 'checkroom' : 'folder' }}
+                    </mat-icon>
+                    <span class="status-label" [class]="module.statusClass">
+                      {{ module.title }} · {{ module.statusLabel }}
+                    </span>
+                  </div>
                 }
               </div>
-              <!-- Performance status -->
-              <div class="status-row performance-status">
-                <mat-icon class="status-icon" aria-hidden="true">theater_comedy</mat-icon>
-                @if (group.performanceSubmittedAt) {
-                  <span class="status-label submitted">Performance submitted</span>
-                } @else {
-                  <span class="status-label not-started">Performance not submitted</span>
-                }
+            } @else {
+              <div class="registration-status roster-status">
+                <span class="status-label not-started">Loading registration status…</span>
               </div>
-              @if (group.groupType.toUpperCase() === 'DANCE') {
-                <div class="status-row costumes-status">
-                  <mat-icon class="status-icon" aria-hidden="true">checkroom</mat-icon>
-                  @if (group.costumeSubmittedAt) {
-                    <span class="status-label submitted">Costumes submitted</span>
-                  } @else {
-                    <span class="status-label not-started">Costumes not submitted</span>
-                  }
-                </div>
-              }
-            </div>
+            }
             <mat-icon class="arrow">chevron_right</mat-icon>
           </div>
           @if (group.event.isActive) {
