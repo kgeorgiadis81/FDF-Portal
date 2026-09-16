@@ -141,11 +141,28 @@ export async function rejectDocumentApi(
   if (!resp.ok) throw new Error(`reject failed: ${resp.status}`);
 }
 
+const e2eBackendDir = () => path.resolve(__dirname, '../../../FDF_Backend');
+
 export async function resetGroupDocuments(groupName: string): Promise<void> {
-  const backendDir = path.resolve(__dirname, '../../../FDF_Backend');
   execSync(
     `NODE_ENV=test DOTENV_CONFIG_PATH=.env.e2e node -r dotenv/config scripts/e2e-reset-group-documents.js "${groupName}"`,
-    { cwd: backendDir, stdio: 'pipe' },
+    { cwd: e2eBackendDir(), stdio: 'pipe' },
+  );
+}
+
+/** Archive Director A's other active-event groups so registration-summary has no director conflicts. */
+export function isolateDirectorARegistrationGroup(keepGroupName: string): void {
+  execSync(
+    `NODE_ENV=test DOTENV_CONFIG_PATH=.env.e2e node -r dotenv/config scripts/e2e-isolate-director-registration-group.js "${keepGroupName}"`,
+    { cwd: e2eBackendDir(), stdio: 'pipe' },
+  );
+}
+
+/** Undo isolateDirectorARegistrationGroup — unarchive all groups on the active E2E event. */
+export function restoreActiveEventGroups(): void {
+  execSync(
+    'NODE_ENV=test DOTENV_CONFIG_PATH=.env.e2e node -r dotenv/config scripts/e2e-restore-active-event-groups.js',
+    { cwd: e2eBackendDir(), stdio: 'pipe' },
   );
 }
 

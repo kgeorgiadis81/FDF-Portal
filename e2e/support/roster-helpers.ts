@@ -23,11 +23,17 @@ export const ROSTER_DEADLINE_PAST = '2020-02-05';
 
 const E2E_PASSWORD = process.env['E2E_PASSWORD'] ?? 'E2eTest!2026';
 
+/** Map seeded admin usernames (e2e_reg_admin) to login emails (e2e.reg.admin@e2e.test). */
+function adminLoginEmail(usernameOrEmail: string): string {
+  if (usernameOrEmail.includes('@')) return usernameOrEmail;
+  return `${usernameOrEmail.replace(/_/g, '.')}@e2e.test`;
+}
+
 export async function adminApiLogin(username: string, password = E2E_PASSWORD): Promise<string> {
   const resp = await fetch(`${PORTAL_API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email: adminLoginEmail(username), password, portal: 'admin' }),
   });
   if (!resp.ok) throw new Error(`Admin login failed: ${resp.status}`);
   const data = await resp.json() as { token: string };
