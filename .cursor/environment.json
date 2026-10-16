@@ -1,17 +1,31 @@
 {
   "name": "FDF Portal",
   "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh",
   "terminals": [
     {
-      "name": "dev-server",
-      "command": "bash -lc 'NG_CLI_ANALYTICS=false npm start'",
-      "description": "Angular dev server for the Directors Portal on http://localhost:4201 (dev API expected at :3500)."
+      "name": "api-e2e",
+      "command": "bash .cursor/start-api-e2e.sh",
+      "description": "FDF_Backend e2e API on http://localhost:3501. Waits until start.sh has seeded MariaDB."
+    },
+    {
+      "name": "portal-e2e",
+      "command": "bash .cursor/start-portal-e2e.sh",
+      "description": "Portal e2e dev server on http://localhost:4201 (API at :3501). Shares the port with npm start, so the dev server is not also launched."
     }
   ],
   "ports": [
     {
       "name": "portal",
       "port": 4201
+    },
+    {
+      "name": "api",
+      "port": 3501
+    },
+    {
+      "name": "mariadb-e2e",
+      "port": 3307
     }
   ],
   "repositoryDependencies": [

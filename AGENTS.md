@@ -166,16 +166,21 @@ Any change touching authentication, authorization, PII, SQL, APIs, uploads, or s
 
 ## Cursor Cloud specific instructions
 
-Repo-managed environment: `.cursor/environment.json` (install via `.cursor/install.sh`, Angular dev server terminal on port `4201`).
+Repo-managed environment: `.cursor/environment.json`.
+
+- `install` (`.cursor/install.sh`) installs Node 24, Docker, Playwright Chromium with system dependencies, Chrome for Karma, and clones `kgeorgiadis81/FDF_Backend` as a sibling (`../FDF_Backend`). It copies `e2e/.env.test.example` to `e2e/.env.test` and the backend `.env.e2e.example` to `.env.e2e`. Those copies stay untracked.
+- `start` (`.cursor/start.sh`) starts dockerd, the `fdf-mariadb-e2e` container on port 3307, and `npm run e2e:setup` in FDF_Backend. It writes `/tmp/fdf-e2e-ready` only after the seed succeeds.
+- Terminal `api-e2e` waits for that file, then runs FDF_Backend `npm run start:e2e` (http://localhost:3501/health).
+- Terminal `portal-e2e` runs this repo's `npm run start:e2e` on port 4201. That port is also what `npm start` uses, so the dev server (API at `:3500`) is not started on boot.
 
 ### Node version
 
-The Angular 22 CLI hard-blocks Node `< v22.22.3` / `< v24.15`. The VM default `node` (`/exec-daemon/node`) can be older and shadows nvm. `.cursor/install.sh` installs Node 24 via nvm and prepends it in `~/.bashrc`. If `ng` fails on Node version, use a login shell: `bash -lc '…'`.
+The Angular 22 CLI hard-blocks Node `< v22.22.3` / `< v24.15`. The VM default `node` (`/exec-daemon/node`) can be older and shadows nvm. `.cursor/install.sh` installs Node 24 via nvm and puts it on `PATH` for login shells (`~/.bashrc` and `/etc/profile.d/fdf-node.sh`). If `ng` fails on Node version, use a login shell: `bash -lc '…'`.
 
 ### Running the Portal
 
-- Dev server: `npm start` → `http://localhost:4201` (dev API `:3500`).
+- Dev server: `npm start` → `http://localhost:4201` (dev API `:3500`). Stop `portal-e2e` first; both bind 4201.
 - E2E serve: `npm run start:e2e` → `:4201` against backend `:3501`.
-- Unit tests (headless): `CHROME_BIN=$(which google-chrome-stable) npx ng test --watch=false --browsers=ChromeHeadless`.
+- Unit tests (headless, single run): `npx ng test --watch=false --browsers=ChromeHeadless`. `npm test` is watch mode. ChromeHeadless runs without a no-sandbox wrapper on the Cloud Agent image.
 
-Playwright e2e needs `FDF_Backend` as a sibling, Docker MariaDB, and `npm run e2e:setup` in that repo. Seeded director accounts are in `e2e/.env.test.example`. Never run e2e against production.
+Playwright e2e expects the sibling backend, MariaDB, and the seed that `start.sh` already runs. Seeded director accounts are in `e2e/.env.test.example`. Never run e2e against production.
