@@ -16,4 +16,4 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx ng build --configuration=production
+      - run: npm run build:prod
