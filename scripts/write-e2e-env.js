@@ -38,6 +38,8 @@ if (!/^DEFAULT_PASSWORD=.*$/m.test(backendEnv)) {
   process.exit(1);
 }
 backendEnv = backendEnv.replace(/^DEFAULT_PASSWORD=.*$/m, 'DEFAULT_PASSWORD=' + password);
+// .env.e2e.example has an unquoted value with a space. Bash `source` splits it.
+backendEnv = backendEnv.replace(/^BREVO_SENDER_NAME=FDF E2E$/m, 'BREVO_SENDER_NAME="FDF E2E"');
 fs.writeFileSync(path.join(backendDir, '.env.e2e'), backendEnv);
 
 const lines = [
