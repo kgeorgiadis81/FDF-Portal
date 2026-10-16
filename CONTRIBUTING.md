@@ -9,7 +9,9 @@ FDF production deploys run from GitHub Actions when `main` is updated. On GitHub
 - **Only Kostas (`@kgeorgiadis81`) merges PRs to `main`.** Merging triggers CI on `main` and then the gated **Deploy** workflow.
 - Agents and automation must **open PRs only** — do not merge, dispatch Deploy, or rerun production workflows unless Kostas explicitly asks.
 
-Deploy workflows run a production build before rsync, check required secrets by name, and (on push to `main`) verify the commit is associated with a merged pull request. The deploy job uses the GitHub `production` environment (supported on this public repository).
+Deploy workflows run a production build, upload that build into `/var/www/fdf/portal/releases/<commit>/`, and point the `current` symlink at it. The smoke check must see this commit in `version.json` and the hashed bundle named there. If it does not, the workflow points `current` back at the previous release and the job fails. The last 5 release folders are kept. SSH trusts only the `VPS_KNOWN_HOSTS` secret. Workflows also check required secrets by name and, on push to `main`, verify the commit is associated with a merged pull request. The deploy job uses the GitHub `production` environment (supported on this public repository).
+
+Rollback steps, the nginx `root` change this layout needs, and the server steps that must be approved before the first versioned deploy are in [docs/DEVOPS-PLAYBOOK.md](docs/DEVOPS-PLAYBOOK.md).
 
 Required deploy secrets (names only; never commit values):
 

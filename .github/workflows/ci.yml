@@ -21,3 +21,11 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run build:prod
+      - name: Release marker matches the production bundle
+        env:
+          RELEASE_COMMIT: "0123456789abcdef0123456789abcdef01234567"
+        run: node scripts/write-release-marker.js
+      - name: Install OpenSSH for the host-key deploy test
+        run: sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server rsync
+      - name: Portal release deploy tests
+        run: bash scripts/portal-release.test.sh

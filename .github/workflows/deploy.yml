@@ -49,6 +49,10 @@ jobs:
             echo "::error::Deploy cannot run: missing required repository secrets: ${missing[*]}. Add them under Settings → Secrets and variables → Actions (names only; values are never printed)."
             exit 1
           fi
+          if ! printf '%s\n' "$VPS_KNOWN_HOSTS" | tr -d '\r' | grep -Eq '(^| )(ssh-ed25519|ssh-rsa|ecdsa-sha2-) '; then
+            echo "::error::VPS_KNOWN_HOSTS must be one or more OpenSSH known_hosts lines (ssh-ed25519, ssh-rsa, or ecdsa). A bare SHA256 fingerprint is not accepted. The secret value was not printed."
+            exit 1
+          fi
           echo "Required deployment secrets are present."
 
   verify-merged-pr:
@@ -93,25 +97,109 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           REQUIRE_GOOGLE_CLIENT_ID: "false"
         run: npm run build:prod
-      - name: Configure SSH
+      - name: Write release marker
+        run: node scripts/write-release-marker.js
+      - name: Configure SSH from the pinned host key
         env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-      - name: Rsync Director Portal static files
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          portal_install_ssh_files
+      - name: Verify pinned host key
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          # Host-key check runs before any upload. A wrong VPS_KNOWN_HOSTS fails here.
+          portal_ssh "${VPS_USER}@${VPS_HOST}" "true"
+      - name: Create the release directory
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          sha="${{ github.sha }}"
+          if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Refusing to deploy: github.sha is not a 40-character hex commit."
+            exit 1
+          fi
+          portal_ssh "${VPS_USER}@${VPS_HOST}" "mkdir -p -- /var/www/fdf/portal/releases/${sha}"
+      - name: Rsync the release
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          sha="${{ github.sha }}"
+          if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Refusing to deploy: github.sha is not a 40-character hex commit."
+            exit 1
+          fi
           rsync -az --delete \
+            -e "$(portal_ssh_rsh)" \
             dist/fdf-portal/browser/ \
-            "${VPS_USER}@${VPS_HOST}:/var/www/fdf/portal/"
-      - name: Smoke
-        run: curl -fsS -o /dev/null https://portal.yourfdf.com/
+            "${VPS_USER}@${VPS_HOST}:/var/www/fdf/portal/releases/${sha}/"
+      - name: Switch current to the new release
+        id: activate
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          sha="${{ github.sha }}"
+          raw=$(portal_ssh "${VPS_USER}@${VPS_HOST}" \
+            "PORTAL_ROOT=/var/www/fdf/portal bash -s -- activate ${sha}" \
+            < scripts/portal-release.sh)
+          prev=$(printf '%s\n' "$raw" | awk '/^FDF_PREVIOUS /{print $2}' | tail -n 1)
+          if [[ "$prev" != "none" && ! "$prev" =~ ^/var/www/fdf/portal/releases/[0-9a-f]{40}$ ]]; then
+            echo "::error::Activate returned an unexpected previous release. current may already point at the new release; inspect it before retrying."
+            exit 1
+          fi
+          echo "previous=${prev}" >> "$GITHUB_OUTPUT"
+          echo "current -> releases/${sha} (previous: ${prev})"
+      - name: Smoke check release marker
+        id: smoke
+        run: bash scripts/smoke-portal-release.sh "https://portal.yourfdf.com" "${{ github.sha }}" dist/fdf-portal/browser/version.json
+      - name: Roll back current after a failed smoke check
+        if: steps.smoke.outcome == 'failure'
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          prev="${{ steps.activate.outputs.previous }}"
+          if [[ "$prev" != "none" && ! "$prev" =~ ^/var/www/fdf/portal/releases/[0-9a-f]{40}$ ]]; then
+            echo "::error::Cannot roll back: previous release path is invalid. current may still point at the failed release."
+            exit 1
+          fi
+          portal_ssh "${VPS_USER}@${VPS_HOST}" \
+            "PORTAL_ROOT=/var/www/fdf/portal bash -s -- rollback ${prev}" \
+            < scripts/portal-release.sh
+          # The smoke step already failed, so this job stays red after current is restored.
+          echo "::error::Smoke check failed. current was switched back to ${prev}."
+      - name: Keep the newest releases
+        if: success()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+          # shellcheck source=scripts/portal-ssh.sh
+          source scripts/portal-ssh.sh
+          portal_ssh "${VPS_USER}@${VPS_HOST}" \
+            "PORTAL_ROOT=/var/www/fdf/portal bash -s -- prune 5" \
+            < scripts/portal-release.sh
