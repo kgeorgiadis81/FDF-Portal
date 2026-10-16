@@ -27,6 +27,18 @@ export interface DirectorProfile {
   };
 }
 
+export interface GoogleProfileHints {
+  providerSubject: string;
+  providerEmail: string;
+  suggestedFirstName: string;
+  suggestedLastName: string;
+}
+
+export interface GoogleProfileCompletion {
+  credential: string;
+  googleProfile: GoogleProfileHints;
+}
+
 export function formatDisplayName(person: {
   firstName?: string | null;
   lastName?: string | null;
@@ -73,6 +85,12 @@ export class AuthService {
   readonly currentId       = computed(() => this._id());
 
   private loginRedirectInFlight = false;
+
+  /**
+   * One-shot Google profile-completion payload held in memory only.
+   * Never written to history state, sessionStorage, or logs.
+   */
+  private googleProfileCompletion: GoogleProfileCompletion | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -223,8 +241,23 @@ export class AuthService {
     return this.http.post<{
       token?: string; role?: string; roles?: string[]; firstName?: string; lastName?: string; name?: string; requiresConsent?: boolean;
       requiresProfileCompletion?: boolean;
-      googleProfile?: { providerSubject: string; providerEmail: string; suggestedFirstName: string; suggestedLastName: string };
+      googleProfile?: GoogleProfileHints;
     }>(`${this.api}/google`, { credential });
+  }
+
+  /**
+   * Stores the Google credential for Complete Profile in memory (not history/sessionStorage).
+   * Call takeGoogleProfileCompletion() once on the complete-profile screen.
+   */
+  beginGoogleProfileCompletion(credential: string, googleProfile: GoogleProfileHints): void {
+    this.googleProfileCompletion = { credential, googleProfile };
+  }
+
+  /** One-shot read that clears the in-memory credential. */
+  takeGoogleProfileCompletion(): GoogleProfileCompletion | null {
+    const data = this.googleProfileCompletion;
+    this.googleProfileCompletion = null;
+    return data;
   }
 
   googleCompleteProfile(data: {
