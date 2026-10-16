@@ -6,6 +6,31 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 Production deploys are automated from `main`. **Do not push to `main`** — use pull requests only. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process (PR-only flow, who merges, and how CI/Deploy are gated).
 
+## Content Security Policy
+
+The portal ships a matching CSP in `src/index.html` (`<meta http-equiv="Content-Security-Policy">`) so local, e2e, and production HTML all enforce the same allowlist.
+
+**Production nginx must also set `Content-Security-Policy` as an HTTP response header.** `frame-ancestors` is ignored in `<meta>` and belongs only on the header. The header is configured in the FDF_Backend deploy nginx snippets (`deploy/nginx/tls/fdf-portal.conf` and related snippets), not in this repo.
+
+Required policy (portal origin is `'self'`; Google Sign-In and Google Fonts are the only third-party sources):
+
+```
+default-src 'self';
+script-src 'self' https://accounts.google.com/gsi/client;
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style;
+font-src 'self' https://fonts.gstatic.com;
+frame-src https://accounts.google.com;
+connect-src 'self' https://accounts.google.com/gsi/;
+img-src 'self' data: blob: https://*.googleusercontent.com;
+object-src 'none';
+base-uri 'self';
+frame-ancestors 'none';
+```
+
+The HTML meta policy also allows `http://localhost:3500` and `http://localhost:3501` on `connect-src` so `ng serve` and Playwright can reach the local API. Production nginx should omit those localhost origins. Production API calls go to same-origin `/api`.
+
+Verify: open the portal, DevTools → Network → document request shows `content-security-policy`; Console has no CSP violations for Google Sign-In, group pages, or PDF viewing (`blob:` object URLs).
+
 ## Development server
 
 To start a local development server, run:
@@ -39,6 +64,8 @@ ng build
 ```
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+CI runs `npm audit --omit=dev --audit-level=high` (production dependencies). Remaining `npm audit` findings are in Karma / webpack-dev-server used only for unit tests; Karma stays because `ng test` still uses it.
 
 ## Running unit tests
 
