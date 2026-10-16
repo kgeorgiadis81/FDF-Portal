@@ -250,7 +250,8 @@
                   </mat-form-field>
 
                   <div class="form-actions">
-                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Done</button>
+                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Cancel</button>
+                    <button mat-raised-button color="primary" type="button" (click)="cancelConflictEdit(false)">Save</button>
                     @if (savingConflict()) {
                       <span class="autosave-status" aria-live="polite">Saving…</span>
                     }
