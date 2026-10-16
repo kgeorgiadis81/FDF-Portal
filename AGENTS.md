@@ -76,8 +76,8 @@ When the user asks you to work on a Linear issue (for example, “implement INT-
 1. **Fetch the issue first** (Linear MCP `get_issue`) and follow its description, acceptance criteria, and any repo-specific warnings.
 2. **Keep the issue current** throughout the work:
    - **In Progress** when you start implementation.
-   - **In Review** when a PR is open.
-   - **Done** when the PR is merged or the work is otherwise complete.
+   - **In Review** while the PR is under review (open and not yet merged).
+   - **Done** only after the PR is merged to the target branch (or the user explicitly confirms merge without a PR).
 3. **Link the PR** on the issue (`links` on `save_issue`) and **append a short agent update** to the description (what changed, how it was verified, merge status). Do not leave stale “not merged” notes after the user merges.
 4. Respect issue instructions that override defaults (for example, “do not merge” or “do not deploy”).
 
