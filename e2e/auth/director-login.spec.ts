@@ -7,6 +7,7 @@ test.describe('Director login', () => {
   test('share metadata includes portal logo image', async ({ request }) => {
     const html = await (await request.get('/auth/login')).text();
     expect(html).toContain('<title>FDF Portal</title>');
+    expect(html).toContain('http-equiv="Content-Security-Policy"');
     expect(html).toContain('property="og:title" content="FDF Portal"');
     expect(html).toContain('property="og:image" content="https://portal.yourfdf.com/og-image.png"');
     const image = await request.get('/og-image.png');

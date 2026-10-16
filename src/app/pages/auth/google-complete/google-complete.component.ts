@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService, formatDisplayName } from '../../../services/auth.service';
+import { AuthService, formatDisplayName, GoogleProfileHints } from '../../../services/auth.service';
 import { PortalConfigService } from '../../../services/portal-config.service';
 
 @Component({
@@ -27,23 +27,17 @@ export class GoogleCompleteComponent implements OnInit {
   error   = signal('');
 
   private credential = '';
-  googleProfile: any = {};
+  googleProfile: Partial<GoogleProfileHints> = {};
 
   readonly portalConfig = inject(PortalConfigService);
   readonly today = new Date().toISOString().slice(0, 10);
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    const nav = this.router.getCurrentNavigation();
-    const state = nav?.extras?.state as any;
-    this.credential   = state?.credential   || '';
-    this.googleProfile= state?.googleProfile || {};
-  }
+  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    if (!this.credential) {
-      this.router.navigate(['/auth/login']);
-      return;
-    }
+    const pending = this.auth.takeGoogleProfileCompletion();
+    this.credential = pending?.credential || '';
+    this.googleProfile = pending?.googleProfile || {};
 
     this.form = this.fb.group({
       firstName:       [this.googleProfile.suggestedFirstName || '', [Validators.required, Validators.maxLength(100)]],
@@ -51,6 +45,10 @@ export class GoogleCompleteComponent implements OnInit {
       dateOfBirth:     ['', Validators.required],
       consentAccepted: [false, Validators.requiredTrue],
     });
+
+    if (!this.credential) {
+      this.router.navigate(['/auth/login'], { replaceUrl: true });
+    }
   }
 
   submit(): void {
@@ -68,8 +66,9 @@ export class GoogleCompleteComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.loading.set(false);
+        this.credential = '';
         this.auth.saveAuth(0, res.token, res.role, formatDisplayName(res), res.roles ?? []);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/dashboard'], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);

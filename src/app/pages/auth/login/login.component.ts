@@ -76,10 +76,9 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.auth.googleAuth(credential).subscribe({
       next: (result) => {
         this.loading.set(false);
-        if (result.requiresProfileCompletion) {
-          this.router.navigate(['/auth/google-complete'], {
-            state: { googleProfile: result.googleProfile, credential }
-          });
+        if (result.requiresProfileCompletion && result.googleProfile) {
+          this.auth.beginGoogleProfileCompletion(credential, result.googleProfile);
+          this.router.navigate(['/auth/google-complete'], { replaceUrl: true });
         } else if (result.token && result.role) {
           const displayName = formatDisplayName(result);
           this.auth.saveAuth(0, result.token, result.role, displayName, result.roles ?? []);

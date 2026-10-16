@@ -65,6 +65,21 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
   });
 
+  it('holds Google completion payload in memory and clears it on take', () => {
+    const profile = {
+      providerSubject: 'sub-1',
+      providerEmail: 'director@example.com',
+      suggestedFirstName: 'Ada',
+      suggestedLastName: 'Lovelace',
+    };
+    service.beginGoogleProfileCompletion('google-credential', profile);
+    expect(service.takeGoogleProfileCompletion()).toEqual({
+      credential: 'google-credential',
+      googleProfile: profile,
+    });
+    expect(service.takeGoogleProfileCompletion()).toBeNull();
+  });
+
   it('isAuthenticated is true for Global Admin + Judge + Director JWT', () => {
     const encode = (value: object) =>
       btoa(JSON.stringify(value)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
