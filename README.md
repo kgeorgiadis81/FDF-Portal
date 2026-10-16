@@ -46,13 +46,20 @@ ng test
 
 ## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+Node.js 24.15 or newer (`nvm use` reads `.nvmrc`).
+
+From a sibling `FDF_Backend` checkout, `npm run test:all` starts MariaDB, seeds `FDF_DB_E2E`, and runs this repo's Karma and Playwright suites with the others.
+
+To run Playwright here only:
 
 ```bash
-ng e2e
+cp e2e/.env.test.example e2e/.env.test
+npx playwright install chromium
+# Backend must already be seeded: cd ../FDF_Backend && cp .env.e2e.example .env.e2e && npm run e2e:setup
+npm run e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+`e2e/.env.test.example` has placeholders only: base URLs, `E2E_PASSWORD`, usernames and emails for the six staff roles, and `DIRECTOR_A_EMAIL` / `DIRECTOR_B_EMAIL`. Do not commit `e2e/.env.test`.
 
 ## Additional Resources
 
