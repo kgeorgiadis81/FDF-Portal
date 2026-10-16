@@ -43,3 +43,6 @@ Thumbs.db
 
 # E2E local config (copy from e2e/.env.test.example)
 e2e/.env.test
+
+# Generated so Istanbul instruments every src/app file (see scripts/generate-coverage-sources.js)
+src/app/coverage-sources.spec.ts
