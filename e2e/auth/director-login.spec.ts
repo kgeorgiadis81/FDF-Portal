@@ -19,7 +19,7 @@ test.describe('Director login', () => {
     const logo = page.getByRole('img', { name: /fdf logo/i });
     await expect(logo).toBeVisible();
     await expect.poll(async () => logo.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /email/i })).toBeVisible();
     // Use exact label to avoid matching the "Show password" toggle button aria-label
     await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
@@ -29,7 +29,7 @@ test.describe('Director login', () => {
 
   test('rejects invalid credentials', async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill('wrong@example.com');
+    await page.getByRole('textbox', { name: /email/i }).fill('wrong@example.com');
     await page.locator('input[autocomplete="current-password"]').fill('wrongpassword');
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page.locator('.form-error')).toBeVisible({ timeout: 8_000 });
@@ -41,7 +41,7 @@ test.describe('Director login', () => {
 
   test('shows generic error for unknown email', async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill('nobody@nonexistent.example.com');
+    await page.getByRole('textbox', { name: /email/i }).fill('nobody@nonexistent.example.com');
     await page.locator('input[autocomplete="current-password"]').fill('SomePassword123!');
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page.locator('.form-error')).toContainText(/invalid email or password/i, { timeout: 8_000 });
@@ -49,7 +49,7 @@ test.describe('Director login', () => {
 
   test('verified director pending consent can login and lands on consent page', async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_PENDING_CONSENT.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_PENDING_CONSENT.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_PENDING_CONSENT.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/\/consent(?:\?|$)/, { timeout: 15_000 });
@@ -59,7 +59,7 @@ test.describe('Director login', () => {
 
   test('verified director can login and lands on dashboard', async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -80,7 +80,7 @@ test.describe('Director login', () => {
 
   test('logout clears session and returns to login', async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -99,7 +99,7 @@ test.describe('Director login', () => {
 test.describe('Password reset flow', () => {
   test('forgot password page shows generic message', async ({ page }) => {
     await page.goto('/auth/forgot-password');
-    await page.getByLabel(/email/i).fill('nobody@example.com');
+    await page.getByRole('textbox', { name: /email/i }).fill('nobody@example.com');
     await page.getByRole('button', { name: /send reset/i }).click();
     await expect(page.getByText(/instructions have been sent/i)).toBeVisible({ timeout: 8_000 });
   });

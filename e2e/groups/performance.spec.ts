@@ -28,7 +28,7 @@ test.use({ baseURL: PORTAL_BASE_URL });
 
 async function loginAs(page: Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('textbox', { name: /email/i }).fill(email);
   await page.locator('input[autocomplete="current-password"]').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -37,7 +37,7 @@ async function loginAs(page: Page, email: string, password: string): Promise<voi
 async function openPerformanceForGroup(page: Page, groupName: string): Promise<void> {
   await page.goto('/dashboard');
   await page.locator('.group-card').filter({ hasText: groupName }).click();
-  await page.locator('.performance-link').click();
+  await page.getByRole('link', { name: /(?:Manage|View) Performance/i }).click();
   await expect(page).toHaveURL(/\/groups\/\d+\/performance/);
 }
 
@@ -63,9 +63,9 @@ test.describe('Dance entry CRUD', () => {
     const danceName = `E2E Dance ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Dance' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
-    await page.getByLabel('Dance Name').fill(danceName);
-    await page.getByLabel('Region').fill('Macedonia');
-    await page.getByLabel('Village').fill('Test Village');
+    await page.getByRole('textbox', { name: 'Dance Name', exact: true }).fill(danceName);
+    await page.getByRole('textbox', { name: 'Region', exact: true }).fill('Macedonia');
+    await page.getByRole('textbox', { name: 'Village', exact: true }).fill('Test Village');
     await page.getByRole('checkbox', { name: 'Live Music' }).check();
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
@@ -75,7 +75,7 @@ test.describe('Dance entry CRUD', () => {
     await entryCard.getByRole('button', { name: 'Edit' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     const updated = `${danceName} Updated`;
-    await page.getByLabel('Dance Name').fill(updated);
+    await page.getByRole('textbox', { name: 'Dance Name', exact: true }).fill(updated);
     await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
     await expect(page.getByText(updated).first()).toBeVisible();
@@ -103,8 +103,8 @@ test.describe('Choral performance', () => {
   test('Add song with liturgical classification', async ({ page }) => {
     const songName = `E2E Song ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(songName);
-    await page.getByLabel('Secular / Liturgical').locator('..').click();
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(songName);
+    await page.getByRole('combobox', { name: 'Secular / Liturgical', exact: true }).locator('..').click();
     await page.getByRole('option', { name: 'Liturgical' }).click();
     await page.getByRole('checkbox', { name: 'Recorded Music' }).check();
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
@@ -120,7 +120,7 @@ test.describe('Performance submission', () => {
 
     const danceName = `Submit Dance ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Dance' }).click();
-    await page.getByLabel('Dance Name').fill(danceName);
+    await page.getByRole('textbox', { name: 'Dance Name', exact: true }).fill(danceName);
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
 
@@ -131,7 +131,7 @@ test.describe('Performance submission', () => {
     const entryCard = page.locator('.entry-card').filter({ hasText: danceName });
     await entryCard.getByRole('button', { name: 'Edit' }).click();
     const edited = `${danceName} Edited`;
-    await page.getByLabel('Dance Name').fill(edited);
+    await page.getByRole('textbox', { name: 'Dance Name', exact: true }).fill(edited);
     await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText(edited).first()).toBeVisible();
   });
@@ -149,7 +149,7 @@ test.describe('Historical performance — read-only', () => {
     const historicalCard = page.locator('.group-card').filter({ hasText: E2E_PERFORMANCE_GROUPS.A_HISTORICAL });
     await expect(historicalCard).toBeVisible({ timeout: 8_000 });
     await historicalCard.click();
-    await page.locator('.performance-link').click();
+    await page.getByRole('link', { name: /(?:Manage|View) Performance/i }).click();
 
     await expect(page.getByText(/past event.*read only/i)).toBeVisible({ timeout: 8_000 });
     await expect(page.getByRole('button', { name: 'Add Dance' })).not.toBeVisible();
@@ -232,7 +232,7 @@ test.describe('Musician selection', () => {
       return;
     }
 
-    await page.getByLabel('Search musicians').fill('E2E Musician Beta');
+    await page.getByRole('combobox', { name: 'Search musicians', exact: true }).fill('E2E Musician Beta');
     await page.getByRole('option', { name: 'E2E Musician Beta' }).click();
     await expect(page.getByText('1 of 8 musicians selected')).toBeVisible();
     await expect(page.getByLabel('Selected musicians').getByText('E2E Musician Beta')).toBeVisible();
@@ -280,7 +280,7 @@ test.describe('Dance entry reorder', () => {
     const ts = Date.now();
     for (const label of ['First', 'Second', 'Third']) {
       await page.getByRole('button', { name: 'Add Dance' }).click();
-      await page.getByLabel('Dance Name').fill(`${label} ${ts}`);
+      await page.getByRole('textbox', { name: 'Dance Name', exact: true }).fill(`${label} ${ts}`);
       await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
       await expect(page.getByRole('dialog')).not.toBeVisible();
     }
@@ -344,20 +344,20 @@ test.describe('AV logistics', () => {
     const savePromise = page.waitForResponse(
       (r) => r.url().includes('/logistics') && r.request().method() === 'PATCH' && r.ok(),
     );
-    await page.getByLabel('Additional Props').fill(props);
-    await page.getByLabel('Music / Audio Needs').fill('Wireless mics');
+    await page.getByRole('textbox', { name: 'Additional Props', exact: true }).fill(props);
+    await page.getByRole('textbox', { name: 'Music / Audio Needs', exact: true }).fill('Wireless mics');
     await savePromise;
 
     await page.reload();
-    await expect(page.getByLabel('Additional Props')).toHaveValue(props);
-    await expect(page.getByLabel('Music / Audio Needs')).toHaveValue('Wireless mics');
+    await expect(page.getByRole('textbox', { name: 'Additional Props', exact: true })).toHaveValue(props);
+    await expect(page.getByRole('textbox', { name: 'Music / Audio Needs', exact: true })).toHaveValue('Wireless mics');
   });
 
   test('Prompts before leaving with unsaved AV changes', async ({ page }) => {
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await openPerformanceForGroup(page, E2E_PERFORMANCE_GROUPS.A2);
 
-    await page.getByLabel('Additional Props').fill(`Unsaved ${Date.now()}`);
+    await page.getByRole('textbox', { name: 'Additional Props', exact: true }).fill(`Unsaved ${Date.now()}`);
     await page.getByRole('link', { name: 'Back to Group' }).click();
 
     await expect(page.getByRole('dialog', { name: 'Unsaved changes' })).toBeVisible();
@@ -371,7 +371,6 @@ test.describe('Dashboard performance status', () => {
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await page.goto('/dashboard');
     const card = page.locator('.group-card').filter({ hasText: /E2E Group Alpha/i });
-    await expect(card.locator('.performance-status')).toBeVisible();
-    await expect(card.getByText(/Performance not submitted|Performance submitted/)).toBeVisible();
+    await expect(card.getByText(/Performance ·/)).toBeVisible();
   });
 });

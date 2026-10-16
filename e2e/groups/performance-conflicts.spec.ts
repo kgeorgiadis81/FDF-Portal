@@ -14,7 +14,7 @@ test.use({ baseURL: PORTAL_BASE_URL });
 
 async function loginAs(page: Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('textbox', { name: /email/i }).fill(email);
   await page.locator('input[autocomplete="current-password"]').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -23,7 +23,7 @@ async function loginAs(page: Page, email: string, password: string): Promise<voi
 async function openPerformanceForGroup(page: Page, groupName: string): Promise<void> {
   await page.goto('/dashboard');
   await page.locator('.group-card').filter({ hasText: groupName }).click();
-  await page.locator('.performance-link').click();
+  await page.getByRole('link', { name: /(?:Manage|View) Performance/i }).click();
   await expect(page).toHaveURL(/\/groups\/\d+\/performance/);
 }
 

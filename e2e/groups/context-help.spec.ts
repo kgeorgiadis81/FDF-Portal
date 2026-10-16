@@ -9,7 +9,7 @@ test.use({ baseURL: PORTAL_BASE_URL });
 
 async function loginAsDirector(page: Page) {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+  await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
   await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -34,9 +34,9 @@ test.describe('Contextual help', () => {
       await expect(helpButtons.nth(i)).toHaveAttribute('tabindex', '-1');
     }
 
-    await page.getByLabel('Group name').focus();
+    await page.getByRole('textbox', { name: 'Group name', exact: true }).focus();
     await page.keyboard.press('Tab');
-    await expect(page.getByLabel('Parish')).toBeFocused();
+    await expect(page.getByRole('combobox', { name: 'Parish', exact: true })).toBeFocused();
   });
 
   test('keyboard Enter opens help on Create Group — Group Type', async ({ page }) => {
@@ -54,8 +54,8 @@ test.describe('Contextual help', () => {
     await loginAsDirector(page);
     await page.goto('/dashboard');
     await page.locator('.group-card').first().click();
-    await page.locator('.roster-link').click();
-    await page.getByRole('button', { name: /add participant/i }).click();
+    await page.getByRole('link', { name: /(?:Manage|View) Roster/i }).click();
+    await page.getByRole('button', { name: /add a participant/i }).click();
     await openHelp(page, 'Date of Birth');
     await page.keyboard.press('Escape');
   });

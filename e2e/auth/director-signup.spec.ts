@@ -19,10 +19,10 @@ test.use({ baseURL });
 test.describe('Director signup', () => {
   test('shows signup form with all required fields', async ({ page }) => {
     await page.goto('/auth/signup');
-    await expect(page.getByLabel(/first name/i)).toBeVisible();
-    await expect(page.getByLabel(/last name/i)).toBeVisible();
-    await expect(page.getByLabel(/date of birth/i)).toBeVisible();
-    await expect(page.getByLabel(/email/i)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /first name/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /last name/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /date of birth/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /email/i })).toBeVisible();
     await expect(page.getByLabel(/^password$/i)).toBeVisible();
     await expect(page.getByLabel('Confirm password', { exact: true })).toBeVisible();
     await expect(page.getByRole('checkbox')).toBeVisible();
@@ -30,10 +30,10 @@ test.describe('Director signup', () => {
 
   test('requires consent to create account', async ({ page }) => {
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('Test');
-    await page.getByLabel(/last name/i).fill('Director');
-    await page.getByLabel(/date of birth/i).fill('1985-01-15');
-    await page.getByLabel(/email/i).fill(uniqueEmail('signup_noconsent'));
+    await page.getByRole('textbox', { name: /first name/i }).fill('Test');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Director');
+    await page.getByRole('textbox', { name: /date of birth/i }).fill('1985-01-15');
+    await page.getByRole('textbox', { name: /email/i }).fill(uniqueEmail('signup_noconsent'));
     const pwField = page.locator('input[formcontrolname="password"]');
     const cpwField = page.locator('input[formcontrolname="confirmPassword"]');
     await pwField.fill('TestPassword123!');
@@ -46,10 +46,10 @@ test.describe('Director signup', () => {
 
   test('rejects mismatched passwords', async ({ page }) => {
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('Test');
-    await page.getByLabel(/last name/i).fill('Director');
-    await page.getByLabel(/date of birth/i).fill('1985-01-15');
-    await page.getByLabel(/email/i).fill(uniqueEmail('signup_pw'));
+    await page.getByRole('textbox', { name: /first name/i }).fill('Test');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Director');
+    await page.getByRole('textbox', { name: /date of birth/i }).fill('1985-01-15');
+    await page.getByRole('textbox', { name: /email/i }).fill(uniqueEmail('signup_pw'));
     await page.locator('input[formcontrolname="password"]').fill('TestPassword123!');
     await page.locator('input[formcontrolname="confirmPassword"]').fill('DifferentPassword!');
     await page.getByRole('checkbox').check();
@@ -59,10 +59,10 @@ test.describe('Director signup', () => {
 
   test('rejects short password (< 10 chars)', async ({ page }) => {
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('Test');
-    await page.getByLabel(/last name/i).fill('Director');
-    await page.getByLabel(/date of birth/i).fill('1985-01-15');
-    await page.getByLabel(/email/i).fill(uniqueEmail('signup_short'));
+    await page.getByRole('textbox', { name: /first name/i }).fill('Test');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Director');
+    await page.getByRole('textbox', { name: /date of birth/i }).fill('1985-01-15');
+    await page.getByRole('textbox', { name: /email/i }).fill(uniqueEmail('signup_short'));
     await page.locator('input[formcontrolname="password"]').fill('short');
     await page.locator('input[formcontrolname="confirmPassword"]').fill('short');
     await page.getByRole('checkbox').check();
@@ -73,10 +73,10 @@ test.describe('Director signup', () => {
   test('successful signup redirects to verify-email page', async ({ page }) => {
     const email = uniqueEmail('signup_ok');
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('Test');
-    await page.getByLabel(/last name/i).fill('Director');
-    await page.getByLabel(/date of birth/i).fill('1985-01-15');
-    await page.getByLabel(/email/i).fill(email);
+    await page.getByRole('textbox', { name: /first name/i }).fill('Test');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Director');
+    await page.getByRole('textbox', { name: /date of birth/i }).fill('1985-01-15');
+    await page.getByRole('textbox', { name: /email/i }).fill(email);
     await page.locator('input[formcontrolname="password"]').fill('ValidPass123!');
     await page.locator('input[formcontrolname="confirmPassword"]').fill('ValidPass123!');
     await page.getByRole('checkbox').check();
@@ -88,10 +88,10 @@ test.describe('Director signup', () => {
     const email = uniqueEmail('signup_dup');
     // First signup
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('Test');
-    await page.getByLabel(/last name/i).fill('Director');
-    await page.getByLabel(/date of birth/i).fill('1985-01-15');
-    await page.getByLabel(/email/i).fill(email);
+    await page.getByRole('textbox', { name: /first name/i }).fill('Test');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Director');
+    await page.getByRole('textbox', { name: /date of birth/i }).fill('1985-01-15');
+    await page.getByRole('textbox', { name: /email/i }).fill(email);
     await page.locator('input[formcontrolname="password"]').fill('ValidPass123!');
     await page.locator('input[formcontrolname="confirmPassword"]').fill('ValidPass123!');
     await page.getByRole('checkbox').check();
@@ -100,10 +100,10 @@ test.describe('Director signup', () => {
 
     // Second signup with same email
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('Duplicate');
-    await page.getByLabel(/last name/i).fill('Director');
-    await page.getByLabel(/date of birth/i).fill('1990-06-01');
-    await page.getByLabel(/email/i).fill(email);
+    await page.getByRole('textbox', { name: /first name/i }).fill('Duplicate');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Director');
+    await page.getByRole('textbox', { name: /date of birth/i }).fill('1990-06-01');
+    await page.getByRole('textbox', { name: /email/i }).fill(email);
     await page.locator('input[formcontrolname="password"]').fill('ValidPass123!');
     await page.locator('input[formcontrolname="confirmPassword"]').fill('ValidPass123!');
     await page.getByRole('checkbox').check();
@@ -133,7 +133,7 @@ test.describe('Email verification flow', () => {
     });
 
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(email);
+    await page.getByRole('textbox', { name: /email/i }).fill(email);
     await page.locator('input[autocomplete="current-password"]').fill('ValidPass123!');
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/verify-email/, { timeout: 10_000 });
