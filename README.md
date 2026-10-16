@@ -2,6 +2,10 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.4.
 
+## Deploys and `main`
+
+Production deploys are automated from `main`. **Do not push to `main`** — use pull requests only. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full process (PR-only flow, who merges, and how CI/Deploy are gated).
+
 ## Development server
 
 To start a local development server, run:
