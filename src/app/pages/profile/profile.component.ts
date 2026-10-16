@@ -13,19 +13,26 @@ import {
   HasUnsavedChanges,
   UnsavedChangesService,
 } from '../../shared/unsaved-changes';
+import { optionalPhoneValidator, PHONE_FORMAT_HINT } from '../../utils/phone-validators';
+import { FDF_MANAGEMENT_MAILTO } from '../../constants/fdf-contact';
+import { RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'fdp-profile',
   imports: [
-    ReactiveFormsModule,
+    ReactiveFormsModule, RouterLink,
     MatButtonModule, MatIconModule, MatFormFieldModule,
-    MatInputModule, MatProgressSpinnerModule,
+    MatInputModule, MatProgressSpinnerModule, MatSnackBarModule,
   ],
   templateUrl: './profile.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit, OnDestroy, HasUnsavedChanges {
+  readonly phoneHint = PHONE_FORMAT_HINT;
+  readonly fdfContactLink = FDF_MANAGEMENT_MAILTO;
+
   profile  = signal<DirectorProfile | null>(null);
   loading  = signal(true);
   saving   = signal(false);
@@ -42,6 +49,7 @@ export class ProfileComponent implements OnInit, OnDestroy, HasUnsavedChanges {
     private auth: AuthService,
     private fb: FormBuilder,
     private unsavedSvc: UnsavedChangesService,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -70,7 +78,7 @@ export class ProfileComponent implements OnInit, OnDestroy, HasUnsavedChanges {
       this.form = this.fb.group({
         firstName:   [p.firstName, [Validators.required, Validators.maxLength(100)]],
         lastName:    [p.lastName,  [Validators.required, Validators.maxLength(100)]],
-        phoneNumber: [p.phoneNumber || ''],
+        phoneNumber: [p.phoneNumber || '', [optionalPhoneValidator]],
       });
 
       this.profileAutosave = new FormAutosaveCoordinator(this.form, {
@@ -119,6 +127,39 @@ export class ProfileComponent implements OnInit, OnDestroy, HasUnsavedChanges {
     this.saved.set(false);
     this.saveError.set('');
     this.initForm(this.profile()!);
+  }
+
+  saveProfile(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const value = this.form.getRawValue();
+    this.saving.set(true);
+    this.auth.updateProfile({
+      firstName: String(value['firstName']).trim(),
+      lastName: String(value['lastName']).trim(),
+      phoneNumber: (value['phoneNumber'] as string) || undefined,
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.saved.set(true);
+        this.editMode.set(false);
+        this.snackBar.open('Profile saved.', 'OK', { duration: 3000 });
+        this.auth.getProfile().subscribe((profile) => {
+          this.profile.set(profile);
+          this.profileAutosave.setBaseline({
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            phoneNumber: profile.phoneNumber || '',
+          });
+        });
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.saveError.set(err?.error?.error || 'Could not save changes.');
+      },
+    });
   }
 
   async cancelEdit(): Promise<void> {

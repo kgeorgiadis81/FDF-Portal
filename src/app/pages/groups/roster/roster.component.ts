@@ -25,6 +25,8 @@ import {
 } from './chaperone-dialog/chaperone-dialog.component';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../shared/confirm-dialog/confirm-dialog.component';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
+import { formatLocaleDate, formatWholeAge, formatDeadlineDueLine } from '../../../utils/deadline-display';
+import { FDF_MANAGEMENT_MAILTO } from '../../../constants/fdf-contact';
 
 @Component({
   selector: 'fdp-roster',
@@ -53,6 +55,11 @@ export class RosterComponent implements OnInit {
   readonly canEdit = computed(() => this.context()?.deadline.can_edit ?? false);
   readonly isReadOnly = computed(() => !this.canEdit());
   readonly isActiveEvent = computed(() => this.context()?.group.isActive ?? false);
+  readonly isSubmitted = computed(() => Boolean(this.context()?.submission?.submitted_at));
+  resubmitMode = signal(false);
+  readonly showEditControls = computed(
+    () => this.canEdit() && (!this.isSubmitted() || this.resubmitMode()),
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -324,6 +331,7 @@ export class RosterComponent implements OnInit {
         next: () => {
           this.submitting.set(false);
           this.snack.open('Roster submitted.', 'OK', { duration: 4000 });
+          this.resubmitMode.set(false);
           this.refreshContext();
         },
       error: (err) => {
@@ -344,9 +352,21 @@ export class RosterComponent implements OnInit {
   }
 
   formatDeadlineDate(dateStr: string | null | undefined): string {
-    if (!dateStr) return '—';
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    return formatDeadlineDueLine(dateStr);
+  }
+
+  formatMemberDob(dateStr: string): string {
+    return formatLocaleDate(dateStr);
+  }
+
+  formatMemberAge(age: number | null): string {
+    return formatWholeAge(age);
+  }
+
+  readonly fdfContactLink = FDF_MANAGEMENT_MAILTO;
+
+  enableResubmit(): void {
+    this.resubmitMode.set(true);
   }
 
   formatEffectiveCutoff(isoStr: string | null | undefined): string {

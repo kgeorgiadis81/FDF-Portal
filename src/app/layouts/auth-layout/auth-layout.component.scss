@@ -20,13 +20,13 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: #fff;
   text-align: center;
 
   &__logo {
     display: block;
-    width: min(280px, 86vw);
+    width: min(200px, 72vw);
     height: auto;
     padding: 0.7rem 0.9rem;
     background: #fff;
@@ -48,8 +48,8 @@
   }
 
   &__tagline {
-    font-size: 0.7rem;
-    opacity: 0.82;
+    font-size: 0.75rem;
+    opacity: 0.92;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -76,8 +76,8 @@
 
 .auth-footer {
   margin-top: 1.25rem;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.75rem;
   text-align: center;
 
   a {

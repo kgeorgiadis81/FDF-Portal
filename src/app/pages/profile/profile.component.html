@@ -1,4 +1,7 @@
-<h1 class="page-title">My Profile</h1>
+<div class="page-header">
+  <a routerLink="/dashboard" class="back-link"><mat-icon>arrow_back</mat-icon> My Groups</a>
+  <h1 class="page-title">My Profile</h1>
+</div>
 
 @if (loading()) {
   <div class="fdp-spinner-overlay"><mat-spinner /></div>
@@ -66,7 +69,8 @@
 
       <p class="read-only-note">
         <mat-icon class="tiny">info</mat-icon>
-        Email and date of birth cannot be changed here. Contact FDF Management for account changes.
+        Email and date of birth cannot be changed here.
+        <a [href]="fdfContactLink">Contact FDF Management</a> for account changes.
       </p>
     } @else {
       <!-- Edit form -->
@@ -91,6 +95,10 @@
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>Phone number (optional)</mat-label>
           <input matInput formControlName="phoneNumber" type="tel" autocomplete="tel" inputmode="tel" />
+          <mat-hint>{{ phoneHint }}</mat-hint>
+          @if (form.get('phoneNumber')?.errors?.['phoneFormat'] && form.get('phoneNumber')?.touched) {
+            <mat-error>Enter a valid phone number. {{ phoneHint }}</mat-error>
+          }
         </mat-form-field>
 
         @if (saveError()) {
@@ -98,7 +106,10 @@
         }
 
         <div class="edit-actions">
-          <button mat-stroked-button type="button" (click)="cancelEdit()">Done</button>
+          <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" type="button" (click)="saveProfile()" [disabled]="saving() || form.invalid">
+            Save
+          </button>
           @if (saving()) {
             <span class="autosave-status" aria-live="polite">Saving…</span>
           }

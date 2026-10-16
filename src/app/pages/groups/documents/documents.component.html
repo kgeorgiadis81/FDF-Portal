@@ -59,6 +59,24 @@
 
     <p class="format-note">Accepted format: PDF only. Maximum size: 10 MB.</p>
 
+    <section class="doc-card fdp-card roster-signing-guide" aria-labelledby="roster-sign-heading">
+      <h2 id="roster-sign-heading">Signed roster</h2>
+      <p>
+        Download your roster, print it, sign it, scan it as a PDF, then upload it below.
+      </p>
+      <ol class="signing-steps">
+        <li>Download the roster PDF to sign</li>
+        <li>Print the roster and sign with your parish priest</li>
+        <li>Scan or photograph the signed pages and save as one PDF</li>
+        <li>Upload the signed roster in the Signed Roster section</li>
+      </ol>
+      <a mat-stroked-button [routerLink]="['/groups', groupId, 'roster', 'print']" target="_blank"
+         rel="noopener" data-testid="download-roster-pdf">
+        <mat-icon>download</mat-icon>
+        Download roster PDF to sign
+      </a>
+    </section>
+
     @for (section of sections(); track section.type) {
       <section class="doc-card fdp-card" [attr.aria-labelledby]="'doc-' + section.type">
         <div class="doc-card-header">
@@ -156,13 +174,16 @@
                 <span>Uploading…</span>
               </div>
             } @else {
-              <label class="upload-btn" tabindex="0" role="button"
-                     [attr.aria-label]="section.ctx.current ? 'Upload replacement for ' + section.label : 'Upload ' + section.label">
+              <input #fileInput type="file" class="file-input-visually-hidden" accept="application/pdf,.pdf"
+                     [id]="'upload-' + section.type"
+                     [attr.aria-label]="'Upload ' + section.label + ' PDF'"
+                     (change)="onFileSelected($event, section.type)" />
+              <button mat-stroked-button type="button" class="upload-trigger"
+                      (click)="fileInput.click()"
+                      [attr.aria-controls]="'upload-' + section.type">
                 <mat-icon>upload_file</mat-icon>
-                {{ section.ctx.current ? 'Upload Replacement' : 'Choose PDF' }}
-                <input type="file" class="file-input" accept="application/pdf,.pdf"
-                       (change)="onFileSelected($event, section.type)" />
-              </label>
+                {{ section.ctx.current ? 'Upload replacement PDF' : 'Upload ' + section.label + ' PDF' }}
+              </button>
             }
           </div>
         }
@@ -177,6 +198,9 @@
     </div>
 
     @if (showHistory()) {
+      @if (history().length === 0) {
+        <p class="history-empty" role="status">No previous versions yet.</p>
+      }
       @for (section of sections(); track section.type) {
         @if (historyForType(section.type).length > 0) {
           <section class="history-card fdp-card">

@@ -3,11 +3,15 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { forkJoin } from 'rxjs';
 import {
   RegistrationSummaryService,
   RegistrationSummary,
   DeadlineInfo,
 } from '../../../services/registration-summary.service';
+import { PerformanceService } from '../../../services/performance.service';
+import { countPerformanceEntries } from '../../../utils/performance-entry-counts';
+import { formatDeadlineDueLine } from '../../../utils/deadline-display';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
 
 @Component({
@@ -22,6 +26,8 @@ export class ReviewComponent implements OnInit {
   loading = signal(true);
   error   = signal('');
   summary = signal<RegistrationSummary | null>(null);
+  performanceEntryCounts = signal({ semiFinal: 0, final: 0 });
+  performanceDraft = signal(false);
 
   readonly isActive    = computed(() => this.summary()?.group.isActive ?? true);
   readonly isDance     = computed(() => (this.summary()?.group.groupType ?? '').toUpperCase() === 'DANCE');
@@ -36,6 +42,7 @@ export class ReviewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private summaryService: RegistrationSummaryService,
+    private performanceService: PerformanceService,
   ) {}
 
   ngOnInit(): void {
@@ -45,8 +52,18 @@ export class ReviewComponent implements OnInit {
       this.loading.set(false);
       return;
     }
-    this.summaryService.getSummary(this.groupId).subscribe({
-      next: (s) => { this.summary.set(s); this.loading.set(false); },
+    forkJoin({
+      summary: this.summaryService.getSummary(this.groupId),
+      performances: this.performanceService.getPerformance(this.groupId),
+    }).subscribe({
+      next: ({ summary, performances }) => {
+        this.summary.set(summary);
+        const counts = countPerformanceEntries(performances.performances);
+        this.performanceEntryCounts.set(counts);
+        const hasEntries = counts.semiFinal > 0 || counts.final > 0;
+        this.performanceDraft.set(!summary.performance.submittedAt && hasEntries);
+        this.loading.set(false);
+      },
       error: (err) => {
         this.loading.set(false);
         this.error.set(err?.error?.error ?? 'Unable to load registration summary.');
@@ -95,11 +112,15 @@ export class ReviewComponent implements OnInit {
   }
 
   formatDeadline(date: string | null): string {
-    if (!date) return '—';
-    const [y, m, d] = date.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(undefined, {
-      year: 'numeric', month: 'long', day: 'numeric',
-    });
+    return formatDeadlineDueLine(date);
+  }
+
+  performanceCountsDiffer(): boolean {
+    const s = this.summary();
+    if (!s) return false;
+    const live = this.performanceEntryCounts();
+    return live.semiFinal !== s.performance.semiFinalCount
+      || live.final !== s.performance.finalCount;
   }
 
   formatTimestamp(iso: string | null): string {

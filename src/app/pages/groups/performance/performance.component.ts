@@ -411,6 +411,13 @@ export class PerformanceComponent implements OnInit, OnDestroy, HasUnsavedChange
     return perf.instruments.some((i) => i.instrument_id === instr.id);
   }
 
+  /** Tab label with completeness mark for the round. */
+  roundTabLabel(perf: PortalPerformance): string {
+    const complete = perf.entries.length > 0;
+    const mark = complete ? '✓' : '○';
+    return `${mark} ${perf.round}`;
+  }
+
   submitPerformance(): void {
     const ctx = this.context();
     if (!ctx || !this.canEdit()) return;

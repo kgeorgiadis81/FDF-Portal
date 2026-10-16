@@ -47,7 +47,7 @@
       @if (form.get('parishId')?.invalid && form.get('parishId')?.touched) {
         <mat-error>Please select a parish from the list.</mat-error>
       }
-      <mat-hint>Can't find your parish? Contact FDF Management.</mat-hint>
+      <mat-hint>Can't find your parish? <a [href]="fdfContactLink">Contact FDF Management</a>.</mat-hint>
     </mat-form-field>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">

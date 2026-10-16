@@ -425,6 +425,13 @@ export class CostumesComponent implements OnInit, OnDestroy, HasUnsavedChanges {
       });
   }
 
+  roundTabLabel(perf: { id: number; round: string }): string {
+    const male = this.costumes().get(`${perf.id}_MALE`);
+    const female = this.costumes().get(`${perf.id}_FEMALE`);
+    const complete = Boolean(male?.resource_type_id && female?.resource_type_id);
+    return `${complete ? '✓' : '○'} ${perf.round}`;
+  }
+
   submitCostumes(): void {
     const data: ConfirmDialogData = {
       title: 'Submit costume information',

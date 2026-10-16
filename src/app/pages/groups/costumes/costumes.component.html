@@ -74,7 +74,7 @@
       class="round-tabs"
       aria-label="Costume rounds">
       @for (perf of context()!.performances; track perf.id; let i = $index) {
-        <mat-tab [label]="perf.round">
+        <mat-tab [label]="roundTabLabel(perf)">
           <div class="round-content">
 
             <div class="gender-grid">
@@ -157,7 +157,8 @@
                       </fieldset>
 
                       <div class="form-actions">
-                        <button mat-stroked-button type="button" (click)="cancelCostumeEdit()">Done</button>
+                        <button mat-stroked-button type="button" (click)="cancelCostumeEdit()">Cancel</button>
+                        <button mat-raised-button color="primary" type="button" (click)="cancelCostumeEdit(false)">Save</button>
                         @if (savingGender() === section.gender) {
                           <span class="autosave-status" aria-live="polite">Saving…</span>
                         }
@@ -249,7 +250,8 @@
                   </mat-form-field>
 
                   <div class="form-actions">
-                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Done</button>
+                    <button mat-stroked-button type="button" (click)="cancelConflictEdit()">Cancel</button>
+                    <button mat-raised-button color="primary" type="button" (click)="cancelConflictEdit(false)">Save</button>
                     @if (savingConflict()) {
                       <span class="autosave-status" aria-live="polite">Saving…</span>
                     }

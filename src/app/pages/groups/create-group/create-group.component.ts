@@ -14,6 +14,7 @@ import { Observable } from 'rxjs';
 import { GroupService } from '../../../services/group.service';
 import { ParishService, Parish } from '../../../services/parish.service';
 import { ContextHelpComponent } from '../../../shared/context-help/context-help.component';
+import { FDF_MANAGEMENT_MAILTO } from '../../../constants/fdf-contact';
 
 @Component({
   selector: 'fdp-create-group',
@@ -28,6 +29,8 @@ import { ContextHelpComponent } from '../../../shared/context-help/context-help.
   styleUrl: './create-group.component.scss',
 })
 export class CreateGroupComponent implements OnInit {
+  readonly fdfContactLink = FDF_MANAGEMENT_MAILTO;
+
   form!: FormGroup;
   loading  = signal(false);
   error    = signal('');

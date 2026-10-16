@@ -121,6 +121,7 @@
     margin-top: 2rem;
   }
 
+  .auth-secondary-link,
   .forgot-password-link,
   .back-link a,
   .error-box a,
@@ -166,6 +167,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .auth-secondary-link,
     .forgot-password-link,
     .back-link a,
     .error-box a,

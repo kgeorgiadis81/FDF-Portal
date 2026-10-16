@@ -84,6 +84,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/groups/roster/roster.component').then(m => m.RosterComponent),
               },
               {
+                path: 'roster/print',
+                loadComponent: () => import('./pages/groups/roster/roster-print/roster-print.component').then(m => m.RosterPrintComponent),
+              },
+              {
                 path: 'performance',
                 canDeactivate: [unsavedChangesGuard],
                 loadComponent: () => import('./pages/groups/performance/performance.component').then(m => m.PerformanceComponent),

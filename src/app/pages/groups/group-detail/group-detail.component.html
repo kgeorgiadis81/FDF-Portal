@@ -70,13 +70,25 @@
             @if (completeness()!.lockedExplanation) {
               <p class="locked-explanation">{{ completeness()!.lockedExplanation }}</p>
             }
+            @if (completeness()!.overallLabel === 'Action required' && completeness()!.actionRequiredDetail) {
+              <p class="action-required-detail" data-testid="group-action-detail">
+                {{ completeness()!.actionRequiredDetail }}
+              </p>
+            }
           </div>
+
+          <app-registration-checklist
+            [checklist]="completeness()!.checklist"
+            [actionDetail]="completeness()!.actionRequiredDetail"
+            [groupId]="group()!.id"
+            [primaryRoute]="primaryCtaRoute()" />
 
           <ul class="module-checklist" role="list">
             @for (module of completeness()!.modules; track module.key) {
               <li class="module-checklist-item" role="listitem">
                 <span class="module-checklist-title">{{ module.title }}</span>
                 <span class="roster-status" [class]="module.statusClass">{{ module.statusLabel }}</span>
+                <span class="module-deadline">{{ module.deadlineLine }}</span>
               </li>
             }
           </ul>
@@ -118,6 +130,7 @@
             <div class="roster-overview-info">
               <span class="roster-heading">{{ module.title }}</span>
               <span class="roster-status" [class]="module.statusClass">{{ module.statusLabel }}</span>
+              <span class="module-deadline">{{ module.deadlineLine }}</span>
             </div>
           </div>
           @if (!group()!.isReadOnly && group()!.event.isActive && module.statusLabel !== 'Locked') {
@@ -182,7 +195,10 @@
         }
 
         <div class="edit-actions">
-          <button mat-stroked-button type="button" (click)="cancelEdit()">Done</button>
+          <button mat-stroked-button type="button" (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" type="button" (click)="saveEdit()" [disabled]="saving() || form.invalid">
+            Save
+          </button>
           @if (saving()) {
             <span class="autosave-status" aria-live="polite">Saving…</span>
           }

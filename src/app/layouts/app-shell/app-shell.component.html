@@ -16,13 +16,18 @@
       </a>
 
       <!-- Desktop Nav Links -->
-      <nav class="shell__links hide-mobile">
+      <nav class="shell__links hide-mobile" aria-label="Main">
         <a routerLink="/dashboard" routerLinkActive="active" class="shell__link">My Groups</a>
-        <a routerLink="/profile"   routerLinkActive="active" class="shell__link">Profile</a>
+        <a routerLink="/groups/new" routerLinkActive="active" class="shell__link shell__link--register" tabindex="1">
+          Register a Group
+        </a>
+        <a routerLink="/dashboard" fragment="deadlines" class="shell__link">Deadlines</a>
+        <a [href]="helpMailto" class="shell__link">Help / Contact</a>
+        <a routerLink="/profile" routerLinkActive="active" class="shell__link">Profile</a>
       </nav>
 
       <!-- Account Menu -->
-      <button mat-icon-button [matMenuTriggerFor]="accountMenu" aria-label="Account menu">
+      <button mat-icon-button [matMenuTriggerFor]="accountMenu" aria-label="Account menu" tabindex="2">
         <mat-icon>account_circle</mat-icon>
       </button>
       <mat-menu #accountMenu="matMenu">

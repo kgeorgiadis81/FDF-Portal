@@ -90,7 +90,7 @@
       class="round-tabs"
       aria-label="Performance rounds">
       @for (perf of performances(); track perf.id; let i = $index) {
-        <mat-tab [label]="perf.round">
+        <mat-tab [label]="roundTabLabel(perf)">
           <div class="round-content">
 
             <!-- Entries -->
@@ -155,10 +155,12 @@
                                   aria-label="Move down">
                             <mat-icon>arrow_downward</mat-icon>
                           </button>
-                          <button mat-icon-button (click)="openEntryDialog(entry)" aria-label="Edit">
+                          <button mat-icon-button (click)="openEntryDialog(entry)"
+                                  [attr.aria-label]="'Edit ' + entry.name">
                             <mat-icon>edit</mat-icon>
                           </button>
-                          <button mat-icon-button color="warn" (click)="deleteEntry(entry)" aria-label="Delete">
+                          <button mat-icon-button color="warn" (click)="deleteEntry(entry)"
+                                  [attr.aria-label]="'Delete ' + entry.name">
                             <mat-icon>delete</mat-icon>
                           </button>
                         </div>
