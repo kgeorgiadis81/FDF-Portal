@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import * as fs from 'fs';
 import * as path from 'path';
 
 // Load E2E env vars before config evaluation
@@ -17,13 +16,7 @@ require('dotenv').config({ path: path.resolve(__dirname, 'e2e/.env.test') });
  * NEVER run against production.
  */
 
-const backendDirCandidates = [
-  path.resolve(__dirname, 'FDF_Backend'),
-  path.resolve(__dirname, '../FDF_Backend'),
-];
-const backendDir =
-  backendDirCandidates.find((dir) => fs.existsSync(path.join(dir, 'package.json'))) ??
-  backendDirCandidates[1]!;
+const backendDir = path.resolve(__dirname, '../FDF_Backend');
 const e2eDir = path.resolve(__dirname, 'e2e');
 
 export default defineConfig({

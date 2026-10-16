@@ -24,12 +24,15 @@ if (missing.length) {
   process.exit(1);
 }
 
-const backendDir = path.join(__dirname, '..', 'FDF_Backend');
-const example = path.join(backendDir, '.env.e2e.example');
-if (!fs.existsSync(example)) {
-  console.error('FDF_Backend checkout is missing .env.e2e.example at ' + example);
+const backendDir = [
+  path.join(__dirname, '..', '..', 'FDF_Backend'),
+  path.join(__dirname, '..', 'FDF_Backend'),
+].find((dir) => fs.existsSync(path.join(dir, '.env.e2e.example')));
+if (!backendDir) {
+  console.error('FDF_Backend checkout is missing .env.e2e.example (looked for a sibling FDF_Backend).');
   process.exit(1);
 }
+const example = path.join(backendDir, '.env.e2e.example');
 
 let backendEnv = fs.readFileSync(example, 'utf8');
 const password = process.env.E2E_PASSWORD;

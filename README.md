@@ -54,7 +54,7 @@ Playwright results are pass/fail only. End-to-end code coverage would need an in
 
 ### Playwright secrets
 
-The Playwright job checks out `FDF_Backend` (INT-49 branch until that work is on `main`), runs `npm run e2e:setup` (MariaDB via `docker-compose.e2e.yml`), starts the API and this app, and runs the `portal-chromium` project. It uploads `e2e/reports/html`.
+The Playwright job checks out this repo and `FDF_Backend` `main` as sibling folders, runs `npm run e2e:setup` (MariaDB via `docker-compose.e2e.yml`), starts the API and this app, and runs the `portal-chromium` project. It uploads `e2e/reports/html`. Passwords and usernames are GitHub secret names only.
 
 Password and role usernames are repository secrets, not committed values. Create these secrets (values must match the E2E seed usernames and `DEFAULT_PASSWORD`; the placeholders in `e2e/.env.test.example` are the local stand-ins):
 
