@@ -122,6 +122,20 @@ test.describe('Password reset flow', () => {
   });
 });
 
+test.describe('Google profile completion', () => {
+  test('opening google-complete without a credential returns to login', async ({ page }) => {
+    const pageErrors: string[] = [];
+    page.on('pageerror', (error) => pageErrors.push(error.message));
+
+    await page.goto('/auth/google-complete');
+
+    await expect(page).toHaveURL(/\/auth\/login(?:\?|$)/, { timeout: 8_000 });
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /complete your fdf profile/i })).toHaveCount(0);
+    expect(pageErrors.join('\n')).not.toMatch(/formGroup|NG01052|NG01050/i);
+  });
+});
+
 test.describe('Security: Role enforcement', () => {
   test('unauthenticated access to dashboard redirects to login', async ({ page }) => {
     await page.goto('/dashboard');

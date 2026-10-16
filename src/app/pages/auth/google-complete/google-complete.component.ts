@@ -21,7 +21,8 @@ import { PortalConfigService } from '../../../services/portal-config.service';
   styleUrl: './google-complete.component.scss',
 })
 export class GoogleCompleteComponent implements OnInit {
-  form!: FormGroup;
+  /** Absent until a Google credential is present. The template must not bind it before then. */
+  form: FormGroup | null = null;
   loading = signal(false);
   error   = signal('');
 
@@ -53,12 +54,14 @@ export class GoogleCompleteComponent implements OnInit {
   }
 
   submit(): void {
-    this.form.markAllAsTouched();
-    if (this.form.invalid || this.loading()) return;
+    const form = this.form;
+    if (!form || this.loading()) return;
+    form.markAllAsTouched();
+    if (form.invalid) return;
     this.loading.set(true);
     this.error.set('');
 
-    const { firstName, lastName, dateOfBirth, consentAccepted } = this.form.value;
+    const { firstName, lastName, dateOfBirth, consentAccepted } = form.value;
     this.auth.googleCompleteProfile({
       credential: this.credential,
       firstName, lastName, dateOfBirth, consentAccepted,

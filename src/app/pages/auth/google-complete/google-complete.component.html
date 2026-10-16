@@ -1,66 +1,68 @@
-<h1 class="page-title">Complete your FDF profile</h1>
-<p class="page-desc">We need a few more details to set up your Director account.</p>
+@if (form) {
+  <h1 class="page-title">Complete your FDF profile</h1>
+  <p class="page-desc">We need a few more details to set up your Director account.</p>
 
-<form class="auth-form auth-form--profile" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <div class="name-row">
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>First name</mat-label>
-      <input matInput formControlName="firstName" autocomplete="given-name" />
-      @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
-        <mat-error>First name is required.</mat-error>
-      }
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-      <mat-label>Last name</mat-label>
-      <input matInput formControlName="lastName" autocomplete="family-name" />
-      @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
-        <mat-error>Last name is required.</mat-error>
-      }
-    </mat-form-field>
-  </div>
-
-  <div class="auth-field">
-    <div class="auth-field-header">
-      <span class="auth-field-label" id="profile-dob-label">Date of birth</span>
-    </div>
-    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="auth-field-no-label">
-      <input
-        matInput
-        type="date"
-        formControlName="dateOfBirth"
-        [max]="today"
-        autocomplete="bday"
-        aria-labelledby="profile-dob-label"
-      />
-      @if (form.get('dateOfBirth')?.invalid && form.get('dateOfBirth')?.touched) {
-        <mat-error>Date of birth is required.</mat-error>
-      }
-    </mat-form-field>
-  </div>
-
-  <div class="consent-row">
-    <mat-checkbox formControlName="consentAccepted" color="primary">
-      <span class="consent-text">
-        I accept the FDF Portal
-        @if (portalConfig.privacyPolicyUrl()) {
-          <a [href]="portalConfig.privacyPolicyUrl()" target="_blank" rel="noopener noreferrer">Privacy &amp; Data Responsibility</a>
-        } @else {
-          Privacy &amp; Data Responsibility
+  <form class="auth-form auth-form--profile" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="name-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>First name</mat-label>
+        <input matInput formControlName="firstName" autocomplete="given-name" />
+        @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+          <mat-error>First name is required.</mat-error>
         }
-        terms.
-      </span>
-    </mat-checkbox>
-  </div>
-  @if (form.get('consentAccepted')?.invalid && form.get('consentAccepted')?.touched) {
-    <p class="consent-error">You must accept the terms to continue.</p>
-  }
+      </mat-form-field>
 
-  @if (error()) {
-    <p class="form-error" role="alert">{{ error() }}</p>
-  }
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Last name</mat-label>
+        <input matInput formControlName="lastName" autocomplete="family-name" />
+        @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+          <mat-error>Last name is required.</mat-error>
+        }
+      </mat-form-field>
+    </div>
 
-  <button mat-raised-button class="fdp-primary-btn mt-4" type="submit" [disabled]="loading()">
-    @if (loading()) { <mat-spinner diameter="20" /> } @else { Complete setup }
-  </button>
-</form>
+    <div class="auth-field">
+      <div class="auth-field-header">
+        <span class="auth-field-label" id="profile-dob-label">Date of birth</span>
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="auth-field-no-label">
+        <input
+          matInput
+          type="date"
+          formControlName="dateOfBirth"
+          [max]="today"
+          autocomplete="bday"
+          aria-labelledby="profile-dob-label"
+        />
+        @if (form.get('dateOfBirth')?.invalid && form.get('dateOfBirth')?.touched) {
+          <mat-error>Date of birth is required.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="consent-row">
+      <mat-checkbox formControlName="consentAccepted" color="primary">
+        <span class="consent-text">
+          I accept the FDF Portal
+          @if (portalConfig.privacyPolicyUrl()) {
+            <a [href]="portalConfig.privacyPolicyUrl()" target="_blank" rel="noopener noreferrer">Privacy &amp; Data Responsibility</a>
+          } @else {
+            Privacy &amp; Data Responsibility
+          }
+          terms.
+        </span>
+      </mat-checkbox>
+    </div>
+    @if (form.get('consentAccepted')?.invalid && form.get('consentAccepted')?.touched) {
+      <p class="consent-error">You must accept the terms to continue.</p>
+    }
+
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+
+    <button mat-raised-button class="fdp-primary-btn mt-4" type="submit" [disabled]="loading()">
+      @if (loading()) { <mat-spinner diameter="20" /> } @else { Complete setup }
+    </button>
+  </form>
+}
