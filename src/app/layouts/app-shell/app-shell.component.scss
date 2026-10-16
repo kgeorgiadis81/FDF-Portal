@@ -91,5 +91,15 @@
   }
 }
 
+@media (max-width: 480px) {
+  .shell__nav {
+    height: 48px !important;
+  }
+
+  .fdf-logo-mark img {
+    height: 32px;
+  }
+}
+
 // Force icon color in mat-menu
 ::ng-deep .mat-mdc-menu-item .mat-icon { color: var(--color-text-muted); }

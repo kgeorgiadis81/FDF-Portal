@@ -148,7 +148,7 @@
     margin-bottom: 0.45rem;
 
     &.ready { background: #e8f5e9; color: var(--color-success, #2e7d32); }
-    &.in-progress { background: #e3f2fd; color: var(--color-primary); }
+    &.in-progress { background: #f5edd8; color: var(--color-in-progress); }
     &.action-required { background: #fdecea; color: var(--color-error, #c62828); }
     &.locked { background: color-mix(in srgb, var(--color-gold) 16%, #fff); color: var(--color-primary-dark); }
   }
@@ -221,7 +221,7 @@
         min-width: 0;
 
         &.submitted  { color: var(--color-success, #2e7d32); font-weight: 500; }
-        &.in-progress { color: var(--color-primary); }
+        &.in-progress { color: var(--color-in-progress); }
         &.not-started { color: var(--color-text-muted); }
         &.action-required { color: var(--color-error, #c62828); font-weight: 600; }
         &.locked { color: var(--color-text-muted); }
@@ -235,6 +235,35 @@
       gap: 0.5rem;
       font-size: 0.8rem;
       line-height: 1.4;
+    }
+  }
+
+  .action-required-detail,
+  .first-time-hint {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0.35rem 0 0.5rem;
+  }
+
+  .deadline-line {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin-top: 0.1rem;
+  }
+
+  .card-actions {
+    margin-top: .75rem;
+    padding-top: .75rem;
+    border-top: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .primary-task-btn,
+    .review-btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 

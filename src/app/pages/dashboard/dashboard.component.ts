@@ -16,6 +16,7 @@ import {
   buildRegistrationCompletenessFromPortalGroup,
   RegistrationCompleteness,
 } from '../../utils/registration-completeness';
+import { RegistrationChecklistComponent } from '../../shared/registration-checklist/registration-checklist.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -25,6 +26,7 @@ import { catchError, map } from 'rxjs/operators';
     RouterLink, FormsModule,
     MatButtonModule, MatIconModule, MatProgressSpinnerModule,
     MatSelectModule, MatFormFieldModule,
+    RegistrationChecklistComponent,
   ],
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -63,9 +65,10 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/groups', id]);
   }
 
-  navigateToReview(event: Event, id: number): void {
-    event.stopPropagation();
-    this.router.navigate(['/groups', id, 'review']);
+  primaryCtaRoute(groupId: number): (string | number)[] {
+    const c = this.completenessFor(groupId)?.primaryCta;
+    if (!c) return ['/groups', groupId];
+    return ['/groups', groupId, ...c.routeSuffix];
   }
 
   ngOnInit(): void {

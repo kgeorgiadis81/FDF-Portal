@@ -76,6 +76,7 @@
     @if (form.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
       <mat-error>Passwords do not match.</mat-error>
     }
+    <mat-hint>Re-enter the same password you chose above.</mat-hint>
   </mat-form-field>
 
   <div class="consent-row">

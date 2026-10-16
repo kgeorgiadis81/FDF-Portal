@@ -29,6 +29,7 @@ import {
   buildRegistrationCompletenessFromPortalGroup,
   RegistrationCompleteness,
 } from '../../../utils/registration-completeness';
+import { RegistrationChecklistComponent } from '../../../shared/registration-checklist/registration-checklist.component';
 
 @Component({
   selector: 'fdp-group-detail',
@@ -38,6 +39,7 @@ import {
     MatInputModule, MatSelectModule, MatAutocompleteModule,
     MatProgressSpinnerModule, MatDialogModule, MatSnackBarModule,
     ContextHelpComponent,
+    RegistrationChecklistComponent,
   ],
   templateUrl: './group-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -106,6 +108,9 @@ export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChange
         this.initForm(g);
         this.loadDirectors(id);
         this.loadCompleteness(id, g);
+        if (this.route.snapshot.queryParamMap.get('edit') === '1' && !g.isReadOnly) {
+          this.startEdit();
+        }
       },
       error: () => {
         this.loading.set(false);
@@ -231,6 +236,39 @@ export class GroupDetailComponent implements OnInit, OnDestroy, HasUnsavedChange
   }
 
   startEdit(): void { this.editMode.set(true); this.saved.set(false); this.saveError.set(''); this.setFormBaseline(this.group()!); }
+
+  saveEdit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const group = this.group()!;
+    const value = this.form.getRawValue();
+    this.saving.set(true);
+    this.saveError.set('');
+    this.groupSvc.updateGroup(group.id, {
+      name: String(value['name']).trim(),
+      parishId: value['parishId'] as number,
+      groupType: String(value['groupType']),
+    }).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.saved.set(true);
+        this.editMode.set(false);
+        this.snackBar.open('Changes saved.', 'OK', { duration: 3000 });
+        this.groupSvc.getGroup(group.id).subscribe((updated) => {
+          this.group.set(updated);
+          this.setFormBaseline(updated);
+          this.loadCompleteness(updated.id, updated);
+        });
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.saveError.set(err?.error?.error || 'Could not save changes.');
+      },
+    });
+  }
+
   async cancelEdit(): Promise<void> {
     const canLeave = await this.unsavedSvc.confirmLeave(
       () => this.hasUnsavedChanges(),

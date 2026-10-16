@@ -3,6 +3,12 @@ import {
   RegistrationSummary,
 } from '../services/registration-summary.service';
 import { PortalGroup } from '../services/group.service';
+import { formatDeadlineDueLine } from './deadline-display';
+import {
+  actionRequiredExplanation,
+  buildRegistrationChecklist,
+  RegistrationChecklist,
+} from './registration-steps';
 
 /** Shared module/overall status vocabulary (display labels). */
 export type ModuleStatusLabel =
@@ -40,6 +46,8 @@ export interface ModuleCompletenessRow {
   statusClass: ModuleStatusClass;
   /** Route segments after `/groups/:id`. */
   routeSuffix: string[];
+  /** User-facing deadline line for hub cards and module rows. */
+  deadlineLine: string;
 }
 
 export interface PrimaryRegistrationCta {
@@ -55,6 +63,9 @@ export interface RegistrationCompleteness {
   lockedExplanation: string | null;
   modules: ModuleCompletenessRow[];
   primaryCta: PrimaryRegistrationCta | null;
+  checklist: RegistrationChecklist;
+  /** First concrete action when overall status is Action required. */
+  actionRequiredDetail: string | null;
 }
 
 function isDanceGroupType(groupType: string): boolean {
@@ -153,6 +164,7 @@ function moduleRowsFromSummary(summary: RegistrationSummary): ModuleCompleteness
       statusLabel: roster.label,
       statusClass: roster.class,
       routeSuffix: ['roster'],
+      deadlineLine: formatDeadlineDueLine(summary.roster.deadline.deadlineDate),
     },
     {
       key: 'performance',
@@ -160,6 +172,7 @@ function moduleRowsFromSummary(summary: RegistrationSummary): ModuleCompleteness
       statusLabel: performance.label,
       statusClass: performance.class,
       routeSuffix: ['performance'],
+      deadlineLine: formatDeadlineDueLine(summary.performance.deadline.deadlineDate),
     },
   ];
 
@@ -176,6 +189,7 @@ function moduleRowsFromSummary(summary: RegistrationSummary): ModuleCompleteness
       statusLabel: costumes.label,
       statusClass: costumes.class,
       routeSuffix: ['costumes'],
+      deadlineLine: formatDeadlineDueLine(summary.costume!.deadline.deadlineDate),
     });
   }
 
@@ -185,6 +199,7 @@ function moduleRowsFromSummary(summary: RegistrationSummary): ModuleCompleteness
     statusLabel: documents.label,
     statusClass: documents.class,
     routeSuffix: ['documents'],
+    deadlineLine: formatDeadlineDueLine(null),
   });
 
   return rows;
@@ -308,11 +323,16 @@ export function buildRegistrationCompleteness(summary: RegistrationSummary): Reg
   const modules = moduleRowsFromSummary(summary);
   const overall = deriveOverall(summary, modules);
   const primaryCta = pickPrimaryCta(summary, modules, overall.overallLabel);
+  const checklist = buildRegistrationChecklist(summary);
+  const actionRequiredDetail =
+    overall.overallLabel === 'Action required' ? actionRequiredExplanation(summary) : null;
 
   return {
     ...overall,
     modules,
     primaryCta,
+    checklist,
+    actionRequiredDetail,
   };
 }
 
@@ -342,6 +362,7 @@ export function buildRegistrationCompletenessFromPortalGroup(group: PortalGroup)
       statusLabel: rosterLabel,
       statusClass: statusClassFromLabel(rosterLabel),
       routeSuffix: ['roster'],
+      deadlineLine: formatDeadlineDueLine(null),
     },
     {
       key: 'performance',
@@ -349,6 +370,7 @@ export function buildRegistrationCompletenessFromPortalGroup(group: PortalGroup)
       statusLabel: performanceLabel,
       statusClass: statusClassFromLabel(performanceLabel),
       routeSuffix: ['performance'],
+      deadlineLine: formatDeadlineDueLine(null),
     },
   ];
 
@@ -364,6 +386,7 @@ export function buildRegistrationCompletenessFromPortalGroup(group: PortalGroup)
       statusLabel: costumeLabel,
       statusClass: statusClassFromLabel(costumeLabel),
       routeSuffix: ['costumes'],
+      deadlineLine: formatDeadlineDueLine(null),
     });
   }
 
@@ -386,6 +409,7 @@ export function buildRegistrationCompletenessFromPortalGroup(group: PortalGroup)
     statusLabel: documentsLabel,
     statusClass: statusClassFromLabel(documentsLabel),
     routeSuffix: ['documents'],
+    deadlineLine: formatDeadlineDueLine(null),
   });
 
   let overallLabel: OverallStatusLabel;
@@ -456,12 +480,66 @@ export function buildRegistrationCompletenessFromPortalGroup(group: PortalGroup)
     overallLabel,
   );
 
+  const checklist = buildRegistrationChecklist({
+    group: {
+      id: group.id,
+      name: group.name,
+      groupType: group.groupType,
+      eventName: group.event.name,
+      eventTimezone: '',
+      isActive: group.event.isActive,
+      isArchived: false,
+      parish: group.parish,
+    },
+    directors: { primaryDirector: null, coDirectorCount: 0 },
+    roster: {
+      memberCount: group.rosterMemberCount,
+      minorCount: 0,
+      requiredChaperones: 0,
+      providedChaperones: 0,
+      chaperoneRequirementSatisfied: true,
+      submittedAt: group.rosterSubmittedAt,
+      deadline: { deadlineDate: null, effectiveCutoff: null, canEdit: eventActive },
+    },
+    performance: {
+      submissionType: dance ? 'DANCE_PERFORMANCE' : 'CHORAL_PERFORMANCE',
+      semiFinalCount: 0,
+      finalCount: 0,
+      submittedAt: group.performanceSubmittedAt ?? null,
+      deadline: { deadlineDate: null, effectiveCutoff: null, canEdit: eventActive },
+    },
+    costume: dance
+      ? {
+          semiFinalComplete: !!group.costumeSubmittedAt,
+          finalComplete: !!group.costumeSubmittedAt,
+          submittedAt: group.costumeSubmittedAt ?? null,
+          deadline: { deadlineDate: null, effectiveCutoff: null, canEdit: eventActive },
+        }
+      : null,
+    documents: {
+      signedRoster: { status: sr || 'NOT_UPLOADED', submittedAt: null },
+      youthSafety: { status: ys || 'NOT_UPLOADED', submittedAt: null },
+    },
+    conflicts: {
+      directorConflicts: 0,
+      dancerConflicts: 0,
+      musicianConflicts: 0,
+      costumeConflicts: 0,
+    },
+    actionRequired: [],
+  });
+
+  const actionRequiredDetail =
+    overallLabel === 'Action required' ? 'Complete the required registration steps.' : null;
+
   return {
     overallLabel,
     overallClass: overallClassFromLabel(overallLabel),
     lockedExplanation,
     modules,
     primaryCta,
+    checklist,
+    actionRequiredDetail,
   };
 }
 

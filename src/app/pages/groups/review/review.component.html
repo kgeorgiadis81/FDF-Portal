@@ -83,7 +83,7 @@
         </div>
       </dl>
       @if (isActive()) {
-        <a [routerLink]="['/groups', groupId]" mat-stroked-button class="module-link">
+        <a [routerLink]="['/groups', groupId]" [queryParams]="{ edit: '1' }" mat-stroked-button class="module-link">
           <mat-icon>edit</mat-icon> Edit Group Details
         </a>
       }
@@ -155,11 +155,18 @@
         </div>
         <div class="module-row">
           <dt>Semi-Final entries</dt>
-          <dd>{{ summary()!.performance.semiFinalCount }}</dd>
+          <dd>
+            {{ performanceEntryCounts().semiFinal }}
+            @if (performanceDraft()) {
+              <span class="draft-badge">Unsubmitted changes</span>
+            } @else if (performanceCountsDiffer()) {
+              <span class="draft-badge">Unsubmitted changes</span>
+            }
+          </dd>
         </div>
         <div class="module-row">
           <dt>Final entries</dt>
-          <dd>{{ summary()!.performance.finalCount }}</dd>
+          <dd>{{ performanceEntryCounts().final }}</dd>
         </div>
         <div class="module-row">
           <dt>Deadline</dt>

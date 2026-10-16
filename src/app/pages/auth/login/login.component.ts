@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, AfterViewInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,6 +24,8 @@ declare const google: any;
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit, AfterViewInit {
+  private readonly title = inject(Title);
+
   form!: FormGroup;
   loading = signal(false);
   error   = signal('');
@@ -40,6 +43,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
+    this.title.setTitle('Sign in – FDF Portal');
     this.form = this.fb.group({
       email:    ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],

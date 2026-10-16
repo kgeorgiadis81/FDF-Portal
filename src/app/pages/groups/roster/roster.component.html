@@ -36,7 +36,7 @@
         <div>
           <strong>Roster editing is closed.</strong>
           <span>This roster can no longer be changed because the registration deadline has passed.
-                For assistance, contact FDF Management.</span>
+                For assistance, <a [href]="fdfContactLink">contact FDF Management</a>.</span>
         </div>
       </div>
     }
@@ -64,13 +64,23 @@
     }
 
     <!-- ── Submission status ─────────────────────────────────────────── -->
-    @if (context()!.submission?.submitted_at) {
-      <div class="submitted-banner" role="status">
+    @if (isSubmitted()) {
+      <div class="submitted-banner" role="status" data-testid="roster-submitted-banner">
         <mat-icon>check_circle</mat-icon>
-        <span class="fdp-section-label-with-help">
-          <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
-          <app-context-help helpKey="deadline.submitted" label="Submitted" />
-        </span>
+        <div>
+          <span class="fdp-section-label-with-help">
+            <span>Submitted: {{ formatDate(context()!.submission!.submitted_at) }}</span>
+            <app-context-help helpKey="deadline.submitted" label="Submitted" />
+          </span>
+          <p class="submitted-explanation">
+            FDF has your roster on file. You can still update participants until the deadline — choose Resubmit when you are ready to send changes.
+          </p>
+          @if (!showEditControls()) {
+            <button mat-stroked-button type="button" (click)="enableResubmit()" data-testid="roster-resubmit-enable">
+              Resubmit Roster
+            </button>
+          }
+        </div>
       </div>
     }
 
@@ -86,7 +96,7 @@
             }
           </span>
         </div>
-        @if (canEdit()) {
+        @if (showEditControls()) {
           <button mat-raised-button color="primary"
                   class="add-btn"
                   [disabled]="saving()"
@@ -102,7 +112,7 @@
         <div class="empty-state">
           <mat-icon>people_outline</mat-icon>
           <p>No participants have been added yet.</p>
-          @if (canEdit()) {
+          @if (showEditControls()) {
             <p class="empty-hint">Start by adding the participants who will perform with this group.</p>
             <button mat-stroked-button color="primary"
                     (click)="openAddParticipant()">
@@ -121,7 +131,7 @@
               Age at FDF
               <span class="age-note" aria-label="This value is calculated, not editable">(calculated)</span>
             </span>
-            @if (canEdit()) {
+            @if (showEditControls()) {
               <span role="columnheader" class="actions-col">Actions</span>
             }
           </div>
@@ -130,13 +140,13 @@
             <div class="table-row" role="row">
               <span role="cell" [attr.data-label]="'First Name'">{{ member.first_name }}</span>
               <span role="cell" [attr.data-label]="'Last Name'">{{ member.last_name }}</span>
-              <span role="cell" [attr.data-label]="'Date of Birth'">{{ member.date_of_birth }}</span>
+              <span role="cell" [attr.data-label]="'Date of Birth'">{{ formatMemberDob(member.date_of_birth) }}</span>
               <span role="cell" [attr.data-label]="'Age at FDF'"
                     class="age-value age-col"
                     aria-readonly="true">
-                {{ member.age_at_fdf !== null ? member.age_at_fdf : '—' }}
+                {{ formatMemberAge(member.age_at_fdf) }}
               </span>
-              @if (canEdit()) {
+              @if (showEditControls()) {
                 <span role="cell" class="row-actions" [attr.data-label]="'Actions'">
                   <button mat-icon-button
                           [attr.aria-label]="'Edit ' + member.first_name + ' ' + member.last_name"
@@ -164,7 +174,7 @@
         <div>
           <h2 id="chaperones-heading">Chaperones</h2>
         </div>
-        @if (canEdit()) {
+        @if (showEditControls()) {
           <button mat-raised-button color="primary"
                   class="add-btn"
                   [disabled]="saving()"
@@ -242,7 +252,7 @@
                   </span>
                 }
               </div>
-              @if (canEdit()) {
+              @if (showEditControls()) {
                 <div class="chaperone-actions">
                   <button mat-icon-button
                           [attr.aria-label]="'Edit chaperone ' + chap.first_name + ' ' + chap.last_name"
@@ -327,7 +337,7 @@
             } @else {
               <span class="submit-roster-content">
                 <mat-icon>send</mat-icon>
-                Submit Roster
+                {{ isSubmitted() ? 'Resubmit Roster' : 'Submit Roster' }}
               </span>
             }
           </button>

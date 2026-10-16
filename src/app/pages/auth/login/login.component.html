@@ -1,5 +1,5 @@
 <h1 class="page-title">Sign in</h1>
-<p class="page-desc">Access your Director dashboard to manage groups and registrations.</p>
+<p class="page-desc">Sign in as a <strong>FDF group director</strong> to manage your parish group, roster, and registrations.</p>
 
 @if (infoMessage()) {
   <p class="form-info" role="status">{{ infoMessage() }}</p>
@@ -43,10 +43,7 @@
 </form>
 
 <div class="form-links">
-  <a routerLink="/auth/forgot-password" class="forgot-password-link">
-    <mat-icon aria-hidden="true">lock_reset</mat-icon>
-    Forgot password?
-  </a>
+  <a routerLink="/auth/forgot-password" class="auth-secondary-link">Forgot password?</a>
 </div>
 
 @if (googleAvailable()) {
@@ -55,5 +52,5 @@
 }
 
 <p class="auth-footer-link">
-  Don't have an account? <a routerLink="/auth/signup">Create account</a>
+  Don't have an account? <a routerLink="/auth/signup" class="auth-secondary-link">Create director account</a>
 </p>
