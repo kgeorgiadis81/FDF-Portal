@@ -33,6 +33,8 @@ yarn-error.log
 .sass-cache/
 /connect.lock
 /coverage
+# Generated so Istanbul sees every src/app file. Recreated by scripts/generate-coverage-sources.js.
+src/app/coverage-sources.spec.ts
 /libpeerconnection.log
 testem.log
 /typings

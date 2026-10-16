@@ -1,17 +1,100 @@
 name: CI
 
+env:
+  NG_CLI_ANALYTICS: "false"
+
 on:
   pull_request:
+    branches: [main]
+  push:
     branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npx ng build --configuration=production
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: stable
+      - run: npm ci
+      - run: npm run test:ci
+      - name: Publish coverage summary
+        if: always()
+        run: node scripts/print-coverage-summary.js coverage/fdf-portal/coverage-summary.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage
+          path: coverage/
+          if-no-files-found: warn
+
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          repository: kgeorgiadis81/FDF_Backend
+          # e2e:setup lands with INT-49. Switch this ref to main after that PR merges.
+          ref: kgeorgiadis/int-49-fdf-reproducible-test-environment-for-all-suites-mariadb-env
+          token: ${{ secrets.FDF_BACKEND_CHECKOUT_TOKEN }}
+          path: FDF_Backend
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            FDF_Backend/package-lock.json
+      - run: npm ci
+        working-directory: FDF_Backend
+      - run: npm ci
+      - name: Write E2E env from GitHub secrets
+        env:
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          E2E_GLOBAL_ADMIN_USERNAME: ${{ secrets.E2E_GLOBAL_ADMIN_USERNAME }}
+          E2E_REG_ADMIN_USERNAME: ${{ secrets.E2E_REG_ADMIN_USERNAME }}
+          E2E_COMP_ADMIN_USERNAME: ${{ secrets.E2E_COMP_ADMIN_USERNAME }}
+          E2E_JUDGE_ADMIN_USERNAME: ${{ secrets.E2E_JUDGE_ADMIN_USERNAME }}
+          E2E_JUDGE_USERNAME: ${{ secrets.E2E_JUDGE_USERNAME }}
+          E2E_VIEWER_USERNAME: ${{ secrets.E2E_VIEWER_USERNAME }}
+        run: node scripts/write-e2e-env.js
+      - name: Seed MariaDB
+        working-directory: FDF_Backend
+        run: npm run e2e:setup
+      - name: Start API and app
+        run: |
+          npm --prefix FDF_Backend run start:e2e > /tmp/fdf-api.log 2>&1 &
+          npm run start:e2e > /tmp/fdf-portal.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3501/health >/dev/null && curl -sf http://localhost:4201 >/dev/null && exit 0
+            sleep 5
+          done
+          echo "Servers did not become ready" >&2
+          tail -n 80 /tmp/fdf-api.log /tmp/fdf-portal.log >&2 || true
+          exit 1
+      - run: npx playwright install --with-deps chromium
+      - name: Playwright desktop Chrome
+        run: npx playwright test --project=portal-chromium
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/reports/html
+          if-no-files-found: warn

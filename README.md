@@ -41,8 +41,33 @@ This will compile your project and store the build artifacts in the `dist/` dire
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
 ```bash
-ng test
+npm test
 ```
+
+`npm test` and `npm run test:ci` first run `scripts/generate-coverage-sources.js`. That writes a spec which imports every TypeScript file under `src/app`, so Istanbul coverage includes sources no other spec imports. `includeAllSources` is also set in `karma.conf.js`.
+
+CI runs `npm run test:ci` (ChromeHeadless, `--code-coverage`) on pull requests and on `main`. Thresholds are the 2026-10-16 all-files baseline, floored: lines 13, statements 13, branches 13, functions 6. The job uploads the `coverage/` report and writes the totals to the job summary. It fails when a test fails or coverage drops under those floors.
+
+**Ratchet rule:** when coverage goes up, raise the thresholds to the new floored baseline. Never lower them.
+
+Playwright results are pass/fail only. End-to-end code coverage would need an instrumented Istanbul build (for example `babel-plugin-istanbul` or an Angular instrumentation builder) and a merged browser report. That is not part of these thresholds.
+
+### Playwright secrets
+
+The Playwright job checks out `FDF_Backend` (INT-49 branch until that work is on `main`), runs `npm run e2e:setup` (MariaDB via `docker-compose.e2e.yml`), starts the API and this app, and runs the `portal-chromium` project. It uploads `e2e/reports/html`.
+
+Password and role usernames are repository secrets, not committed values. Create these secrets (values must match the E2E seed usernames and `DEFAULT_PASSWORD`; the placeholders in `e2e/.env.test.example` are the local stand-ins):
+
+| Secret | Purpose |
+| --- | --- |
+| `FDF_BACKEND_CHECKOUT_TOKEN` | PAT with read access to `kgeorgiadis81/FDF_Backend` |
+| `E2E_PASSWORD` | Shared seeded password |
+| `E2E_GLOBAL_ADMIN_USERNAME` | Global admin login |
+| `E2E_REG_ADMIN_USERNAME` | Registration admin login |
+| `E2E_COMP_ADMIN_USERNAME` | Competition admin login |
+| `E2E_JUDGE_ADMIN_USERNAME` | Judge admin login |
+| `E2E_JUDGE_USERNAME` | Judge login |
+| `E2E_VIEWER_USERNAME` | Viewer login |
 
 ## Running end-to-end tests
 
