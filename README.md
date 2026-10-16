@@ -45,8 +45,10 @@ This will compile your project and store the build artifacts in the `dist/` dire
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
 
 ```bash
-ng test
+npm test
 ```
+
+`npm run test:ci` runs the same suite headlessly and checks coverage over every TypeScript file under `src/app`. Thresholds live in `karma.conf.js`. Raise them when coverage goes up; do not lower them. Playwright pass/fail is separate — line coverage of the e2e run would need an instrumented build.
 
 ## Running end-to-end tests
 

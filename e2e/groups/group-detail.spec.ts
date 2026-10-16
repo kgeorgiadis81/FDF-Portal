@@ -24,7 +24,7 @@ const BETA_GROUP    = 'E2E Group Beta Director'; // owned by Director B
 
 async function loginAs(page: Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('textbox', { name: /email/i }).fill(email);
   await page.locator('input[autocomplete="current-password"]').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -102,10 +102,10 @@ test.describe('Co-Director CRUD', () => {
     // Dialog opens
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    await dialog.getByLabel(/first name/i).fill('Jane');
-    await dialog.getByLabel(/last name/i).fill('CoDir');
-    await dialog.getByLabel(/email/i).fill('jane@codir.example.com');
-    await dialog.getByLabel(/phone/i).fill('(555) 100-2000');
+    await dialog.getByRole('textbox', { name: /first name/i }).fill('Jane');
+    await dialog.getByRole('textbox', { name: /last name/i }).fill('CoDir');
+    await dialog.getByRole('textbox', { name: /email/i }).fill('jane@codir.example.com');
+    await dialog.getByRole('textbox', { name: /phone/i }).fill('(555) 100-2000');
     await dialog.getByRole('button', { name: /save/i }).click();
 
     // Co-director appears in list
@@ -156,7 +156,7 @@ test.describe('Co-Director CRUD', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    const lastNameField = dialog.getByLabel(/last name/i);
+    const lastNameField = dialog.getByRole('textbox', { name: /last name/i });
     await lastNameField.clear();
     await lastNameField.fill('CoDirUpdated');
     await dialog.getByRole('button', { name: /save/i }).click();

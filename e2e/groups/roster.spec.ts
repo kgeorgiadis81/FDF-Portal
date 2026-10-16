@@ -41,7 +41,7 @@ test.beforeAll(async () => {
 // ─── Helper: log in via UI ─────────────────────────────────────────────────
 async function loginAs(page: Page, email: string, password: string) {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('textbox', { name: /email/i }).fill(email);
   await page.locator('input[autocomplete="current-password"]').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -53,7 +53,7 @@ async function openRosterForGroup(page: Page, groupName: string) {
   await expect(page.locator('.group-card').first()).toBeVisible({ timeout: 12_000 });
   await page.locator('.group-card').filter({ hasText: new RegExp(groupName, 'i') }).click();
   await expect(page).toHaveURL(/\/groups\/\d+/, { timeout: 10_000 });
-  await page.locator('.roster-link').click();
+  await page.getByRole('link', { name: /(?:Manage|View) Roster/i }).click();
   await expect(page).toHaveURL(/\/groups\/\d+\/roster/, { timeout: 10_000 });
   await expect(page.getByRole('heading', { name: /participants/i })).toBeVisible({ timeout: 10_000 });
 }
@@ -71,8 +71,8 @@ async function addParticipant(
   dob: string,
 ) {
   await page.getByRole('button', { name: /add.*participant/i }).last().click();
-  await page.getByLabel(/first name/i).fill(first);
-  await page.getByLabel(/last name/i).fill(last);
+  await page.getByRole('textbox', { name: /first name/i }).fill(first);
+  await page.getByRole('textbox', { name: /last name/i }).fill(last);
   // DOB field — fill the date input directly
   await page.locator('input[formcontrolname="date_of_birth"]').fill(dob);
   await page.getByRole('dialog').getByRole('button', { name: /save changes|add participant/i }).click();
@@ -87,9 +87,9 @@ async function addChaperone(
   confirm21 = true,
 ) {
   await page.getByRole('button', { name: /add.*chaperone/i }).last().click();
-  await page.getByLabel(/first name/i).fill(first);
-  await page.getByLabel(/last name/i).fill(last);
-  await page.getByLabel(/phone/i).fill(phone);
+  await page.getByRole('textbox', { name: /first name/i }).fill(first);
+  await page.getByRole('textbox', { name: /last name/i }).fill(last);
+  await page.getByRole('textbox', { name: /phone/i }).fill(phone);
   if (confirm21) {
     await page.getByRole('checkbox', { name: /at least 21/i }).check();
   }
@@ -110,7 +110,7 @@ test.describe('Roster navigation', () => {
     await page.locator('.group-card').filter({ hasText: /E2E Group Alpha/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+/);
 
-    const manageRoster = page.locator('.roster-link');
+    const manageRoster = page.getByRole('link', { name: /(?:Manage|View) Roster/i });
     await expect(manageRoster).toBeVisible();
     await manageRoster.click();
     await expect(page).toHaveURL(/\/groups\/\d+\/roster/);
@@ -136,8 +136,8 @@ test.describe('Roster navigation', () => {
   test('Group detail shows roster summary above Manage Roster button', async ({ page }) => {
     await page.goto('/dashboard');
     await page.locator('.group-card').filter({ hasText: /E2E Group Alpha/i }).click();
-    await expect(page.locator('.roster-nav')).toBeVisible({ timeout: 8_000 });
-    await expect(page.locator('.roster-link')).toBeVisible();
+    await expect(page.locator('.module-nav').filter({ hasText: 'Roster' })).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByRole('link', { name: /(?:Manage|View) Roster/i })).toBeVisible();
   });
 });
 
@@ -176,7 +176,7 @@ test.describe('Participant CRUD', () => {
   test('Edit participant updates data and refreshes summary', async ({ page }) => {
     await page.getByRole('button', { name: /edit anna/i }).click();
 
-    const lastNameField = page.getByLabel(/last name/i);
+    const lastNameField = page.getByRole('textbox', { name: /last name/i });
     await lastNameField.clear();
     await lastNameField.fill('Papadimitriou-Edited');
     await page.getByRole('dialog').getByRole('button', { name: /save changes|add participant/i }).click();
@@ -213,8 +213,8 @@ test.describe('Age validation', () => {
   test('Rejects participant younger than 4 at FDF (DOB too recent)', async ({ page }) => {
     // Event start 2026-06-01; DOB 2024-01-01 → age < 4 at FDF
     await page.getByRole('button', { name: /add.*participant/i }).last().click();
-    await page.getByLabel(/first name/i).fill('TooYoung');
-    await page.getByLabel(/last name/i).fill('Child');
+    await page.getByRole('textbox', { name: /first name/i }).fill('TooYoung');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Child');
     await page.locator('input[formcontrolname="date_of_birth"]').fill('2024-01-01');
     await page.getByRole('dialog').getByRole('button', { name: /save changes|add participant/i }).click();
 
@@ -226,8 +226,8 @@ test.describe('Age validation', () => {
 
   test('Rejects future date of birth', async ({ page }) => {
     await page.getByRole('button', { name: /add.*participant/i }).last().click();
-    await page.getByLabel(/first name/i).fill('Future');
-    await page.getByLabel(/last name/i).fill('Person');
+    await page.getByRole('textbox', { name: /first name/i }).fill('Future');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Person');
     await page.locator('input[formcontrolname="date_of_birth"]').fill('2030-06-15');
     await page.getByRole('dialog').getByRole('button', { name: /save changes|add participant/i }).click();
 
@@ -248,6 +248,7 @@ test.describe('Age validation', () => {
 // ===========================================================================
 test.describe('Chaperone requirement calculation', () => {
   test.beforeEach(async ({ page }) => {
+    await resetGroupAlphaRoster();
     await loginAs(page, DIRECTOR_A.email, DIRECTOR_A.password);
     await openRoster(page);
   });
@@ -300,7 +301,7 @@ test.describe('Chaperone CRUD', () => {
     await expect(chapCard).toBeVisible({ timeout: 8_000 });
     await chapCard.getByRole('button', { name: /edit chaperone/i }).click();
 
-    const phoneField = page.getByLabel(/phone/i);
+    const phoneField = page.getByRole('textbox', { name: /phone/i });
     await phoneField.clear();
     await phoneField.fill('555-0199');
     await page.getByRole('dialog').getByRole('button', { name: /save changes|add chaperone/i }).click();
@@ -339,7 +340,7 @@ test.describe('Roster submission', () => {
   });
 
   test('Submit Roster button is visible for valid roster', async ({ page }) => {
-    await expect(page.getByRole('button', { name: /submit roster/i })).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByRole('button', { name: 'Submit Roster', exact: true })).toBeVisible({ timeout: 8_000 });
   });
 
   test('Roster summary shows correct counts before submission', async ({ page }) => {
@@ -350,7 +351,7 @@ test.describe('Roster submission', () => {
   });
 
   test('Submit shows confirmation dialog then records submitted_at', async ({ page }) => {
-    await page.getByRole('button', { name: /submit roster/i }).click();
+    await page.getByRole('button', { name: 'Submit Roster', exact: true }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText(/submit roster\?/i)).toBeVisible();
     await page.getByRole('dialog').getByRole('button').last().click();
@@ -364,7 +365,7 @@ test.describe('Roster submission', () => {
     // Ensure roster is submitted first
     const isSubmitted = await page.getByText(/submitted:/i).isVisible().catch(() => false);
     if (!isSubmitted) {
-      await page.getByRole('button', { name: /submit roster/i }).click();
+      await page.getByRole('button', { name: 'Submit Roster', exact: true }).click();
       await page.getByRole('dialog').getByRole('button').last().click();
       await expect(page.getByText(/submitted:/i)).toBeVisible({ timeout: 10_000 });
     }
@@ -391,7 +392,7 @@ test.describe('Insufficient chaperone validation', () => {
     await expect(page.locator('.chaperone-requirement').first()).toContainText('2');
     await expect(page.getByText(/1 additional chaperone/i)).toBeVisible({ timeout: 8_000 });
 
-    const submitBtn = page.getByRole('button', { name: /submit roster/i });
+    const submitBtn = page.getByRole('button', { name: 'Submit Roster', exact: true });
     await expect(submitBtn).toBeDisabled();
 
     const groupId = await findDirectorGroupId(E2E_GROUP_NAMES.CHAPERONE_VALIDATION);
@@ -416,7 +417,7 @@ test.describe('Insufficient chaperone validation', () => {
     await addChaperone(page, 'SecondChap', 'ValidGuard', '555-9999', true);
     await expect(page.getByText(/chaperone requirement satisfied/i)).toBeVisible({ timeout: 8_000 });
 
-    await page.getByRole('button', { name: /submit roster/i }).click();
+    await page.getByRole('button', { name: 'Submit Roster', exact: true }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.getByRole('dialog').getByRole('button').last().click();
     await expect(page.getByText(/submitted:/i)).toBeVisible({ timeout: 10_000 });
@@ -441,14 +442,14 @@ test.describe('Historical event — read-only', () => {
     await historicalCard.click();
     await expect(page).toHaveURL(/\/groups\/\d+/);
 
-    await page.locator('.roster-link').click();
+    await page.getByRole('link', { name: /(?:Manage|View) Roster/i }).click();
     await expect(page).toHaveURL(/\/groups\/\d+\/roster/);
 
     await expect(page.getByText(/past event.*read only/i)).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText(/HistAnna/)).toBeVisible();
     await expect(page.getByRole('button', { name: /add.*participant/i })).not.toBeVisible();
     await expect(page.getByRole('button', { name: /add.*chaperone/i })).not.toBeVisible();
-    await expect(page.getByRole('button', { name: /submit roster/i })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Submit Roster', exact: true })).not.toBeVisible();
   });
 
   test('Historical roster API mutations are rejected for owner Director', async () => {
@@ -694,7 +695,7 @@ test.describe('Deadline enforcement', () => {
     await expect(page.getByText(/roster editing is closed/i)).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('Roster Deadline', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /add.*participant/i })).not.toBeVisible();
-    await expect(page.getByRole('button', { name: /submit roster/i })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Submit Roster', exact: true })).not.toBeVisible();
 
     const groupId = await findDirectorGroupId(E2E_GROUP_NAMES.DEADLINE_CLOSED);
     const token = await portalApiLogin(DIRECTOR_A.email, DIRECTOR_A.password);

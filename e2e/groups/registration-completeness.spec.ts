@@ -38,7 +38,7 @@ const DANCE_GROUP = 'E2E Group Alpha';
 
 async function loginAs(page: Page, director = DIRECTOR_A): Promise<void> {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(director.email);
+  await page.getByRole('textbox', { name: /email/i }).fill(director.email);
   await page.locator('input[autocomplete="current-password"]').fill(director.password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });

@@ -11,10 +11,10 @@ test.use({ baseURL: PORTAL_BASE_URL });
 test.describe('Consent flow', () => {
   test('signup cannot complete without consent checked', async ({ page }) => {
     await page.goto('/auth/signup');
-    await page.getByLabel(/first name/i).fill('No');
-    await page.getByLabel(/last name/i).fill('Consent');
+    await page.getByRole('textbox', { name: /first name/i }).fill('No');
+    await page.getByRole('textbox', { name: /last name/i }).fill('Consent');
     await page.locator('input[formcontrolname="dateOfBirth"]').fill('1990-01-01');
-    await page.getByLabel(/email/i).fill(`noconsent_${Date.now()}@e2e.test`);
+    await page.getByRole('textbox', { name: /email/i }).fill(`noconsent_${Date.now()}@e2e.test`);
     await page.locator('input[formcontrolname="password"]').fill('ValidPass123!');
     await page.locator('input[formcontrolname="confirmPassword"]').fill('ValidPass123!');
     await page.getByRole('button', { name: /create account/i }).click();

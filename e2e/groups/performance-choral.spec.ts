@@ -21,7 +21,7 @@ test.use({ baseURL: PORTAL_BASE_URL });
 
 async function loginAs(page: Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('textbox', { name: /email/i }).fill(email);
   await page.locator('input[autocomplete="current-password"]').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -30,7 +30,7 @@ async function loginAs(page: Page, email: string, password: string): Promise<voi
 async function openPerformanceForGroup(page: Page, groupName: string): Promise<void> {
   await page.goto('/dashboard');
   await page.locator('.group-card').filter({ hasText: groupName }).click();
-  await page.locator('.performance-link').click();
+  await page.getByRole('link', { name: /(?:Manage|View) Performance/i }).click();
   await expect(page).toHaveURL(/\/groups\/\d+\/performance/);
 }
 
@@ -66,8 +66,8 @@ test.describe('Choral song CRUD', () => {
   test('Create song with SECULAR classification persists after reload', async ({ page }) => {
     const songName = `E2E Choral Create ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(songName);
-    await page.getByLabel('Secular / Liturgical').locator('..').click();
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(songName);
+    await page.getByRole('combobox', { name: 'Secular / Liturgical', exact: true }).locator('..').click();
     await page.getByRole('option', { name: 'Secular' }).click();
     await page.getByRole('checkbox', { name: 'Live Music' }).check();
     await page.getByRole('checkbox', { name: 'Recorded Music' }).check();
@@ -92,15 +92,15 @@ test.describe('Choral song CRUD', () => {
   test('Edit song SECULAR to LITURGICAL persists after reload', async ({ page }) => {
     const songName = `E2E Choral Edit ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(songName);
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(songName);
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText(songName).first()).toBeVisible();
 
     const entryCard = page.locator('.entry-card').filter({ hasText: songName }).first();
     await entryCard.locator('.entry-actions').getByRole('button', { name: 'Edit' }).click();
     const updated = `${songName} Updated`;
-    await page.getByLabel('Song Name').fill(updated);
-    await page.getByLabel('Secular / Liturgical').locator('..').click();
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(updated);
+    await page.getByRole('combobox', { name: 'Secular / Liturgical', exact: true }).locator('..').click();
     await page.getByRole('option', { name: 'Liturgical' }).click();
     await page.getByRole('checkbox', { name: 'Live Music' }).uncheck();
     await page.getByRole('checkbox', { name: 'Recorded Music' }).check();
@@ -127,13 +127,13 @@ test.describe('Choral song CRUD', () => {
     const finalName = `E2E Choral Delete Final ${ts}`;
 
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(semiName);
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(semiName);
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText(semiName).first()).toBeVisible();
 
     await page.getByRole('tab', { name: 'Final', exact: true }).click();
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(finalName);
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(finalName);
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText(finalName).first()).toBeVisible();
 
@@ -167,7 +167,7 @@ test.describe('Choral song reorder', () => {
     const ts = Date.now();
     for (const label of ['Song Alpha', 'Song Beta', 'Song Gamma']) {
       await page.getByRole('button', { name: 'Add Song' }).click();
-      await page.getByLabel('Song Name').fill(`${label} ${ts}`);
+      await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(`${label} ${ts}`);
       await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
       await expect(page.getByRole('dialog')).not.toBeVisible();
     }
@@ -221,7 +221,7 @@ test.describe('Choral mobile ordering', () => {
     const ts = Date.now();
     for (const label of ['Mobile A', 'Mobile B']) {
       await page.getByRole('button', { name: 'Add Song' }).click();
-      await page.getByLabel('Song Name').fill(`${label} ${ts}`);
+      await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(`${label} ${ts}`);
       await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
     }
 
@@ -239,20 +239,27 @@ test.describe('Choral submission', () => {
 
     const semiName = `Choral Submit Semi ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(semiName);
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(semiName);
+    const entrySave = page.waitForResponse(
+      (r) => r.url().includes('/entries') && r.request().method() === 'POST' && r.ok(),
+    );
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
+    await entrySave;
+    await expect(page.getByText(semiName)).toBeVisible();
+
+    // Wait until the new song is on the page so the entry reload does not
+    // clear a logistics autosave that is still debouncing.
+    const avSavePromise = page.waitForResponse(
+      (r) => r.url().includes('/logistics') && r.request().method() === 'PATCH' && r.ok(),
+    );
+    await page.getByRole('textbox', { name: 'Music / Audio Needs', exact: true }).fill('Choral wireless mics');
+    await avSavePromise;
 
     await page.getByRole('tab', { name: 'Final', exact: true }).click();
     const finalName = `Choral Submit Final ${Date.now()}`;
     await page.getByRole('button', { name: 'Add Song' }).click();
-    await page.getByLabel('Song Name').fill(finalName);
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(finalName);
     await page.getByRole('dialog').getByRole('button', { name: 'Add' }).click();
-
-    const avSavePromise = page.waitForResponse(
-      (r) => r.url().includes('/logistics') && r.request().method() === 'PATCH' && r.ok(),
-    );
-    await page.getByLabel('Music / Audio Needs').fill('Choral wireless mics');
-    await avSavePromise;
 
     await page.getByRole('button', { name: 'Submit Performance Information' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Submit Performance Information' }).click();
@@ -275,7 +282,7 @@ test.describe('Choral submission', () => {
     const entryCard = page.locator('.entry-card').filter({ hasText: semiName });
     await entryCard.getByRole('button', { name: 'Edit' }).click();
     const edited = `${semiName} Edited`;
-    await page.getByLabel('Song Name').fill(edited);
+    await page.getByRole('textbox', { name: 'Song Name', exact: true }).fill(edited);
     await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText(edited).first()).toBeVisible();
 

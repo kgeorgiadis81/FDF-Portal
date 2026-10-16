@@ -81,4 +81,23 @@ describe('authInterceptor', () => {
     await expectAsync(resultPromise).toBeResolvedTo(403);
     expect(router.navigate).not.toHaveBeenCalled();
   });
+
+  it('stores a renewed token from X-New-Token', async () => {
+    const auth = TestBed.inject(AuthService);
+    const pending = firstValueFrom(http.get('/portal/groups'));
+    const req = httpMock.expectOne('/portal/groups');
+    expect(req.request.headers.get('Authorization')).toContain('Bearer ');
+    req.flush([], { headers: { 'X-New-Token': 'renewed-token' } });
+    await pending;
+    expect(auth.getToken()).toBe('renewed-token');
+  });
+
+  it('leaves the request unchanged when no token is stored', async () => {
+    TestBed.inject(AuthService).clearSession();
+    const pending = firstValueFrom(http.get('/portal/groups'));
+    const req = httpMock.expectOne('/portal/groups');
+    expect(req.request.headers.has('Authorization')).toBeFalse();
+    req.flush([]);
+    await pending;
+  });
 });

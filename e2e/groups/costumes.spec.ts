@@ -22,7 +22,7 @@ test.use({ baseURL: PORTAL_BASE_URL });
 
 async function loginAs(page: Page, email: string, password: string): Promise<void> {
   await page.goto('/auth/login');
-  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('textbox', { name: /email/i }).fill(email);
   await page.locator('input[autocomplete="current-password"]').fill(password);
   await page.getByRole('button', { name: /sign in/i }).click();
   await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -44,8 +44,8 @@ async function fillCostumeForm(page: Page, sectionLabel: string, opts: {
   purchasedAny: 'Yes' | 'No';
 }): Promise<void> {
   const section = page.locator('.costume-section').filter({ hasText: sectionLabel });
-  await section.getByLabel('Region').fill(opts.region);
-  await section.getByLabel('Village').fill(opts.village);
+  await section.getByRole('textbox', { name: 'Region', exact: true }).fill(opts.region);
+  await section.getByRole('textbox', { name: 'Village', exact: true }).fill(opts.village);
   await section.locator('mat-select[formcontrolname="resource_type_id"] .mat-mdc-select-trigger').click({ force: true });
   await page.locator('mat-option').filter({ hasText: opts.resource }).click();
   await section.getByRole('group', { name: 'Has this costume ever won an award?' })
@@ -222,7 +222,7 @@ test.describe('Costume submission', () => {
     const savePromise = page.waitForResponse(
       (r) => r.url().includes('/costumes') && ['POST', 'PUT'].includes(r.request().method()) && r.ok(),
     );
-    await mensSection.getByLabel('Region').fill('Post Submit Edit');
+    await mensSection.getByRole('textbox', { name: 'Region', exact: true }).fill('Post Submit Edit');
     await savePromise;
     await page.reload();
     await expect(page.getByText('Post Submit Edit')).toBeVisible();

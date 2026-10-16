@@ -188,7 +188,7 @@ test.describe('Costume mass assignment', () => {
     page.on('dialog', (d) => { alerts.push(d.message()); d.dismiss(); });
 
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });

@@ -7,7 +7,7 @@ test.describe('My Groups dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Login as Director A
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -67,7 +67,7 @@ test.describe('My Groups dashboard', () => {
 test.describe('Create Group', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
@@ -75,9 +75,9 @@ test.describe('Create Group', () => {
 
   test('Create Group form shows required fields', async ({ page }) => {
     await page.goto('/groups/new');
-    await expect(page.getByLabel(/group name/i)).toBeVisible();
-    await expect(page.getByLabel(/parish/i)).toBeVisible();
-    await expect(page.getByLabel(/group type/i)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /group name/i })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: /parish/i })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: /group type/i })).toBeVisible();
   });
 
   test('parish search filters by typing', async ({ page }) => {
@@ -94,7 +94,7 @@ test.describe('Create Group', () => {
 
   test('group type selector shows Dance and Choral', async ({ page }) => {
     await page.goto('/groups/new');
-    await page.getByLabel(/group type/i).click();
+    await page.getByRole('combobox', { name: /group type/i }).click();
     await expect(page.getByRole('option', { name: 'Dance' })).toBeVisible();
     await expect(page.getByRole('option', { name: 'Choral' })).toBeVisible();
   });
@@ -110,7 +110,7 @@ test.describe('Create Group', () => {
 test.describe('Group Detail', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/auth/login');
-    await page.getByLabel(/email/i).fill(DIRECTOR_A.email);
+    await page.getByRole('textbox', { name: /email/i }).fill(DIRECTOR_A.email);
     await page.locator('input[autocomplete="current-password"]').fill(DIRECTOR_A.password);
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL(/dashboard/, { timeout: 15_000 });
