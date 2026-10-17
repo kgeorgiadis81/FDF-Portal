@@ -140,18 +140,13 @@ jobs:
         env:
           CI: 'true'
         run: npx playwright test --project=portal-chromium --shard=${{ matrix.shard }}/4 --reporter=list,blob
-      - name: Name the blob report for this shard
-        if: always()
-        run: |
-          if [ -f blob-report/report.zip ]; then
-            mv blob-report/report.zip "blob-report/shard-${{ matrix.shard }}.zip"
-          fi
+      # Sharded blob reports are named report-<hash>-<shard>.zip, not report.zip.
       - name: Upload Playwright blob
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-blob-${{ matrix.shard }}
-          path: blob-report/shard-${{ matrix.shard }}.zip
+          path: blob-report/*.zip
           if-no-files-found: warn
           retention-days: 14
 
