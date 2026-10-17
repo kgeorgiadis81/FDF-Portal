@@ -39,7 +39,7 @@ describe('auth pages', () => {
     sessionStorage.clear();
   });
 
-  async function setup<T>(component: Type<T>, route: ActivatedRoute) {
+  async function setup<T>(component: Type<T>, route: ActivatedRoute, beforeCreate?: () => void) {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [component],
@@ -54,6 +54,7 @@ describe('auth pages', () => {
       ],
     }).compileComponents();
     httpMock = TestBed.inject(HttpTestingController);
+    beforeCreate?.();
     const pending = httpMock.match('/api/portal/auth/public-config');
     pending.forEach((req) => req.flush({ privacyPolicyUrl: 'https://example.test/privacy', requiredConsentVersion: '1.0' }));
     const fixture = TestBed.createComponent(component);
@@ -108,17 +109,23 @@ describe('auth pages', () => {
     httpMock.expectNone('/api/portal/auth/login');
     component.loading.set(false);
 
+    const auth = TestBed.inject(AuthService);
+    const beginProfile = spyOn(auth, 'beginGoogleProfileCompletion').and.callThrough();
     component['handleGoogleCredential']('google-cred');
     httpMock.expectOne('/api/portal/auth/google').flush({
       requiresProfileCompletion: true,
-      googleProfile: { suggestedFirstName: 'Ada', suggestedLastName: 'Lovelace' },
-    });
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/google-complete'], {
-      state: {
-        googleProfile: { suggestedFirstName: 'Ada', suggestedLastName: 'Lovelace' },
-        credential: 'google-cred',
+      googleProfile: {
+        providerSubject: 'google-subject',
+        providerEmail: 'ada@e2e.test',
+        suggestedFirstName: 'Ada',
+        suggestedLastName: 'Lovelace',
       },
     });
+    expect(beginProfile).toHaveBeenCalledWith('google-cred', jasmine.objectContaining({
+      suggestedFirstName: 'Ada',
+      suggestedLastName: 'Lovelace',
+    }));
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/google-complete'], { replaceUrl: true });
 
     component['handleGoogleCredential']('google-cred');
     httpMock.expectOne('/api/portal/auth/google').flush({
@@ -244,36 +251,38 @@ describe('auth pages', () => {
   });
 
   it('completes a Google profile and returns to login without a credential', async () => {
-    router.getCurrentNavigation.and.returnValue({
-      extras: {
-        state: {
-          credential: 'google-cred',
-          googleProfile: { suggestedFirstName: 'Ada', suggestedLastName: 'Lovelace' },
-        },
-      },
-    } as never);
-    const fixture = await setup(GoogleCompleteComponent, routeWith({}));
+    const fixture = await setup(GoogleCompleteComponent, routeWith({}), () => {
+      TestBed.inject(AuthService).beginGoogleProfileCompletion('google-cred', {
+        providerSubject: 'google-subject',
+        providerEmail: 'ada@e2e.test',
+        suggestedFirstName: 'Ada',
+        suggestedLastName: 'Lovelace',
+      });
+    });
     const component = fixture.componentInstance;
-    expect(component.form.value.firstName).toBe('Ada');
+    const form = component.form;
+    expect(form).not.toBeNull();
+    if (!form) return;
+    expect(form.value.firstName).toBe('Ada');
     component.submit();
     httpMock.expectNone('/api/portal/auth/google/complete-profile');
 
-    component.form.setValue({
+    form.setValue({
       firstName: 'Ada', lastName: 'Lovelace', dateOfBirth: '1990-01-01', consentAccepted: true,
     });
     component.submit();
     httpMock.expectOne('/api/portal/auth/google/complete-profile').flush({
       token: 'tok', role: 'Director', roles: ['Director'], firstName: 'Ada', lastName: 'Lovelace', requiresConsent: false,
     });
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard'], { replaceUrl: true });
 
     component.submit();
     httpMock.expectOne('/api/portal/auth/google/complete-profile').flush({}, { status: 400, statusText: 'Bad Request' });
     expect(component.error()).toContain('Profile setup failed');
 
-    router.getCurrentNavigation.and.returnValue(null);
-    await expectAsync(setup(GoogleCompleteComponent, routeWith({}))).toBeRejected();
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+    const missing = await setup(GoogleCompleteComponent, routeWith({}));
+    expect(missing.componentInstance.form).toBeNull();
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/login'], { replaceUrl: true });
   });
 
   it('records consent acceptance, decline, and logout', async () => {

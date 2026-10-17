@@ -72,6 +72,21 @@ describe('ReviewComponent', () => {
     return fixture.componentInstance;
   }
 
+  function flushReview(
+    summaryBody: object | string,
+    summaryStatus?: { status: number; statusText: string },
+    performances: unknown[] = [],
+  ): void {
+    const summaryReq = httpMock.expectOne('/api/portal/groups/1/registration-summary');
+    const performanceReq = httpMock.expectOne('/api/groups/1/performance');
+    performanceReq.flush({ performances });
+    if (summaryStatus) {
+      summaryReq.flush(summaryBody, summaryStatus);
+    } else {
+      summaryReq.flush(summaryBody);
+    }
+  }
+
   it('rejects a missing group id', () => {
     routeState.id = '';
     const component = create();
@@ -79,13 +94,18 @@ describe('ReviewComponent', () => {
     expect(component.loading()).toBeFalse();
     expect(component.totalConflicts()).toBe(0);
     expect(component.hasActions()).toBeFalse();
+    expect(component.performanceCountsDiffer()).toBeFalse();
   });
 
   it('loads a dance summary and maps status labels', () => {
     const fixture = TestBed.createComponent(ReviewComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
-    httpMock.expectOne('/api/portal/groups/1/registration-summary').flush(summary);
+    flushReview(summary, undefined, [
+      { id: 1, round: 'SEMI_FINAL', entries: [{}, {}] },
+      { id: 2, round: 'FINAL', entries: [{}] },
+      { id: 3, round: 'SHOWCASE' },
+    ]);
     fixture.detectChanges();
 
     expect(component.loading()).toBeFalse();
@@ -113,7 +133,8 @@ describe('ReviewComponent', () => {
     expect(component.actionLink(null, true, 'Roster')).toBe('Manage Roster');
     expect(component.actionLink(null, false, 'Roster')).toBe('View Roster');
     expect(component.formatDeadline('2026-06-15')).toContain('2026');
-    expect(component.formatDeadline(null)).toBe('—');
+    expect(component.formatDeadline(null)).toBe('No deadline set yet');
+    expect(component.performanceCountsDiffer()).toBeTrue();
     expect(component.formatTimestamp('2026-06-01T12:00:00.000Z')).toContain('2026');
     expect(component.formatTimestamp(null)).toBe('—');
   });
@@ -127,19 +148,18 @@ describe('ReviewComponent', () => {
       actionRequired: [],
     };
     const component = create();
-    httpMock.expectOne('/api/portal/groups/1/registration-summary').flush(choral);
+    flushReview(choral);
     expect(component.isDance()).toBeFalse();
     expect(component.isActive()).toBeFalse();
     expect(component.actionLink(null, true, 'Performance')).toBe('View Performance');
     expect(component.totalConflicts()).toBe(0);
 
     const failed = create();
-    httpMock.expectOne('/api/portal/groups/1/registration-summary')
-      .flush({ error: 'Denied' }, { status: 403, statusText: 'Forbidden' });
+    flushReview({ error: 'Denied' }, { status: 403, statusText: 'Forbidden' });
     expect(failed.error()).toBe('Denied');
 
     const fallback = create();
-    httpMock.expectOne('/api/portal/groups/1/registration-summary').flush('nope', { status: 500, statusText: 'Error' });
+    flushReview('nope', { status: 500, statusText: 'Error' });
     expect(fallback.error()).toBe('Unable to load registration summary.');
     expect(fallback.loading()).toBeFalse();
   });

@@ -137,8 +137,9 @@ describe('RosterComponent', () => {
     expect(component.chaperoneIsConfirmed({ ...chaperone, is_21_or_older_confirmed: 0 })).toBeFalse();
     expect(component.formatDate(null)).toBe('—');
     expect(component.formatDate('2026-06-01T15:00:00.000Z')).toContain('2026');
-    expect(component.formatDeadlineDate(null)).toBe('—');
-    expect(component.formatDeadlineDate('2026-06-15')).toContain('June');
+    expect(component.formatDeadlineDate(null)).toBe('No deadline set yet');
+    expect(component.formatDeadlineDate('2026-06-15')).toContain('Jun');
+    expect(component.formatDeadlineDate('2026-06-15')).toContain('2026');
     expect(component.formatEffectiveCutoff(null)).toBe('—');
     expect(component.formatEffectiveCutoff('2026-06-15T18:30:00.000Z')).toContain('2026');
   });
