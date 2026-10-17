@@ -64,11 +64,31 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          resp=$(curl -fsSL \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls")
-          merged_count=$(echo "$resp" | jq '[.[] | select(.merged_at != null)] | length')
+          # GitHub can return an empty pull list for a few seconds after a merge.
+          # Ask again before treating that as a direct push to main.
+          ATTEMPTS=5
+          WAIT_SECONDS=10
+          merged_count=0
+          for ((i = 1; i <= ATTEMPTS; i++)); do
+            resp=""
+            merged_count=0
+            if resp=$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls"); then
+              if ! merged_count=$(printf '%s\n' "$resp" | jq --arg sha "$GITHUB_SHA" '[.[] | select(.merged_at != null and .base.ref == "main" and .merge_commit_sha == $sha)] | length'); then
+                merged_count=0
+              fi
+            fi
+            if [[ "$merged_count" =~ ^[1-9][0-9]*$ ]]; then
+              break
+            fi
+            merged_count=0
+            if ((i < ATTEMPTS)); then
+              echo "Merged-PR lookup attempt ${i}/${ATTEMPTS}: no merged PR for ${GITHUB_SHA} yet; retrying in ${WAIT_SECONDS}s."
+              sleep "$WAIT_SECONDS"
+            fi
+          done
           if [ "$merged_count" -eq 0 ]; then
             echo "::error::Commit ${GITHUB_SHA} has no merged pull request. Do not push directly to main; open a PR and merge it instead."
             exit 1
