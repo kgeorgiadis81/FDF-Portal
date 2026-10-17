@@ -12,13 +12,13 @@ The portal ships a matching CSP in `src/index.html` (`<meta http-equiv="Content-
 
 **Production nginx must also set `Content-Security-Policy` as an HTTP response header.** `frame-ancestors` is ignored in `<meta>` and belongs only on the header. The header is configured in the FDF_Backend deploy nginx snippets (`deploy/nginx/tls/fdf-portal.conf` and related snippets), not in this repo.
 
-Required policy (portal origin is `'self'`; Google Sign-In and Google Fonts are the only third-party sources):
+Required policy (portal origin is `'self'`; Google Sign-In is the only third-party source). Inter and Material Icons are self-hosted from `src/fonts/` and do not need `fonts.googleapis.com` or `fonts.gstatic.com`.
 
 ```
 default-src 'self';
 script-src 'self' https://accounts.google.com/gsi/client;
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style;
-font-src 'self' https://fonts.gstatic.com;
+style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style;
+font-src 'self';
 frame-src https://accounts.google.com;
 connect-src 'self' https://accounts.google.com/gsi/;
 img-src 'self' data: blob: https://*.googleusercontent.com;

@@ -5,6 +5,8 @@
 @use '@angular/material' as mat;
 @use './app/pages/auth/auth-shared';
 @use './app/shared/portal-forms';
+// Self-hosted Inter (weights 400–700) and Material Icons. See src/fonts/.
+@import './fonts/fonts.css';
 
 // ─── Custom Palette ──────────────────────────────────────────────────────────
 // Logo seal burgundy (~#87180f) is chrome; bright gold (#df961f) fails WCAG as
