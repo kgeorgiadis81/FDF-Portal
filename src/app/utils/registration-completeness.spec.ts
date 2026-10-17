@@ -1,7 +1,11 @@
 import {
   buildRegistrationCompleteness,
   buildRegistrationCompletenessFromPortalGroup,
+  RegistrationModuleKey,
 } from './registration-completeness';
+import { actionRequiredExplanation, deadlineForModule } from './registration-steps';
+import { performanceHasUnsubmittedWork } from './performance-entry-counts';
+import { PortalPerformance } from '../services/performance.service';
 import { RegistrationSummary } from '../services/registration-summary.service';
 import { PortalGroup } from '../services/group.service';
 
@@ -104,6 +108,34 @@ describe('buildRegistrationCompleteness', () => {
   });
 });
 
+describe('registration step helpers', () => {
+  it('reads each module deadline and explains required actions', () => {
+    const summary = baseSummary();
+    expect(deadlineForModule(summary, 'roster')).toBe('2026-01-01');
+    expect(deadlineForModule(summary, 'performance')).toBe('2026-01-01');
+    expect(deadlineForModule(summary, 'costumes')).toBe('2026-01-01');
+    expect(deadlineForModule({ ...summary, costume: null }, 'costumes')).toBeNull();
+    expect(deadlineForModule(summary, 'documents')).toBeNull();
+    expect(deadlineForModule(summary, 'unknown' as RegistrationModuleKey)).toBeNull();
+
+    expect(actionRequiredExplanation(baseSummary({ actionRequired: ['Fix roster'] }))).toBe('Fix roster');
+    expect(actionRequiredExplanation(baseSummary({
+      documents: {
+        signedRoster: { status: 'REJECTED', submittedAt: null },
+        youthSafety: { status: 'NOT_UPLOADED', submittedAt: null },
+      },
+    }))).toContain('rejected');
+    expect(actionRequiredExplanation(summary)).toBeNull();
+  });
+
+  it('detects performance entries that have not been submitted', () => {
+    const drafted = [{ round: 'FINAL', entries: [{}] }] as PortalPerformance[];
+    expect(performanceHasUnsubmittedWork([], null)).toBeFalse();
+    expect(performanceHasUnsubmittedWork(drafted, null)).toBeTrue();
+    expect(performanceHasUnsubmittedWork(drafted, '2026-01-01T00:00:00Z')).toBeFalse();
+  });
+});
+
 describe('buildRegistrationCompletenessFromPortalGroup', () => {
   const portalGroup: PortalGroup = {
     id: 2,
@@ -123,5 +155,24 @@ describe('buildRegistrationCompletenessFromPortalGroup', () => {
     const result = buildRegistrationCompletenessFromPortalGroup(portalGroup);
     expect(result.modules.some((m) => m.key === 'costumes')).toBe(false);
     expect(result.overallLabel).toBe('Ready');
+  });
+
+  it('marks a past group locked and a partial document upload in progress', () => {
+    const locked = buildRegistrationCompletenessFromPortalGroup({
+      ...portalGroup,
+      event: { id: 1, name: 'FDF', isActive: false },
+      documents: { signedRoster: 'REJECTED', youthSafety: 'NOT_UPLOADED' },
+    });
+    expect(locked.overallLabel).toBe('Locked');
+    expect(locked.modules.find((module) => module.key === 'documents')?.statusLabel).toBe('Action required');
+
+    const partial = buildRegistrationCompletenessFromPortalGroup({
+      ...portalGroup,
+      rosterSubmittedAt: null,
+      performanceSubmittedAt: null,
+      documents: { signedRoster: 'PENDING', youthSafety: '' },
+    });
+    expect(partial.modules.find((module) => module.key === 'documents')?.statusLabel).toBe('In progress');
+    expect(partial.overallLabel).toBe('In progress');
   });
 });

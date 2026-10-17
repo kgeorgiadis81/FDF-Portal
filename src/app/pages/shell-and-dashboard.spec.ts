@@ -12,6 +12,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { CreateGroupComponent } from './groups/create-group/create-group.component';
 import { ProfileComponent } from './profile/profile.component';
 import { AuthService } from '../services/auth.service';
+import { RegistrationSummary } from '../services/registration-summary.service';
 import { UnsavedChangesService } from '../shared/unsaved-changes';
 import { routes } from '../app.routes';
 
@@ -39,6 +40,32 @@ const profile = {
 
 const event = {
   id: 2, name: 'Active Event', location: null, startDate: null, endDate: null, timezone: 'UTC', isActive: true,
+};
+const registrationSummary: RegistrationSummary = {
+  group: {
+    id: 9, name: 'Alpha', groupType: 'Dance', eventName: 'Active Event', eventTimezone: 'UTC',
+    isActive: true, isArchived: false, parish: { name: 'Parish', location: 'City' },
+  },
+  directors: { primaryDirector: { name: 'Ada', email: 'ada@e2e.test' }, coDirectorCount: 0 },
+  roster: {
+    memberCount: 0, minorCount: 0, requiredChaperones: 0, providedChaperones: 0,
+    chaperoneRequirementSatisfied: true, submittedAt: null,
+    deadline: { deadlineDate: '2026-06-15', effectiveCutoff: null, canEdit: true },
+  },
+  performance: {
+    submissionType: 'DANCE_PERFORMANCE', semiFinalCount: 0, finalCount: 0, submittedAt: null,
+    deadline: { deadlineDate: '2026-06-15', effectiveCutoff: null, canEdit: true },
+  },
+  costume: {
+    semiFinalComplete: false, finalComplete: false, submittedAt: null,
+    deadline: { deadlineDate: '2026-06-15', effectiveCutoff: null, canEdit: true },
+  },
+  documents: {
+    signedRoster: { status: 'NOT_UPLOADED', submittedAt: null },
+    youthSafety: { status: 'NOT_UPLOADED', submittedAt: null },
+  },
+  conflicts: { directorConflicts: 0, dancerConflicts: 0, musicianConflicts: 0, costumeConflicts: 0 },
+  actionRequired: [],
 };
 const group = {
   id: 9,
@@ -109,21 +136,45 @@ describe('shell, dashboard, profile, and create group', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
     httpMock.expectOne('/api/portal/events/active').flush(event);
+    expect(component.selectedEvent()?.id).toBe(2);
     httpMock.expectOne('/api/portal/events/my-history').flush([
       event,
       { ...event, id: 1, name: 'History', isActive: false },
     ]);
-    httpMock.expectOne((r) => r.url === '/api/portal/groups').flush([group]);
-    httpMock.expectOne('/api/portal/groups/9/registration-summary').flush('nope', { status: 500, statusText: 'Error' });
-    expect(component.groups().length).toBe(1);
+    expect(component.selectedEvent()?.name).toBe('Active Event');
+    component.selectedEventId.set(99);
+    expect(component.selectedEvent()?.id).toBe(2);
+    component.selectedEventId.set(2);
+    httpMock.expectOne((r) => r.url === '/api/portal/groups').flush([
+      group,
+      { ...group, id: 10, name: 'Beta' },
+    ]);
+    const summaries = httpMock.match((r) => r.url.includes('/registration-summary'));
+    summaries.find((req) => req.request.url.endsWith('/9/registration-summary'))
+      ?.flush(registrationSummary);
+    summaries.find((req) => req.request.url.endsWith('/10/registration-summary'))
+      ?.flush('nope', { status: 500, statusText: 'Error' });
+    expect(component.groups().length).toBe(2);
     expect(component.completenessFor(9)).toBeDefined();
+    expect(component.completenessFor(10)).toBeDefined();
+    expect(component.primaryCtaRoute(9).length).toBeGreaterThan(0);
+    expect(component.primaryCtaRoute(404)).toEqual(['/groups', 404]);
     expect(component.isViewingActiveEvent()).toBeTrue();
 
-    const click = new Event('click');
-    spyOn(click, 'stopPropagation');
-    component.navigateToReview(click, 9);
-    component.navigateToGroup(9);
+    fixture.detectChanges();
+    const reviewLink: HTMLAnchorElement | null = fixture.nativeElement.querySelector('a.review-btn');
+    expect(reviewLink?.getAttribute('href')).toBe('/groups/9/review');
+    expect(reviewLink?.getAttribute('aria-label')).toBe('Review registration for Alpha');
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    spyOn(click, 'stopPropagation').and.callThrough();
+    reviewLink?.addEventListener('click', (event) => event.preventDefault(), true);
+    reviewLink?.dispatchEvent(click);
     expect(click.stopPropagation).toHaveBeenCalled();
+
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.resolveTo(true);
+    component.navigateToGroup(9);
+    expect(router.navigate).toHaveBeenCalledWith(['/groups', 9]);
 
     component.onEventChange(1);
     httpMock.expectOne((r) => r.url === '/api/portal/groups').flush([]);
@@ -193,12 +244,12 @@ describe('shell, dashboard, profile, and create group', () => {
     expect(component.profile()?.email).toBe('ada@e2e.test');
 
     component.startEdit();
-    component.form.controls['phoneNumber'].setValue('999');
+    component.form.controls['phoneNumber'].setValue('5551234567');
     tick(800);
     const save = httpMock.expectOne({ method: 'PUT', url: '/api/portal/auth/me' });
-    expect(save.request.body.phoneNumber).toBe('999');
+    expect(save.request.body.phoneNumber).toBe('5551234567');
     save.flush({ message: 'ok' });
-    httpMock.expectOne('/api/portal/auth/me').flush({ ...profile, phoneNumber: '999' });
+    httpMock.expectOne('/api/portal/auth/me').flush({ ...profile, phoneNumber: '5551234567' });
     expect(component.saved()).toBeTrue();
     expect(TestBed.inject(AuthService).currentName()).toBe('Ada Lovelace');
 
@@ -213,14 +264,47 @@ describe('shell, dashboard, profile, and create group', () => {
       { status: 400, statusText: 'Bad Request' }
     );
     expect(component.saveError()).toContain('nope');
+    expect(component.hasUnsavedChanges()).toBeTrue();
+
+    component.saveProfile();
+    const manual = httpMock.expectOne({ method: 'PUT', url: '/api/portal/auth/me' });
+    expect(manual.request.body.firstName).toBe('Grace');
+    manual.flush({ message: 'ok' });
+    httpMock.expectOne('/api/portal/auth/me').flush({ ...profile, firstName: 'Grace', phoneNumber: '5551234567' });
+    expect(component.editMode()).toBeFalse();
+    expect(component.saved()).toBeTrue();
+
+    component.startEdit();
+    component.form.controls['phoneNumber'].setValue('not-a-phone');
+    component.saveProfile();
+    expect(component.form.invalid).toBeTrue();
+    httpMock.expectNone({ method: 'PUT', url: '/api/portal/auth/me' });
+
+    component.form.controls['phoneNumber'].setValue('5551234567');
+    component.saveProfile();
+    httpMock.expectOne({ method: 'PUT', url: '/api/portal/auth/me' }).flush(
+      'nope',
+      { status: 500, statusText: 'Error' }
+    );
+    expect(component.saveError()).toContain('Could not save changes.');
+    component.discardUnsavedChanges();
 
     const unsaved = TestBed.inject(UnsavedChangesService);
     const leave = spyOn(unsaved, 'confirmLeave');
-    leave.and.resolveTo(false);
-    void component.cancelEdit();
-    leave.and.resolveTo(true);
+    leave.and.callFake((hasUnsaved: () => boolean, discard: () => void) => {
+      if (hasUnsaved()) {
+        discard();
+        return Promise.resolve(false);
+      }
+      return Promise.resolve(true);
+    });
+    component.form.controls['firstName'].setValue('Changed');
     void component.cancelEdit();
     tick();
+    expect(component.editMode()).toBeTrue();
+    void component.cancelEdit();
+    tick();
+    expect(component.editMode()).toBeFalse();
   }));
 
   it('shows a profile load error', () => {

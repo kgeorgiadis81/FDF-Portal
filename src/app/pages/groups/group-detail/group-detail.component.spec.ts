@@ -14,7 +14,7 @@ import { Parish } from '../../../services/parish.service';
 import { GroupDirector } from '../../../services/director.service';
 import { RegistrationSummary } from '../../../services/registration-summary.service';
 
-const routeState = { id: '1' };
+const routeState = { id: '1', edit: '' };
 
 const group: PortalGroup = {
   id: 1,
@@ -73,6 +73,7 @@ describe('GroupDetailComponent', () => {
 
   beforeEach(() => {
     routeState.id = '1';
+    routeState.edit = '';
     allowLeave = true;
     TestBed.configureTestingModule({
       providers: [
@@ -83,7 +84,7 @@ describe('GroupDetailComponent', () => {
         { provide: ActivatedRoute, useFactory: () => ({
           snapshot: {
             paramMap: convertToParamMap(routeState.id ? { id: routeState.id } : {}),
-            queryParamMap: convertToParamMap({}),
+            queryParamMap: convertToParamMap(routeState.edit ? { edit: routeState.edit } : {}),
           },
         }) },
       ],
@@ -236,6 +237,43 @@ describe('GroupDetailComponent', () => {
     expect(component.editMode()).toBeFalse();
     component.ngOnDestroy();
   }));
+
+  it('saves from the explicit save action, including a requested edit', () => {
+    routeState.edit = '1';
+    const component = load();
+    expect(component.editMode()).toBeTrue();
+
+    component.form.patchValue({ name: '' });
+    component.saveEdit();
+    expect(component.form.controls['name'].touched).toBeTrue();
+    httpMock.expectNone((req) => req.method === 'PUT');
+
+    component.form.patchValue({ name: ' Saved ' });
+    component.saveEdit();
+    const update = httpMock.expectOne((req) => req.method === 'PUT' && req.url === '/api/portal/groups/1');
+    expect(update.request.body.name).toBe('Saved');
+    update.flush({ message: 'ok' });
+    httpMock.expectOne((req) => req.method === 'GET' && req.url === '/api/portal/groups/1')
+      .flush({ ...group, name: 'Saved' });
+    httpMock.expectOne('/api/portal/groups/1/registration-summary').flush(summary);
+    expect(component.editMode()).toBeFalse();
+    expect(component.saved()).toBeTrue();
+    expect(snack.open).toHaveBeenCalled();
+
+    component.startEdit();
+    component.form.patchValue({ name: 'Nope' });
+    component.saveEdit();
+    httpMock.expectOne((req) => req.method === 'PUT').flush('nope', { status: 500, statusText: 'Error' });
+    expect(component.saveError()).toBe('Could not save changes.');
+
+    component.form.patchValue({ name: 'Taken' });
+    component.saveEdit();
+    httpMock.expectOne((req) => req.method === 'PUT').flush(
+      { error: 'Taken' },
+      { status: 400, statusText: 'Bad Request' }
+    );
+    expect(component.saveError()).toBe('Taken');
+  });
 
   it('adds, updates, and removes co-directors', () => {
     const component = load();

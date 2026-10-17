@@ -39,16 +39,17 @@ export class GoogleCompleteComponent implements OnInit {
     this.credential = pending?.credential || '';
     this.googleProfile = pending?.googleProfile || {};
 
+    if (!this.credential) {
+      this.router.navigate(['/auth/login'], { replaceUrl: true });
+      return;
+    }
+
     this.form = this.fb.group({
       firstName:       [this.googleProfile.suggestedFirstName || '', [Validators.required, Validators.maxLength(100)]],
       lastName:        [this.googleProfile.suggestedLastName  || '', [Validators.required, Validators.maxLength(100)]],
       dateOfBirth:     ['', Validators.required],
       consentAccepted: [false, Validators.requiredTrue],
     });
-
-    if (!this.credential) {
-      this.router.navigate(['/auth/login'], { replaceUrl: true });
-    }
   }
 
   submit(): void {

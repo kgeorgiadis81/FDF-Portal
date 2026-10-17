@@ -2,8 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { Navigation, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
+import { AuthService } from '../../../services/auth.service';
 import { GoogleCompleteComponent } from './google-complete.component';
 
 describe('GoogleCompleteComponent', () => {
@@ -44,22 +45,20 @@ describe('GoogleCompleteComponent', () => {
   it('redirects to login without binding a form when opened with no credential', () => {
     const fixture = create();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/login'], { replaceUrl: true });
     expect(fixture.componentInstance.form).toBeNull();
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Complete your FDF profile');
     expect(() => fixture.componentInstance.submit()).not.toThrow();
   });
 
-  it('renders the profile form when a Google credential is in navigation state', () => {
-    router.getCurrentNavigation.and.returnValue({
-      extras: {
-        state: {
-          credential: 'google-cred',
-          googleProfile: { suggestedFirstName: 'Ada', suggestedLastName: 'Lovelace' },
-        },
-      },
-    } as unknown as Navigation);
+  it('renders the profile form when a Google credential is pending', () => {
+    TestBed.inject(AuthService).beginGoogleProfileCompletion('google-cred', {
+      providerSubject: 'google-subject',
+      providerEmail: 'ada@e2e.test',
+      suggestedFirstName: 'Ada',
+      suggestedLastName: 'Lovelace',
+    });
 
     const fixture = create();
 
