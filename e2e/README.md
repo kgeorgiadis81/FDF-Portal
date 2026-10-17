@@ -12,6 +12,8 @@ Never point these tests at production. They use the seeded `FDF_DB_E2E` database
 
 On a Cursor Cloud agent, `.cursor/install.sh` and `.cursor/start.sh` do those steps. The `api-e2e` terminal serves http://localhost:3501 and `portal-e2e` serves http://localhost:4201.
 
+GitHub Actions uses the same ports and the committed seed accounts. The workflow checks out `FDF_Backend` with the `FDF_BACKEND_CHECKOUT_TOKEN` repository secret. No extra login secrets are required.
+
 ## Run
 
 ```bash
