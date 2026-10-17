@@ -108,6 +108,13 @@ jobs:
           (cd ../FDF_Backend && npm run e2e:setup)
           touch /tmp/fdf-e2e-ready
       - name: Start backend and portal
+        env:
+          # GitHub-hosted runners ship nvm without Node 24. setup-node already
+          # put the .nvmrc version on PATH. The start scripts run `nvm use 24`
+          # when nvm.sh exists, which exits before the servers start. Point
+          # NVM_DIR at an empty directory so they keep the setup-node binary.
+          NVM_DIR: /tmp/no-nvm
+          NG_CLI_ANALYTICS: 'false'
         run: |
           bash .cursor/start-api-e2e.sh > /tmp/api-e2e.log 2>&1 &
           bash .cursor/start-portal-e2e.sh > /tmp/portal-e2e.log 2>&1 &
