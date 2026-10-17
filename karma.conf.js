@@ -1,6 +1,8 @@
 // Coverage thresholds for Karma, measured over every src/app TypeScript file.
-// Ratchet: raise these when coverage goes up. Never lower them.
-// Numbers are updated after the INT-66 suite; see the coverage summary.
+// Ratchet: when a re-measure is higher, raise that threshold to the floor of
+// the measured value. Never lower a threshold to make the suite pass.
+// Re-measured after INT-82 (2026-10-17): statements 97.68, branches 89.50,
+// functions 97.22, lines 98.34.
 module.exports = function (config) {
   config.set({
     basePath: '',
@@ -28,9 +30,9 @@ module.exports = function (config) {
       check: {
         global: {
           statements: 97,
-          branches: 88,
-          functions: 96,
-          lines: 97,
+          branches: 89,
+          functions: 97,
+          lines: 98,
         },
       },
     },

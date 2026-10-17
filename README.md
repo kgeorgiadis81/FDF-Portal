@@ -75,7 +75,9 @@ To execute unit tests with the [Karma](https://karma-runner.github.io) test runn
 npm test
 ```
 
-`npm run test:ci` runs the same suite headlessly and checks coverage over every TypeScript file under `src/app`. Thresholds live in `karma.conf.js`. Raise them when coverage goes up; do not lower them. Playwright pass/fail is separate — line coverage of the e2e run would need an instrumented build.
+`npm run test:ci` runs the same suite headlessly and checks coverage over every TypeScript file under `src/app`. Thresholds live in `karma.conf.js` (`coverageReporter.check.global`). CI runs this command on every pull request and fails the unit job when a test fails or coverage drops below a threshold.
+
+**Ratchet:** when measured coverage goes up, raise the matching threshold to the floor of the new value. Never lower a threshold to make CI pass. Playwright pass/fail is separate — line coverage of the e2e run would need an instrumented build.
 
 ## Running end-to-end tests
 
@@ -93,6 +95,8 @@ npm run e2e
 ```
 
 `e2e/.env.test.example` has placeholders only: base URLs, `E2E_PASSWORD`, usernames and emails for the six staff roles, and `DIRECTOR_A_EMAIL` / `DIRECTOR_B_EMAIL`. Do not commit `e2e/.env.test`.
+
+GitHub Actions runs `npx playwright test --project=portal-chromium` against that seeded backend. The job checks out the private `kgeorgiadis81/FDF_Backend` repo with the repository secret `FDF_BACKEND_CHECKOUT_TOKEN` (read-only access to `FDF_Backend`). Logins are the committed seed accounts in `e2e/.env.test.example`. Do not add login secrets.
 
 ## Additional Resources
 
